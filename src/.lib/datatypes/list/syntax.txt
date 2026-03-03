@@ -1,0 +1,5 @@
+<List>           ::= <empty_list> | <lat>
+<empty_list>    ::= []
+<lat>           ::= [ <atoms> ]
+<Atom>           ::= <number> | <string> | <list>
+<atoms>          ::= <atom> | <atom> , <atoms>

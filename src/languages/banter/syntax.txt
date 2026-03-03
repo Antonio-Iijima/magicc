@@ -1,4 +1,4 @@
-#require alphanum
+#require datatypes.string
 #require math.basic
 
 <program>           ::= <statement_list> | <expression>
@@ -10,7 +10,6 @@
 <mathexpr>          ::= <String>
 
 <assignment>        ::= let <word> be <expression>
-<String>            ::= "<Word>"
 
 <conditional>       ::= <if_then> | <if_then_else>
 <if_then>           ::= if <comparison>, then \n <block>

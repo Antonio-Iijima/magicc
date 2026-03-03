@@ -17,21 +17,21 @@ DEFAULTS = {
 
 def compile_language(path: str) -> None:
 
+    print(f"Compiling: {path.rsplit("/")[-1]}")
+    print()
+
     # Have to compute before compiling semantics since that uses REQUIREMENTS.
     RULES: list = build_grammar(path)
+
+    print()
     
     # The main parent path is not considered a requirement.
     REQUIREMENTS.pop(path)
 
-    print("Compiling semantics...")
     with open("eval.py", "w") as file:
-        print()
         semantics_text = generate_eval(path)
         file.write(semantics_text)
 
-    print()
-
-    print("Compiling syntax...")
     with open("AST.py", "w") as file:
         # First computes addenda (attributes from semantics),
         # then completes the syntax processing into a full `dict`,
@@ -357,38 +357,42 @@ Constructs `REQUIREMENTS` from path search.
 
     if not path in REQUIREMENTS:
         REQUIREMENTS.add(path)
+        syntax_file = f"{path}/syntax.txt"
 
-        with open(f"{path}/syntax.txt") as file:
-            syntax = preprocess_text(file)
+        if exists(syntax_file):
+            with open(syntax_file) as file:
+                syntax = preprocess_text(file)
 
-            for line in syntax:
+                for line in syntax:
 
-                # Change alternation symbol
-                if line.startswith("#set"):
-                    _, option, symbol = line.split()
+                    # Change alternation symbol
+                    if line.startswith("#set"):
+                        _, option, symbol = line.split()
 
-                    symbols[option] = DEFAULTS[option] if symbol == "default" else symbol
+                        symbols[option] = DEFAULTS[option] if symbol == "default" else symbol
 
-                # Expand #require lines into the grammars of their modules
-                elif line.startswith("#require"):
-                    # Enumerate direct dependencies (i.e. dependencies specified in the #require line) 
-                    dependencies = (dependency.removesuffix(",").strip() for dependency in line.split()[1:] if dependency.strip())
+                    # Expand #require lines into the grammars of their modules
+                    elif line.startswith("#require"):
+                        # Enumerate direct dependencies (i.e. dependencies specified in the #require line) 
+                        dependencies = (dependency.removesuffix(",").strip() for dependency in line.split()[1:] if dependency.strip())
+                        
+                        # General dependency list will be expanded to include all indirect dependencies (i.e. math from math.infix)
+                        for dependency in dependencies:
+                            dependency = dependency.split(".")
+                            for i, _ in enumerate(dependency):
+                                dependency_rules = build_grammar(f"{LIB_PATH}/{'/'.join(dependency[:i+1])}") + dependency_rules
                     
-                    # General dependency list will be expanded to include all indirect dependencies (i.e. math from math.infix)
-                    for dependency in dependencies:
-                        dependency = dependency.split(".")
-                        for i, _ in enumerate(dependency):
-                            dependency_rules = build_grammar(f"{LIB_PATH}/{'/'.join(dependency[:i+1])}") + dependency_rules
-                
-                # Process rules in top-level file            
-                else:
-                    rule, alternatives = line.split(symbols["production"])
-                    rule = Nonterminal(rule)
-                    rules.append((
-                        rule, 
-                        [split_pattern(pattern, symbols["lbrace"], symbols["rbrace"]) for pattern in alternatives.split(symbols["alt"])]
-                    ))
-                    
+                    # Process rules in top-level file            
+                    else:
+                        rule, alternatives = line.split(symbols["production"])
+                        rule = Nonterminal(rule)
+                        rules.append((
+                            rule, 
+                            [split_pattern(pattern, symbols["lbrace"], symbols["rbrace"]) for pattern in alternatives.split(symbols["alt"])]
+                        ))
+        
+        else: print(f"WARNING: syntax not found in dependency {path}")
+                        
     return rules + dependency_rules
 
 
