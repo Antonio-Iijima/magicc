@@ -1,6 +1,8 @@
 from io import TextIOWrapper
 from datatypes import Nonterminal
 
+import re
+
 
 
 LIB_PATH = ".lib"

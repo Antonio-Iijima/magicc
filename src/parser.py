@@ -81,7 +81,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
                 # Reduce only if pattern matches the reducible part of the state.
                 if compare(reducible, pattern):
 
-                    reduced = State(state[:idx] + [rule(variant, reducible)])
+                    reduced = State(state[:idx] + [rule(reducible, variant)])
 
                     if dFlag: print("Reduced", reduced)
 
@@ -140,18 +140,27 @@ def tokenize(string: str) -> list:
     
     original = string = "\n".join((line for line in lines if line.strip())).strip()
 
-    terminals = sorted(TERMINALS, reverse=True)
+    terminals = dict.fromkeys(sorted(TERMINALS, reverse=1), None)
+    terminals.update(TERMINALS)
+
     tokens = []
 
     while string:
-        for terminal in terminals:
-            if string.startswith(terminal):
-                tokens.append(terminal)
-                string = string.removeprefix(terminal)
+        for regex, terminal in terminals.items():
+            match = re.match(regex, string)
+            if match:
+                tokens.append(terminal([match.group()]))
+                string = string[match.end():]
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
+
+    filtered = list(filter(None, tokens))
     
-    return tokens
+    print()
+    print(original)
+    print(filtered)
+    
+    return filtered
  
 
 def indent(INDENT: str, lines: list) -> list:

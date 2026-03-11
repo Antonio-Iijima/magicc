@@ -1,15 +1,15 @@
 #require datatypes.numeric
 
-<OP_ADD>      ::= +
+<OP_ADD>      ::= \+
 <OP_SUBTRACT> ::= -
-<OP_MULTIPLY> ::= *
+<OP_MULTIPLY> ::= \*
 <OP_FDIVIDE>  ::= /
 <OP_IDIVIDE>  ::= //
-<OP_EXP>      ::= **
+<OP_EXP>      ::= \*\*
 <OP_MODULO>   ::= %
 
 #set alt φ
-<OP_PIPE>     ::= |
+<OP_PIPE>     ::= \|
 #set alt default
 
 #set lbrace [
@@ -23,5 +23,5 @@
 #set lbrace default
 #set rbrace default
 
-<LPAREN>      ::= (
-<RPAREN>      ::= )
+<LPAREN>      ::= \(
+<RPAREN>      ::= \)

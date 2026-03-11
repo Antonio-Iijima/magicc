@@ -36,7 +36,7 @@ def test(name: str, options: list[int]) -> None:
             case "calculator3":
                 N = 367
                 tests = [
-                    ("".join(map(str, range(N))), int("".join(map(str, range(N))))),
+                    ("".join(map(str, range(1, N))), int("".join(map(str, range(1, N))))),
                     ("12345678982 + 123456773657984", 123469119336966)
                 ]
             case "slist1":

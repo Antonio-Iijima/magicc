@@ -1,5 +1,5 @@
 class Rule:
-    def __init__(self, variant: int, children: list):
+    def __init__(self, children: list, variant: int = 0):
         self.__name__ = type(self).__name__
         self.fname = f"p_{self.__name__.lower()}"
         self.variant = variant
