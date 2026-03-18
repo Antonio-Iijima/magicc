@@ -1,27 +1,3 @@
 #require datatypes.numeric
 
-<OP_ADD>      ::= \+
-<OP_SUBTRACT> ::= -
-<OP_MULTIPLY> ::= \*
-<OP_FDIVIDE>  ::= /
-<OP_IDIVIDE>  ::= //
-<OP_EXP>      ::= \*\*
-<OP_MODULO>   ::= %
-
-#set alt φ
-<OP_PIPE>     ::= \|
-#set alt default
-
-#set lbrace [
-#set rbrace ]
-<OP_LE>       ::= <
-<OP_LEQ>      ::= <=
-<OP_GE>       ::= >
-<OP_GEQ>      ::= >=
-<OP_EQ>       ::= ==
-<OP_NEQ>      ::= !=
-#set lbrace default
-#set rbrace default
-
-<LPAREN>      ::= \(
-<RPAREN>      ::= \)
+<PIPE> ::= \|

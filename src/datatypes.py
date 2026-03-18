@@ -58,8 +58,8 @@ class OrderedSet(dict):
         super().__init__(dict.fromkeys(iterable) if iterable else {})
 
 
-    def add(self, item):
-        self.pop(item, None)
+    def add(self, item, overwrite: bool = False):
+        if overwrite: self.pop(item, None)
         self[item] = None
 
 
@@ -69,6 +69,27 @@ class OrderedSet(dict):
 
     def copy(self):
         return OrderedSet(self.keys())
+    
+
+    def extend(self, iterable, overwrite: bool = False) -> 'OrderedSet':
+        for item in iterable:
+            self.add(item, overwrite)
+
+        return self
+    
+    
+    def show(self):
+        for item in self:
+            print(item)
+
+
+    def __str__(self) -> str:
+        return "{\n" + ",\n".join(f"   {e}" for e in self) + "\n}"
+    
+
+    def compile(self):
+        return "{\n" + ",\n".join(f"   r'{e}'" for e in sorted(self, key=len, reverse=True)) + "\n}"
+
 
 
 class Parsed:
@@ -112,6 +133,11 @@ class Nonterminal:
 
         return pattern
     
+
+    def withId(self, fileId: str) -> 'Nonterminal':
+        self.fileId = fileId
+        return self
+
 
     def __len__(self):
         return self.name.__len__()

@@ -3,5 +3,5 @@
 #require datatypes.numeric
 
 <LABEL> ::= <ID>
-<!ID>   ::= <LETTER> | <LETTER> <CHARS>
+<ID>   ::= <LETTER> | <LETTER> <CHARS>
 <LIST>  ::= <LABEL>

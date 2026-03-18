@@ -6,7 +6,7 @@ from datatypes import *
 def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     from AST import (
         expects, expected_patterns,
-        FIRST, K, 
+        PROGRAM, K, 
         EXPECTED_TOKENS,
         EXPECTED_PATTERNS,
         NEWLINE_SENSITIVE
@@ -118,7 +118,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     acceptable_states: set = {
         state[0] for state in current_states if (
             len(state) == 1
-            and isinstance(state[0], FIRST)
+            and isinstance(state[0], PROGRAM)
         )
     }
 
@@ -140,16 +140,14 @@ def tokenize(string: str) -> list:
     
     original = string = "\n".join((line for line in lines if line.strip())).strip()
 
-    terminals = dict.fromkeys(sorted(TERMINALS, reverse=1), None)
-    terminals.update(TERMINALS)
-
     tokens = []
 
     while string:
-        for regex, terminal in terminals.items():
+        for regex in TERMINALS.union(" "):
             match = re.match(regex, string)
             if match:
-                tokens.append(terminal([match.group()]))
+                tokens.append(match.group())
+                # tokens.append(terminal([match.group()]))
                 string = string[match.end():]
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")

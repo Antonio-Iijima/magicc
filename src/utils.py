@@ -14,7 +14,7 @@ def preprocess_text(text: TextIOWrapper) -> list[str]:
 
 
 def is_nonterminal(prod: str) -> bool: 
-    return isinstance(prod, str) and prod.startswith("<") and prod.endswith(">")
+    return isinstance(prod, str) and re.fullmatch(r"<.*>", prod)
 
 
 def is_terminal(prod: str) -> bool: 

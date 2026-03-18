@@ -2,7 +2,7 @@
 
 
 
-from AST_generator import compile_language
+from compile import compile_language
 from utils import get_input
 
 from os.path import abspath, exists
