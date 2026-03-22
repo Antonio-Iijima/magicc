@@ -72,9 +72,6 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
 
             for (rule, variant, pattern) in expected_patterns(state[-1]):
 
-                # Strict rules cannot include spaces
-                if issubclass(rule, StrictRule) and tokensSinceLastSpace < len(pattern): continue
-                
                 idx = len(state) - len(pattern)
                 reducible = state[idx:]
 
@@ -146,8 +143,8 @@ def tokenize(string: str) -> list:
         for regex in TERMINALS.union(" "):
             match = re.match(regex, string)
             if match:
-                tokens.append(match.group())
-                # tokens.append(terminal([match.group()]))
+                # tokens.append(match.group())
+                tokens.append(TERMINALS([match.group()]))
                 string = string[match.end():]
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")

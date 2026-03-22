@@ -34,10 +34,6 @@ class Rule:
     
 
 
-class StrictRule(Rule): pass
-
-
-
 class State(list):    
     def __init__(self, iterable = None):
         iterable = iterable or []
@@ -47,7 +43,7 @@ class State(list):
 
     def __hash__(self) -> int:
         return self._hash
-    
+
 
 
 class OrderedSet(dict):
@@ -106,54 +102,3 @@ class Parsed:
 
     def __str__(self):
         return self.sentence
-
-
-
-class Nonterminal:
-    modifiers = {
-        "INDENT_SENSITIVE"  : False,
-        "NEWLINE_SENSITIVE" : False
-    }
-
-    def __init__(self, nonterminal: str = ""):
-        self.name = nonterminal.strip().upper()[1:-1]
-
-        self.type = "Rule"
-        if self.name.startswith("!"):
-            self.type = "StrictRule"
-            self.name = self.name[1:]
-
-
-    @classmethod
-    def update_modifiers(self, pattern: list) -> list:
-        for modifier in self.modifiers:
-            label = modifier.removesuffix("_SENSITIVE")
-            if {"NEWLINE" : "\\n"}.get(label, label) in pattern:
-                self.modifiers[modifier] = True
-
-        return pattern
-    
-
-    def withId(self, fileId: str) -> 'Nonterminal':
-        self.fileId = fileId
-        return self
-
-
-    def __len__(self):
-        return self.name.__len__()
-
-
-    def __hash__(self):
-        return self.name.__hash__()
-
-
-    def __eq__(self, other):
-        return type(other) == Nonterminal and other.__hash__() == self.__hash__()
-
-
-    def __str__(self):
-        return self.name
-    
-
-    def __repr__(self):
-        return f"<{self.name}>"

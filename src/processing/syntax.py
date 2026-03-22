@@ -6,7 +6,7 @@ import re
 
 
 class Grammar:
-    TERMINALS = OrderedSet()
+    TERMINALS = {}
     K = 0
     
 
@@ -55,9 +55,9 @@ class Grammar:
 
     
     @staticmethod
-    def add_terminal(terminal: str) -> None:
+    def add_terminal(rule: 'Nonterminal', terminal: str) -> None:
         """Adds a new terminal to the `Grammar`."""
-        Grammar.TERMINALS.add(terminal)
+        Grammar.TERMINALS[rule] = terminal
 
 
     def __str__(self) -> str:
@@ -90,7 +90,9 @@ GRAMMAR = {self.embed()}
 
 
 
-TERMINALS = {Grammar.TERMINALS.compile()}
+TERMINALS = {{
+   {",\n   ".join(f"{rule.name} : r'{terminal}'" for rule, terminal in Grammar.TERMINALS.items())}
+}}
 
 K = {Grammar.K}
 
@@ -172,7 +174,6 @@ for rule, alternatives in GRAMMAR.items():
     GRAMMAR[rule] = []
 
     for variant, pattern in enumerate(alternatives):
-        print(pattern)
         # Expand nullable patterns
         expanded_null_patterns = [[]]
         for i, token in enumerate(pattern):
@@ -255,7 +256,7 @@ class Production:
     
     def __init__(self, module: Module, rule: str, alternatives: str):
         self.module = module
-        self.rule, self.alternatives = Nonterminal(rule.strip()), [Pattern(module, pattern) for pattern in self.sep.split(alternatives)]
+        self.rule, self.alternatives = Nonterminal(rule.strip()), [Pattern(module, rule, pattern) for pattern in self.sep.split(alternatives)]
 
 
     def _str(self, indent: int) -> str:
@@ -282,10 +283,11 @@ class Pattern:
     nonterminal = re.compile(r"\<[A-Z0-9_]+\>")
 
 
-    def __init__(self, module: Module, pattern: str):
+    def __init__(self, module: Module, rule: str, pattern: str):
         nonterminals = self.nonterminal.findall(pattern.strip())
         self.module = module
         self.pattern = []
+        self.rule = Nonterminal(rule)
 
         # Divide pattern by matching nonterminals
         for nonterminal in nonterminals:
@@ -310,15 +312,15 @@ class Pattern:
         if len(self.pattern) > 1:
             for i, token in enumerate(self.pattern):
                 if isinstance(token, Terminal):
-                    rule, pattern = Nonterminal(token.sub()), token.name
-                    self.pattern[i] = rule
+                    new_rule, pattern = Nonterminal(token.sub()), token.name
+                    self.pattern[i] = new_rule
                     if not (pattern in Grammar.TERMINALS):
-                        Grammar.add_terminal(pattern)
-                        self.module.rules.add(Production(self.module, rule.name, pattern))
+                        # Grammar.add_terminal(rule, pattern)
+                        self.module.rules.add(Production(self.module, new_rule.name, pattern))
         else:
             token = self.pattern[0]
             if isinstance(token, Terminal):
-                Grammar.add_terminal(token.name)
+                Grammar.add_terminal(self.rule, token.name)
 
 
     def _str(self) -> str:

@@ -2,7 +2,7 @@
 
 
 
-from compile import compile_language
+from processing import compile
 from utils import get_input
 
 from os.path import abspath, exists
@@ -12,36 +12,33 @@ from os import remove
 
 
 
-# Remove generated files
-if '-x' in argv:
-    exists("AST.py") and remove("AST.py")
-    exists("eval.py") and remove("eval.py")
-    exit()
+def main(args: list = argv) -> None:
+    FLAGS = {
+        flag : False for flag in [
+            "i", # interactive
+            "c", # compile
+            "d", # debug
+            "t", # test
+            "x", # clear
+        ]
+    }
 
-# Interactive
-iFlag = "-i" in argv 
-iFlag and argv.remove("-i")
-
-# Debug
-dFlag = "-d" in argv 
-dFlag and argv.remove("-d")
-
-# Test
-tFlag = "-t" in argv
-tFlag and argv.remove("-t")
-
-# Compile
-cFlag = "-c" in argv
-cFlag and argv.remove("-c")
+    for flag in FLAGS:
+        FLAGS[flag] = f"-{flag}" in argv
+        FLAGS[flag] and args.remove(f"-{flag}")
 
 
+    if FLAGS['x']:
+        exists("AST.py") and remove("AST.py")
+        exists("eval.py") and remove("eval.py")
+        exit()
 
-if __name__ == "__main__":
-    argv = argv[1:]
 
-    if cFlag: 
-        LANGUAGE = abspath(argv.pop(0))
-        compile_language(LANGUAGE)
+    args = args[1:]
+
+    if FLAGS['c']: 
+        LANGUAGE = abspath(args.pop(0))
+        compile(LANGUAGE)
     
     else:
         from AST import LANGUAGE
@@ -49,21 +46,26 @@ if __name__ == "__main__":
         print(f"Language: {LANGUAGE.rsplit("/")[-1]}.")
 
 
-    if tFlag:
+    if FLAGS['t']:
         from tests import test
     
-        test(LANGUAGE.rsplit("/")[-1], argv)
+        test(LANGUAGE.rsplit("/")[-1], args)
     
     from eval import process
     
-    for arg in argv:
+    for arg in args:
         if exists(arg):
             with open(arg) as file:
-                process(file.read(), dFlag=dFlag)
+                process(file.read(), dFlag=FLAGS['d'])
 
-    if iFlag:
+    if FLAGS['i']:
         for line in iter(lambda: get_input("</> "), "quit"):
             if line.strip():
-                if dFlag: start = time()
-                process(line, dFlag)
-                if dFlag: print(f"Runtime: {time() - start}")
+                if FLAGS['d']: start = time()
+                process(line, FLAGS['d'])
+                if FLAGS['d']: print(f"Runtime: {time() - start}")
+
+
+
+if __name__ == "__main__": 
+    main()

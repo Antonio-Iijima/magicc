@@ -1,9 +1,9 @@
-from syntax_processing import Grammar
-from semantics_processing import Eval
+from processing.syntax import Grammar
+from processing.semantics import Eval
 
 
 
-def compile_language(path: str) -> None:
+def compile(path: str) -> None:
 
     print(f"Compiling: {path.rsplit("/")[-1]}")
     print()
