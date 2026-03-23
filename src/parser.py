@@ -140,12 +140,11 @@ def tokenize(string: str) -> list:
     tokens = []
 
     while string:
-        for regex in TERMINALS.union(" "):
+        for rule, regex in TERMINALS.items():
             match = re.match(regex, string)
             if match:
-                # tokens.append(match.group())
-                tokens.append(TERMINALS([match.group()]))
-                string = string[match.end():]
+                tokens.append(rule(match.group()))
+                string = string[match.end():].strip()
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
 

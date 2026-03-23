@@ -70,6 +70,7 @@ class Grammar:
         
 
 from datatypes import Rule
+from utils import *
 
 
 
@@ -154,52 +155,12 @@ def expand_expected(token, x):
 
 
 
-# Collect nullable rules (i.e. rules that can be expanded from EPSILON)
-count = 0
-while count < len(EPSILA):
-    for rule, alternatives in GRAMMAR.items():
-        for pattern in alternatives:
-            if (
-                len(pattern) == 1
-                and pattern[0] in EPSILA
-                and rule not in EPSILA
-            ):
-                EPSILA.add(rule)
-    count += 1
-del count
+EPSILA = find_nullable_rules(GRAMMAR)
+EXPECTED_TOKENS = build_expected_tokens(GRAMMAR, EPSILA)
+EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 
 
-# Grammar post-processing/expansion
 for rule, alternatives in GRAMMAR.items():
-    GRAMMAR[rule] = []
-
-    for variant, pattern in enumerate(alternatives):
-        # Expand nullable patterns
-        expanded_null_patterns = [[]]
-        for i, token in enumerate(pattern):
-            if not token == EPSILON:
-                expanded_null_patterns = list(state + [token] for state in expanded_null_patterns)
-                if nullable(token):
-                    expanded_null_patterns += list(state[:-1] for state in expanded_null_patterns)
-
-        for expanded_null_pattern in expanded_null_patterns:
-            if expanded_null_pattern and not (
-                expanded_null_pattern in GRAMMAR[rule]
-                or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
-            ):
-                GRAMMAR[rule].append([variant] + expanded_null_pattern)
-
-# Only construct expected tokens/patterns with the full expansion of the grammar
-for rule, alternatives in GRAMMAR.items():                
-    for pattern in alternatives:
-        variant = pattern.pop(0)
-
-        # Expand expected patterns 
-        for token in pattern:
-            if not (rule, variant, pattern) in EXPECTED_PATTERNS[token]: 
-                EXPECTED_PATTERNS[token].append((rule, variant, pattern))
-
-for rule, alternatives in GRAMMAR.items():                
     for pattern in alternatives:
     
         # Expand expected tokens

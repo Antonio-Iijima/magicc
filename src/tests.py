@@ -1,6 +1,5 @@
 from eval import validate
 from parser import parse
-from main import dFlag
 
 from time import time
 
@@ -70,7 +69,7 @@ def test(name: str, options: list[int]) -> None:
 
             start = time()
 
-            parsed = parse(test, dFlag=dFlag)
+            parsed = parse(test, dFlag=False)
             print("\nPARSED\n")
             
             for s, v in {
