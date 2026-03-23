@@ -1,6 +1,6 @@
 from datatypes import OrderedSet
-
-import os
+from utils import pathToFunc
+import os, re
 
 
 
@@ -88,12 +88,12 @@ class File:
 
     def compile(self) -> str:
         if not os.path.exists(self.file):
-            print(f"WARNING: semantics not found in dependency {self.path}")
+            print(f"WARNING: semantics not found in {type(self).__name__.lower()} {self.path}")
             return ""
 
     
         with open(self.file) as file:
-            text = file.read()
+            text = self.process(file.read())
             return f"""
 
 
@@ -102,6 +102,18 @@ class File:
             
 
 """ + text
+        
+
+    def process(self, text: str) -> str:
+
+        def replace_fname(match: re.Match) -> str:
+            return f"def {pathToFunc(self.path)}{match.group().split("p_", 1)[1].lower()}"
+
+        return re.sub(
+            pattern=r"def p_.*\(",
+            repl=replace_fname,
+            string=text
+        )
 
 
 

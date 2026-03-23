@@ -13,10 +13,10 @@ class Grammar:
     def __init__(self, path: str):
         self.path = path
         self.modules = {}
-        self.dependencies = self.traverse_dependencies(self.path)
+        self.dependencies = self.traverse_dependencies(self.path, main=True)
 
 
-    def traverse_dependencies(self, path: str) -> OrderedSet:
+    def traverse_dependencies(self, path: str, main: bool = False) -> OrderedSet:
         """Recursively search for `#require`s from a top-level path, preserving order and building grammar modules during traversal."""
 
         syntax = f"{path}/syntax.txt"
@@ -42,14 +42,14 @@ class Grammar:
                     requirements.add(".lib/" + requirement)
 
                 lines = filter(lambda x: not x.startswith("#require"), lines)
-                self.modules[path] = Module(path, lines)
+                self.modules[path] = Module("MAIN" if main else path, lines)
 
                 dependencies.extend(requirements)
 
                 for requirement in requirements:
                     dependencies.extend(self.traverse_dependencies(requirement))
 
-        else: print(f"WARNING: syntax not found in dependency {path}")
+        else: print(f"WARNING: syntax not found in {"MAIN" if main else "dependency"} {path}")
 
         return dependencies
 
@@ -69,7 +69,7 @@ class Grammar:
 
         
 
-from datatypes import Rule
+from datatypes import Rule, GrammarRule
 from utils import *
 
 
@@ -83,16 +83,33 @@ from utils import *
 
 
 
-GRAMMAR = {self.embed()}
+MODULES = {self.embed()}
+
+GRAMMAR = {{}}
 
 
+for module, subgrammar in MODULES.items():
+    for rule, alternatives in subgrammar.items():
+        rule = GrammarRule(rule, module)
+        GRAMMAR[rule] = GRAMMAR.get(rule, [])
 
+        for pattern in alternatives:
+            for i, token in enumerate(pattern):
+                pattern[i] = token if isinstance(token, str) else GrammarRule(token, module)
+
+            GRAMMAR[rule].append(pattern)
+                    
+
+        
 ##### ADDENDA #####
 
 
 
 TERMINALS = {{
-   {",\n   ".join(f"{rule.name} : r'{terminal}'" for rule, terminal in Grammar.TERMINALS.items())}
+    rule : alternatives[0][0] for rule, alternatives in GRAMMAR.items() if (
+        1 == len(alternatives) == len(alternatives[0])
+        and isinstance(alternatives[0][0], str)
+    )
 }}
 
 K = {Grammar.K}
@@ -126,10 +143,12 @@ INDENT = "   "
 
 
 
-def retype(x): return type(x) if isinstance(x, Rule) else x
+def retype(x): 
+    return x.fname if isinstance(x, Rule) else x
 
-
-def expected_patterns(x) -> tuple[Rule, int, list]: return EXPECTED_PATTERNS[retype(x)]
+    
+def expected_patterns(x) -> tuple[Rule, int, list]:
+    return EXPECTED_PATTERNS.get(retype(x), [])
 
 
 def nullable(x): return retype(x) in EPSILA
@@ -160,12 +179,12 @@ EXPECTED_TOKENS = build_expected_tokens(GRAMMAR, EPSILA)
 EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 
 
-for rule, alternatives in GRAMMAR.items():
-    for pattern in alternatives:
+# for rule, alternatives in GRAMMAR.items():
+#     for pattern in alternatives:
     
-        # Expand expected tokens
-        for i, token in enumerate(pattern[:-1]):
-            expand_expected(token, pattern[i+1])
+#         # Expand expected tokens
+#         for i, token in enumerate(pattern[:-1]):
+#             expand_expected(token, pattern[i+1])
 """
         
         return text
@@ -178,7 +197,7 @@ for rule, alternatives in GRAMMAR.items():
 
 class Module:
     def __init__(self, name: str, lines: list, sep: str = "::="):
-        self.name = name
+        self.name = name.removeprefix(".lib/").upper().replace("/", "_")
         self.lines = lines
         self.rules = OrderedSet()
 
@@ -195,7 +214,7 @@ class Module:
 
     def compile(self) -> str:
         text = f"""
-### DEPENDENCY : {self.name} ###
+### MODULE : {self.name} ###
 
 {"".join(production.compile() for production in self.rules)}
 """
@@ -204,10 +223,10 @@ class Module:
 
 
     def embed(self) -> str:
-        return f"#  {self.name}\n" + (
+        return f"'{self.name}' : {{\n" + (
             ",\n".join("   " + production.embed(self.indent) for production in self.rules) if self.rules 
             else "#  No rules found"
-        )
+        ) + "\n   }"
     
 
 

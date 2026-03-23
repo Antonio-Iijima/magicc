@@ -15,6 +15,11 @@ def compile(path: str) -> None:
     with open("eval.py", "w") as file:
         file.write(Eval(path, grammar.dependencies).compile())
     
+    # print()
+    # print("GRAMMAR")
+    # print()
+    # print(grammar)
+
     print()
     print("Done!")
     print()

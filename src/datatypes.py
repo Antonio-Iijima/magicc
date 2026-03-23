@@ -1,7 +1,11 @@
+from utils import pathToFunc
+
+
+
 class Rule:
-    def __init__(self, children: list, variant: int = 0):
+    def __init__(self, children: list, variant: int = 0, fname: str = None):
         self.__name__ = type(self).__name__
-        self.fname = f"p_{self.__name__.lower()}"
+        self.fname = fname
         self.variant = variant
         self._str = " ".join(map(str, children))
         self.children = tuple(c for c in children if c)
@@ -19,7 +23,7 @@ class Rule:
 
     def __eq__(self, other: 'Rule'):
         return isinstance(other, Rule) and self.__hash__() == other.__hash__()
-        
+
 
     def __hash__(self):
         return self._hash
@@ -31,7 +35,39 @@ class Rule:
                 
     def __str__(self):
         return self._str
+
+
+
+class GrammarRule:
+    def __init__(self, rule: Rule, module: str):
+        self.rule = rule
+        self.name = rule.__name__
+        self.module = module
+        self.fname = pathToFunc(self.module) + self.name.lower()
+
     
+    def __call__(self, *args, **kwargs) -> Rule:
+        return self.rule(*args, **kwargs, fname=self.fname)
+    
+
+    def __hash__(self):
+        return self.fname.__hash__()
+    
+    
+    def __eq__(self, other):
+        if not isinstance(other, (GrammarRule, Rule, str)):
+            return False
+        
+        return (other if isinstance(other, str) else other.fname) == self.fname
+
+
+    def __str__(self):
+        return f"<{self.name}>"
+    
+
+    def __repr__(self):
+        return str(self)
+
 
 
 class State(list):    

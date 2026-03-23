@@ -3,6 +3,7 @@ from io import TextIOWrapper
 import re
 
 from rich import print
+# from datatypes import Rule, GrammarRule/
 
 
 
@@ -23,7 +24,8 @@ def is_terminal(prod: str) -> bool:
 
 
 def comparative(x): 
-    return x if isinstance(x, str) else x.__name__
+    from datatypes import GrammarRule, Rule
+    return x.fname if isinstance(x, (GrammarRule, Rule)) else x
 
 
 def compare(a: list, b: list) -> bool:
@@ -64,44 +66,6 @@ def regularize(path, sep="::="):
     with open(path, "w") as file:
         file.write(text)
 
-# Grammar post-processing/expansion
-# for rule, alternatives in GRAMMAR.items():
-#     GRAMMAR[rule] = []
-
-#     for variant, pattern in enumerate(alternatives):
-#         # Expand nullable patterns
-#         expanded_null_patterns = [[]]
-#         for i, token in enumerate(pattern):
-#             if not token == EPSILON:
-#                 expanded_null_patterns = list(state + [token] for state in expanded_null_patterns)
-#                 if nullable(token):
-#                     expanded_null_patterns += list(state[:-1] for state in expanded_null_patterns)
-
-#         for expanded_null_pattern in expanded_null_patterns:
-#             if expanded_null_pattern and not (
-#                 expanded_null_pattern in GRAMMAR[rule]
-#                 or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
-#             ):
-#                 GRAMMAR[rule].append([variant] + expanded_null_pattern)
-
-# # Only construct expected tokens/patterns with the full expansion of the grammar
-# for rule, alternatives in GRAMMAR.items():                
-#     for pattern in alternatives:
-#         variant = pattern.pop(0)
-
-#         # Expand expected patterns 
-#         for token in pattern:
-#             if not (rule, variant, pattern) in EXPECTED_PATTERNS[token]: 
-#                 EXPECTED_PATTERNS[token].append((rule, variant, pattern))
-
-# for rule, alternatives in GRAMMAR.items():                
-#     for pattern in alternatives:
-    
-#         # Expand expected tokens
-#         for i, token in enumerate(pattern[:-1]):
-#             expand_expected(token, pattern[i+1])
-
-
 
 def find_nullable_rules(grammar: dict) -> set:
     """Collect nullable rules (i.e. rules that can be expanded from EPSILON)."""
@@ -123,47 +87,53 @@ def find_nullable_rules(grammar: dict) -> set:
     return nulls
 
 
-def build_expected_tokens(grammar: dict, nulla: set) -> dict:
+def build_expected_tokens(grammar: dict, nulls: set) -> dict:
     """Constructs a dictionary mapping every token to a set of all possible subsequent tokens."""
 
+    def extend_expected_tokens(token) -> list:
+        nonlocal grammar
+        
+        
+
+
+    expected_tokens: dict[any, list] = {}
+
     for rule, alternatives in grammar.items():
-        grammar[rule] = []
+        for pattern in (p for p in alternatives if len(p) > 1):
+            for curr, next in zip(pattern[:-1], pattern[1:]):
+                if not (isinstance(curr, str) or isinstance(next, str)):
+                    if not curr in expected_tokens: expected_tokens[curr] = []
 
-        for variant, pattern in enumerate(alternatives):
-            # Expand nullable patterns
-            expanded_null_patterns = [[]]
-            for i, token in enumerate(pattern):
-                if not token == "e":
-                    expanded_null_patterns = list(state + [token] for state in expanded_null_patterns)
-                    if token in nulla:
-                        expanded_null_patterns += list(state[:-1] for state in expanded_null_patterns)
-
-            for expanded_null_pattern in expanded_null_patterns:
-                if expanded_null_pattern and not (
-                    expanded_null_pattern in grammar[rule]
-                    or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
-                ):
-                    grammar[rule].append([variant] + expanded_null_pattern)
+                    if not (next in expected_tokens[curr]):
+                        expected_tokens[curr].append(next)
+                        expected_tokens[curr] += extend_expected_tokens(next, grammar)
                     
-    print(grammar)
+    print(expected_tokens)
 
-    return grammar
+    return expected_tokens
+
 
 
 def build_expected_patterns(grammar: dict):
 
-    expected_patterns = {}
+    expected_patterns: dict[any, list] = {}
 
     for rule, alternatives in grammar.items():
-
-        for pattern in alternatives:
-            if not (len(pattern) == 1 and isinstance(pattern[0], str)):
-                for curr, next in zip(pattern[:-1], pattern[1:]):
-                    expected_patterns[curr] = expected_patterns.get(curr, []) + [grammar[next]]
+        for variant, pattern in enumerate(alternatives):
+            for token in (t for t in pattern if not isinstance(t, (str, int))):
+                if not (token in expected_patterns): expected_patterns[token] = []
+                
+                if not (pattern in expected_patterns[token]):
+                    expected_patterns[token].append((rule, variant, pattern))
 
     print(expected_patterns)
 
     return expected_patterns
+
+
+def pathToFunc(path: str) -> str:
+    """Converts a path .lib/path/to/somewhere to a function prefix p_path_to_somewhere_<fname>."""
+    return f"p_{path.lower().removeprefix(".lib/").replace("/", "_")}_".lower()
 
 
 
