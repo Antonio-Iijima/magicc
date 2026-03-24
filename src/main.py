@@ -38,7 +38,7 @@ def main(args: list = argv) -> None:
 
     if FLAGS['c']: 
         LANGUAGE = abspath(args.pop(0))
-        compile(LANGUAGE)
+        compile(LANGUAGE, FLAGS["d"])
     
     else:
         from AST import LANGUAGE

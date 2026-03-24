@@ -140,16 +140,17 @@ def tokenize(string: str) -> list:
     tokens = []
 
     while string:
+        matches = []
+        
         for rule, (module, regex) in TERMINALS.items():
             match = regex.match(string)
-            if match:
-                matched = match.group()
-                tokens.append(rule([matched], module))
-                string = string.removeprefix(matched)
-                break
-        else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
+            if match: matches.append((match.group(), rule, module))
 
-        string = string.lstrip()
+        if not matches: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
+        
+        match, rule, module = sorted(matches, key=lambda tup: len(tup[0]), reverse=True)[0]
+        tokens.append(rule([match], module))
+        string = string.removeprefix(match).lstrip()
 
     filtered = list(filter(None, tokens))
     

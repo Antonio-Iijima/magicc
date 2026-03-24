@@ -3,7 +3,7 @@ from processing.semantics import Eval
 
 
 
-def compile(path: str) -> None:
+def compile(path: str, dFlag: bool = False) -> None:
 
     print(f"Compiling: {path.rsplit("/")[-1]}")
     print()
@@ -15,10 +15,11 @@ def compile(path: str) -> None:
     with open("eval.py", "w") as file:
         file.write(Eval(path, grammar.dependencies).compile())
     
-    print()
-    print("GRAMMAR")
-    print()
-    print(grammar)
+    if dFlag:
+        print()
+        print("GRAMMAR")
+        print()
+        print(grammar)
 
     print()
     print("Done!")
