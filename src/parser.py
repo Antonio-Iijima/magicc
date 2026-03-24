@@ -70,7 +70,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
             
             if dFlag: print("State", state)
 
-            for (rule, variant, pattern) in expected_patterns(state[-1]):
+            for (rule, module, variant, pattern) in expected_patterns(state[-1]):
 
                 idx = len(state) - len(pattern)
                 reducible = state[idx:]
@@ -78,7 +78,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
                 # Reduce only if pattern matches the reducible part of the state.
                 if compare(reducible, pattern):
 
-                    reduced = State(state[:idx] + [rule(reducible, variant)])
+                    reduced = State(state[:idx] + [rule(reducible, module, variant)])
 
                     if dFlag: print("Reduced", reduced)
 
@@ -140,19 +140,15 @@ def tokenize(string: str) -> list:
     tokens = []
 
     while string:
-        for rule, regex in TERMINALS.items():
+        for rule, (module, regex) in TERMINALS.items():
             match = re.match(regex, string)
             if match:
-                tokens.append(rule(match.group()))
+                tokens.append(rule(["".join(match.group())], module))
                 string = string[match.end():].strip()
                 break
         else: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
 
     filtered = list(filter(None, tokens))
-    
-    print()
-    print(original)
-    print(filtered)
     
     return filtered
  

@@ -69,7 +69,7 @@ class Grammar:
 
         
 
-from datatypes import Rule, GrammarRule
+from datatypes import Rule
 from utils import *
 
 
@@ -90,26 +90,24 @@ GRAMMAR = {{}}
 
 for module, subgrammar in MODULES.items():
     for rule, alternatives in subgrammar.items():
-        rule = GrammarRule(rule, module)
-        GRAMMAR[rule] = GRAMMAR.get(rule, [])
+        if not rule in GRAMMAR: GRAMMAR[rule] = {{}}
+        if not module in GRAMMAR[rule]: GRAMMAR[rule][module] = []
 
-        for pattern in alternatives:
-            for i, token in enumerate(pattern):
-                pattern[i] = token if isinstance(token, str) else GrammarRule(token, module)
-
-            GRAMMAR[rule].append(pattern)
-                    
+        GRAMMAR[rule][module] += alternatives
 
         
+                
 ##### ADDENDA #####
 
 
 
 TERMINALS = {{
-    rule : alternatives[0][0] for rule, alternatives in GRAMMAR.items() if (
-        1 == len(alternatives) == len(alternatives[0])
-        and isinstance(alternatives[0][0], str)
-    )
+    rule : (module, alternatives[0][0])
+            for rule, modules in GRAMMAR.items()
+        for module, alternatives in modules.items() if (
+    1 == len(alternatives) == len(alternatives[0])
+    and isinstance(alternatives[0][0], str)
+)
 }}
 
 K = {Grammar.K}
@@ -144,7 +142,7 @@ INDENT = "   "
 
 
 def retype(x): 
-    return x.fname if isinstance(x, Rule) else x
+    return type(x) if isinstance(x, Rule) else x
 
     
 def expected_patterns(x) -> tuple[Rule, int, list]:
@@ -159,16 +157,6 @@ def expects(previous: Rule|str, next: str|None) -> bool:
     return previous == None or next == " " or retype(next) in EXPECTED_TOKENS.get(retype(previous), [])
 
 
-def expand_expected(token, x):
-    not x in EXPECTED_TOKENS[token] and EXPECTED_TOKENS[token].append(x)
-
-    for alternative in GRAMMAR.get(x, []):
-        for y in alternative:
-            if not y in EXPECTED_TOKENS[token]:
-                expand_expected(token, y)
-            if not y in EPSILA: break
-
-
 
 ##### GRAMMAR POSTPROCESSING / EXPANSION #####
 
@@ -177,14 +165,6 @@ def expand_expected(token, x):
 EPSILA = find_nullable_rules(GRAMMAR)
 EXPECTED_TOKENS = build_expected_tokens(GRAMMAR, EPSILA)
 EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
-
-
-# for rule, alternatives in GRAMMAR.items():
-#     for pattern in alternatives:
-    
-#         # Expand expected tokens
-#         for i, token in enumerate(pattern[:-1]):
-#             expand_expected(token, pattern[i+1])
 """
         
         return text
@@ -358,5 +338,4 @@ class Terminal:
 
 if __name__ == "__main__":
     test = Grammar("languages/banter")
-    # print(test)
     print(test.compile())

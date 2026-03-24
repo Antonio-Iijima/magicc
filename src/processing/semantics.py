@@ -17,6 +17,10 @@ class Eval:
 
 from datatypes import Rule, Parsed
 from parser import parse
+
+
+
+##### MODULES #####
 """ \
         + "".join(Dependency(dependency).compile() for dependency in self.dependencies) \
         + Main(self.path).compile() \
@@ -97,7 +101,7 @@ class File:
             return f"""
 
 
-##### {type(self).__name__} : {self.path} #####
+### {type(self).__name__.upper()} : {self.path} ###
 
             
 

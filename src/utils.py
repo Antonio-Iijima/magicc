@@ -2,9 +2,6 @@ from io import TextIOWrapper
 
 import re
 
-from rich import print
-# from datatypes import Rule, GrammarRule/
-
 
 
 LIB_PATH = ".lib"
@@ -23,9 +20,9 @@ def is_terminal(prod: str) -> bool:
     return not is_nonterminal(prod)
 
 
-def comparative(x): 
-    from datatypes import GrammarRule, Rule
-    return x.fname if isinstance(x, (GrammarRule, Rule)) else x
+def comparative(x):
+    from datatypes import Rule
+    return type(x) if isinstance(x, Rule) else x
 
 
 def compare(a: list, b: list) -> bool:
@@ -87,46 +84,43 @@ def find_nullable_rules(grammar: dict) -> set:
     return nulls
 
 
-def build_expected_tokens(grammar: dict, nulls: set) -> dict:
+def build_expected_tokens(grammar: dict[str, dict], nulls: set) -> dict:
     """Constructs a dictionary mapping every token to a set of all possible subsequent tokens."""
 
-    def extend_expected_tokens(token) -> list:
-        nonlocal grammar
-        
-        
+    def extend_expected_tokens(curr, next) -> list:    
+        if not curr in expected_tokens: expected_tokens[curr] = []
+        if not next in expected_tokens[curr]: expected_tokens[curr].append(next)
 
+        # Recurse into subsequent grammar rules
+        for module in grammar.get(next, []):
+            for pattern in grammar[next][module]:
+                token = pattern[0]
+                if (not isinstance(token, str)) and (not token in expected_tokens[curr]):
+                    extend_expected_tokens(curr, token)
 
     expected_tokens: dict[any, list] = {}
 
-    for rule, alternatives in grammar.items():
-        for pattern in (p for p in alternatives if len(p) > 1):
-            for curr, next in zip(pattern[:-1], pattern[1:]):
-                if not (isinstance(curr, str) or isinstance(next, str)):
-                    if not curr in expected_tokens: expected_tokens[curr] = []
-
-                    if not (next in expected_tokens[curr]):
-                        expected_tokens[curr].append(next)
-                        expected_tokens[curr] += extend_expected_tokens(next, grammar)
-                    
-    print(expected_tokens)
-
+    for modules in grammar.values():
+        for alternatives in modules.values():
+            for pattern in (p for p in alternatives if len(p) > 1):
+                for curr, next in zip(pattern[:-1], pattern[1:]):
+                    extend_expected_tokens(curr, next)
+                        
     return expected_tokens
-
 
 
 def build_expected_patterns(grammar: dict):
 
     expected_patterns: dict[any, list] = {}
 
-    for rule, alternatives in grammar.items():
-        for variant, pattern in enumerate(alternatives):
-            for token in (t for t in pattern if not isinstance(t, (str, int))):
-                if not (token in expected_patterns): expected_patterns[token] = []
-                
-                if not (pattern in expected_patterns[token]):
-                    expected_patterns[token].append((rule, variant, pattern))
-
-    print(expected_patterns)
+    for rule, modules in grammar.items():
+        for module, alternatives in modules.items():
+            for variant, pattern in enumerate(alternatives):
+                for token in (t for t in pattern if not isinstance(t, (str, int))):
+                    if not (token in expected_patterns): expected_patterns[token] = []
+                    
+                    if not (pattern in expected_patterns[token]):
+                        expected_patterns[token].append((rule, module, variant, pattern))
 
     return expected_patterns
 
