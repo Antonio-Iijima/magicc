@@ -107,7 +107,7 @@ TERMINALS = {{
         for module, alternatives in modules.items() if (
     1 == len(alternatives) == len(alternatives[0])
     and isinstance(alternatives[0][0], str)
-)
+    )
 }}
 
 K = {Grammar.K}
@@ -216,7 +216,11 @@ class Production:
     
     def __init__(self, module: Module, rule: str, alternatives: str):
         self.module = module
-        self.rule, self.alternatives = Nonterminal(rule.strip()), [Pattern(module, rule, pattern) for pattern in self.sep.split(alternatives)]
+
+        alternatives = self.sep.split(alternatives)
+        variants = len(alternatives)
+        
+        self.rule, self.alternatives = Nonterminal(rule.strip()), [Pattern(module, rule, pattern, variants) for pattern in alternatives]
 
 
     def _str(self, indent: int) -> str:
@@ -240,47 +244,53 @@ class {self.rule.name}(Rule):
 
 
 class Pattern:
-    nonterminal = re.compile(r"\<[A-Z0-9_]+\>")
+    regex = re.compile(r"\<[A-Z0-9_]+\>")
 
 
-    def __init__(self, module: Module, rule: str, pattern: str):
-        nonterminals = self.nonterminal.findall(pattern.strip())
+    def __init__(self, module: Module, rule: str, pattern: str, variants: int = 1):
         self.module = module
         self.pattern = []
         self.rule = Nonterminal(rule)
 
-        # Divide pattern by matching nonterminals
-        for nonterminal in nonterminals:
-            while not pattern.startswith(nonterminal):
-                terminal, pattern = pattern.split(" ", 1)
-                if terminal: self.pattern.append(Terminal(terminal))
+        while pattern:
+            match = self.regex.search(pattern)
 
-            self.pattern.append(Nonterminal(nonterminal))
-            pattern = pattern.removeprefix(nonterminal)
+            if match:
+                nonterminal = match.group()
+                terminal, pattern = map(lambda s: s.strip(), pattern.split(nonterminal, 1))
 
-        # Handle any remaining terminals
-        self.pattern.extend(Terminal(terminal) for terminal in pattern.split(" ") if terminal)
+                if terminal:
+                    self.pattern.append(Terminal(terminal))
+                
+                self.pattern.append(Nonterminal(nonterminal))
+
+            else:
+                pattern = pattern.strip()
+                if pattern:
+                    self.pattern.append(Terminal(pattern))
+                    pattern = None
 
         Grammar.K = max(Grammar.K, len(self.pattern))
 
-        self.optimize()
+        if not (
+            (len(self.pattern) == 1) 
+            and (variants == 1)
+        ): self.optimize()
 
 
     def optimize(self) -> None:
         """Pattern optimization by substituting terminals with single-alternative nonterminals."""
 
-        if len(self.pattern) > 1:
-            for i, token in enumerate(self.pattern):
-                if isinstance(token, Terminal):
-                    new_rule, pattern = Nonterminal(token.sub()), token.name
-                    self.pattern[i] = new_rule
-                    if not (pattern in Grammar.TERMINALS):
-                        # Grammar.add_terminal(rule, pattern)
-                        self.module.rules.add(Production(self.module, new_rule.name, pattern))
-        else:
-            token = self.pattern[0]
-            if isinstance(token, Terminal):
-                Grammar.add_terminal(self.rule, token.name)
+        for i, token in enumerate(self.pattern):
+            if (
+                isinstance(token, Terminal) 
+                and (not token.name in Grammar.TERMINALS.values())
+            ):
+                new_rule, regex = Nonterminal(token.sub()), token.name
+                self.pattern[i] = new_rule
+                
+                Grammar.add_terminal(new_rule, regex)
+                self.module.rules.add(Production(self.module, new_rule.name, regex))
 
 
     def _str(self) -> str:
