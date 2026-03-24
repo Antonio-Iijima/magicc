@@ -2,6 +2,6 @@
 #require datatypes.string
 #require datatypes.numeric
 
-<LABEL> ::= <ID>
-<ID>   ::= <LETTER> | <LETTER> <CHARS>
-<LIST>  ::= <LABEL>
+--<LABEL> ::= <ID>
+--<ID>   ::= <LETTER> | <LETTER> <CHARS>
+--<LIST>  ::= <LABEL>

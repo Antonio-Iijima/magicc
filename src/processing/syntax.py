@@ -1,4 +1,5 @@
 from datatypes import OrderedSet
+from utils import preprocess_text
 
 import os
 import re
@@ -8,10 +9,11 @@ import re
 class Grammar:
     TERMINALS = {}
     K = 0
+    MAIN = ""
     
 
     def __init__(self, path: str):
-        self.path = path
+        self.path = self.MAIN = path
         self.modules = {}
         self.dependencies = self.traverse_dependencies(self.path, main=True)
 
@@ -25,7 +27,7 @@ class Grammar:
         if os.path.exists(syntax):
 
             with open(syntax) as file:
-                lines = [ line for line in file.read().split("\n") if line ]
+                lines = preprocess_text(file)
                 
                 basic_requirements = [
                     line.removeprefix("#require").strip().replace(".", "/")
@@ -102,7 +104,7 @@ for module, subgrammar in MODULES.items():
 
 
 TERMINALS = {{
-    rule : (module, alternatives[0][0])
+    rule : (module, re.compile(alternatives[0][0]))
             for rule, modules in GRAMMAR.items()
         for module, alternatives in modules.items() if (
     1 == len(alternatives) == len(alternatives[0])
@@ -177,7 +179,7 @@ EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 
 class Module:
     def __init__(self, name: str, lines: list, sep: str = "::="):
-        self.name = name.removeprefix(".lib/").upper().replace("/", "_")
+        self.name = "MAIN" if name == Grammar.MAIN else name.removeprefix(".lib/").upper().replace("/", "_")
         self.lines = lines
         self.rules = OrderedSet()
 

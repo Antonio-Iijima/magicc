@@ -1,5 +1,5 @@
 <LIST>       ::= <EMPTY_LIST> | <LAT>
-<EMPTY_LIST> ::= []
-<LAT>        ::= [ <ATOMS> ]
+<EMPTY_LIST> ::= \[]
+<LAT>        ::= \[ <ATOMS> ]
 <ATOM>       ::= <NUMBER> | <STRING> | <LIST>
 <ATOMS>      ::= <ATOM> | <ATOM> , <ATOMS>

@@ -86,22 +86,22 @@ def validate(parsed: Parsed, solution: any) -> str:
 
 class File:
     def __init__(self, path: str):
-        self.path = path
+        self.name = type(self).__name__.upper()
+        self.path = "main" if self.name == "MAIN" else path
         self.file = path + "/semantics.py"
 
 
     def compile(self) -> str:
         if not os.path.exists(self.file):
-            print(f"WARNING: semantics not found in {type(self).__name__.lower()} {self.path}")
+            print(f"WARNING: semantics not found in {self.name.lower()} {self.path}")
             return ""
-
     
         with open(self.file) as file:
             text = self.process(file.read())
             return f"""
 
 
-### {type(self).__name__.upper()} : {self.path} ###
+### {self.name} : {self.path} ###
 
             
 
