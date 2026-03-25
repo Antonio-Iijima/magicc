@@ -1,7 +1,9 @@
-<MATHEXPR> ::= <ADD> | <SUBTRACT> | <TERM> | <COMPARISON>
-
-<FACTOR>   ::= <ABS> | - <FACTOR> | <EXP>
-<ABS>      ::= <PIPE> <MATHEXPR> <PIPE>
+<MULTIPLY> ::= <NEGATIVE>
+<NEGATIVE> ::= - <FACTOR>
+<DIVIDE>   ::= <MODULO>
+<MODULO>   ::= <TERM> % <FACTOR>
+<FACTOR>   ::= <ABS> | <EXP>
+<ABS>      ::= \| <MATHEXPR> \|
 <EXP>      ::= <BASE> \*\* <EXPONENT>
 <BASE>     ::= <FACTOR>
 <EXPONENT> ::= <MATHEXPR>
