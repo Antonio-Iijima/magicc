@@ -4,7 +4,8 @@
 <TERM>       ::= <MULTIPLY> | <DIVIDE> | <FACTOR>
 <MULTIPLY>   ::= <TERM> \* <FACTOR>
 <DIVIDE>     ::= <TERM> / <FACTOR>
-<FACTOR>     ::= \( <MATHEXPR> \) | <NUMBER>
+<FACTOR>     ::= \( <MATHEXPR> \) | <VALUE>
+<VALUE>      ::= <NUMBER>
 
 <COMPARISON> ::= <LE> | <LEQ> | <GE> | <GEQ> | <EQ> | <NEQ>
 <LE>         ::= <MATHEXPR> < <MATHEXPR>

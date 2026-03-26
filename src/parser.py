@@ -8,8 +8,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
         expects, expected_patterns,
         PROGRAM, K, 
         EXPECTED_TOKENS,
-        EXPECTED_PATTERNS,
-        NEWLINE_SENSITIVE
+        EXPECTED_PATTERNS
     )
 
     remaining_tokens = tokenize(expr)
@@ -37,19 +36,9 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
 
     max_states = 0
 
-    # Track number of tokens since last space read.
-    tokensSinceLastSpace = 0
-
     # Process tokens sequentially, pursuing all valid shift/reduce paths in parallel.
     while remaining_tokens:
         token = remaining_tokens.pop(0)
-
-        if token in (" ", "\n"):
-            tokensSinceLastSpace = 0
-            if not (NEWLINE_SENSITIVE and token == "\n"):
-                continue
-        else: 
-            tokensSinceLastSpace += 1
 
         # Otherwise set up to process states at this token
         tokens.append(token)
@@ -76,7 +65,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
                 reducible = state[idx:]
 
                 # Reduce only if pattern matches the reducible part of the state.
-                if compare(reducible, pattern):
+                if list(map(type, reducible)) == pattern:
 
                     reduced = State(state[:idx] + [rule(reducible, module, variant)])
 
@@ -100,7 +89,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
                         future_states.add(reduced)
 
                 # If the current pattern does not match, but could match if given more tokens.
-                elif state[-1] in pattern: future_states.add(state)
+                # elif type(state[-1]) in pattern: future_states.add(state)
 
         max_states = max(max_states, len(future_states))
         if max_states > state_limit: raise RuntimeError(f"Too many states to consider: {max_states}")
@@ -129,11 +118,10 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     return Parsed(expr, acceptable_states.pop(), max_states, showTree=dFlag)
 
 
-
 def tokenize(string: str) -> list:
-    from AST import TERMINALS, INDENT_SENSITIVE, INDENT
+    from AST import TERMINALS, INDENT_SENSITIVE
     
-    lines = preprocess_input(string, INDENT_SENSITIVE, INDENT)
+    lines = preprocess_input(string, INDENT_SENSITIVE)
     
     original = string = "\n".join((line for line in lines if line.strip())).strip()
 
@@ -150,14 +138,14 @@ def tokenize(string: str) -> list:
         
         match, rule, module = sorted(matches, key=lambda tup: len(tup[0]), reverse=True)[0]
         tokens.append(rule([match], module))
-        string = string.removeprefix(match).lstrip()
+        string = string.removeprefix(match).lstrip(" ")
 
     filtered = list(filter(None, tokens))
-    
+
     return filtered
  
 
-def indent(INDENT: str, lines: list) -> list:
+def indent(lines: list) -> list:
     indented = []
     curr_indent = prev_indent = 0
 
@@ -167,8 +155,8 @@ def indent(INDENT: str, lines: list) -> list:
         if (not line.strip()) or line.strip().startswith("#"): 
             continue
 
-        while line.startswith(INDENT):
-            line = line.removeprefix(INDENT)
+        while line.startswith(SPECIAL["indentation"]):
+            line = line.removeprefix(SPECIAL["indentation"])
             curr_indent += 1
 
         if line.startswith(" "): 
@@ -178,14 +166,14 @@ def indent(INDENT: str, lines: list) -> list:
         diff = curr_indent - prev_indent
 
         while diff < 0:
-            indented[-1] += "DEDENT"
+            indented[-1] += SPECIAL["dedent"]
             diff += 1
 
         # Newline will come after DEDENTs but before INDENTS
         indented.append("")
         
         while diff > 0:
-            indented[-1] += "INDENT"
+            indented[-1] += SPECIAL["indent"]
             diff -= 1
             
         indented[-1] += line
@@ -193,20 +181,20 @@ def indent(INDENT: str, lines: list) -> list:
 
     # Handle any final DEDENTs
     while prev_indent > 0:
-        indented[-1] += "DEDENT"
+        indented[-1] += SPECIAL["dedent"]
         prev_indent -= 1
 
     return indented
 
 
-def preprocess_input(string: str, indentSensitive: bool, indentation: str = "   "):
+def preprocess_input(string: str, indentSensitive: bool):
     lines = string.splitlines()
 
     for i, line in enumerate(lines):
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return indent(indentation, lines) if indentSensitive else lines
+    return indent(lines) if indentSensitive else lines
 
 
 def get_next_token(remaining: list) -> str|None:

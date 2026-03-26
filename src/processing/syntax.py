@@ -1,5 +1,5 @@
 from datatypes import OrderedSet
-from utils import preprocess_text
+from utils import preprocess_text, print_warning, SPECIAL
 
 import os
 import re
@@ -9,13 +9,21 @@ import re
 class Grammar:
     TERMINALS = {}
     K = 0
+    INDENT_SENSITIVE = False
+    NEWLINE_SENSITIVE = False
     MAIN = ""
+    WARNINGS = {
+        "dependency" : [],
+        "main"       : []
+    }
     
 
     def __init__(self, path: str):
         self.path = self.MAIN = path
         self.modules = {}
         self.dependencies = self.traverse_dependencies(self.path, main=True)
+
+        print_warning("syntax not found", self.WARNINGS)
 
 
     def traverse_dependencies(self, path: str, main: bool = False) -> OrderedSet:
@@ -51,7 +59,7 @@ class Grammar:
                 for requirement in requirements:
                     dependencies.extend(self.traverse_dependencies(requirement))
 
-        else: print(f"WARNING: syntax not found in {"MAIN" if main else "dependency"} {path}")
+        else: self.WARNINGS["main" if main else "dependency"].append(path)
 
         return dependencies
 
@@ -131,11 +139,9 @@ EPSILON = "ε"
 
 EPSILA: set = {{EPSILON}}
 
-INDENT_SENSITIVE = False
+INDENT_SENSITIVE = {self.INDENT_SENSITIVE}
 
-NEWLINE_SENSITIVE = False
-
-INDENT = "   "
+NEWLINE_SENSITIVE = {self.NEWLINE_SENSITIVE}
 
 
 
@@ -143,20 +149,16 @@ INDENT = "   "
 
 
 
-def retype(x): 
-    return type(x) if isinstance(x, Rule) else x
-
-    
 def expected_patterns(x) -> tuple[Rule, int, list]:
-    return EXPECTED_PATTERNS.get(retype(x), [])
+    return EXPECTED_PATTERNS.get(type(x), [])
 
 
-def nullable(x): return retype(x) in EPSILA
+def nullable(x): return type(x) in EPSILA
 
 
 def expects(previous: Rule|str, next: str|None) -> bool:
     '''Check if `previous` expects `next` or `previous` is `None`.'''
-    return previous == None or next == " " or retype(next) in EXPECTED_TOKENS.get(retype(previous), [])
+    return previous == None or type(next) in EXPECTED_TOKENS.get(type(previous), [])
 
 
 
@@ -261,15 +263,22 @@ class Pattern:
                 nonterminal = match.group()
                 terminal, pattern = map(lambda s: s.strip(), pattern.split(nonterminal, 1))
 
+                if nonterminal in ("<INDENT>", "<DEDENT>") and not Grammar.INDENT_SENSITIVE:
+                    Grammar.INDENT_SENSITIVE = True
+                    self.module.rules.add(Production(self.module, "<INDENT>", SPECIAL["indent"]))
+                    self.module.rules.add(Production(self.module, "<DEDENT>", SPECIAL["dedent"]))
+                if terminal == r"\n":
+                    Grammar.NEWLINE_SENSITIVE = True
+
                 if terminal:
-                    self.pattern.append(Terminal(terminal))
+                    self.pattern.extend(Terminal(token) for token in terminal.split())
                 
                 self.pattern.append(Nonterminal(nonterminal))
 
             else:
                 pattern = pattern.strip()
                 if pattern:
-                    self.pattern.append(Terminal(pattern))
+                    self.pattern.extend(Terminal(token) for token in pattern.split())
                     pattern = None
 
         Grammar.K = max(Grammar.K, len(self.pattern))
@@ -278,21 +287,24 @@ class Pattern:
             (len(self.pattern) == 1) 
             and (variants == 1)
         ): self.optimize()
-
+        
 
     def optimize(self) -> None:
         """Pattern optimization by substituting terminals with single-alternative nonterminals."""
 
         for i, token in enumerate(self.pattern):
-            if (
-                isinstance(token, Terminal) 
-                and (not token.name in Grammar.TERMINALS.values())
-            ):
-                new_rule, regex = Nonterminal(token.sub()), token.name
-                self.pattern[i] = new_rule
-                
-                Grammar.add_terminal(new_rule, regex)
-                self.module.rules.add(Production(self.module, new_rule.name, regex))
+            if isinstance(token, Terminal):
+                if (not token.name in Grammar.TERMINALS.values()):
+                    new_rule, regex = Nonterminal(token.sub()), token.name
+                    self.pattern[i] = new_rule
+                    
+                    Grammar.add_terminal(new_rule, regex)
+                    self.module.rules.add(Production(self.module, new_rule.name, regex))
+                else:
+                    for new_rule, regex in Grammar.TERMINALS.items():
+                        if regex == token.name:
+                            self.pattern[i] = new_rule
+                            break
 
 
     def _str(self) -> str:

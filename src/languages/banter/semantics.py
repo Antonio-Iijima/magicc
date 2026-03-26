@@ -3,24 +3,20 @@ g_markers = {}
 
 
 
-def p_statement(expr):
-    expr(0)    
-
-
-def p_statement_list_0(expr):
-    expr(0)
-    
 def p_statement_list_1(expr):
     expr(0)
     expr(2)
 
 
+def p_label(expr):
+    try:
+        return g_env[expr(0)]
+    except KeyError:
+        raise Exception(1, f"Error: variable {expr(0)} not declared.")
+
+
 def p_assignment(expr):
     g_env[expr(1)] = expr(3)
-
-
-def p_string(expr):
-    return expr(1)
 
 
 def p_if_then(expr):
@@ -52,16 +48,8 @@ def p_marker(expr):
             jump = (mark in e.args)
             if not jump: raise e
 
-
 def p_jump(expr):
-    raise Exception(f"marker_{expr(2)}")
-
-
-def p_label(expr):
-    try:
-        return g_env[expr(0)]
-    except KeyError:
-        raise Exception(1, f"Error: variable {expr(0)} not declared.")
+    raise Exception(1, f"marker_{expr(2)}")
 
 
 def p_print(expr):

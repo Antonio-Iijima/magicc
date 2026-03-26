@@ -5,6 +5,11 @@ import re
 
 
 LIB_PATH = ".lib"
+SPECIAL = {
+    "indent"      : "//INDENTATIONMARKER//",
+    "dedent"      : "//DEDENTATIONMARKER//",
+    "indentation" : "   "
+}
 
 
 
@@ -18,16 +23,6 @@ def is_nonterminal(prod: str) -> bool:
 
 def is_terminal(prod: str) -> bool: 
     return not is_nonterminal(prod)
-
-
-def comparative(x):
-    from datatypes import Rule
-    return type(x) if isinstance(x, Rule) else x
-
-
-def compare(a: list, b: list) -> bool:
-    """Check if all the elements of `a` and `b` match."""
-    return len(a) == len(b) and all(comparative(x) == comparative(y) for x, y in zip(a, b))
 
 
 def get_input(prompt: str = "", s: str = "") -> str:
@@ -128,6 +123,18 @@ def build_expected_patterns(grammar: dict):
 def pathToFunc(path: str) -> str:
     """Converts a path .lib/path/to/somewhere to a function prefix p_path_to_somewhere_<fname>."""
     return f"p_{path.lower().removeprefix(".lib/").replace("/", "_")}_".lower()
+
+
+def print_warning(msg: str, log: dict) -> None:
+    from datatypes import OrderedSet
+
+    if log["dependency"] or log["main"]:
+        print("WARNING: " + msg)
+        for path in OrderedSet(log["dependency"]):
+            print(f"       | {path}")
+
+        if log["main"]:
+            print(f"       | {log["main"][0]}")
 
 
 

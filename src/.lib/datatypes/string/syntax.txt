@@ -3,6 +3,4 @@
 <LETTER>    ::= <MAJUSCULE> | <MINISCULE>
 <MAJUSCULE> ::= [A-Z]
 <MINISCULE> ::= [a-z]
-<CHAR>      ::= <LETTER> | <DIGIT>
-<CHARS>    ::= <CHAR> | <CHAR> <CHARS>
-<STRING>    ::= " <CHARS> "
+<STRING>    ::= "[\w\d\s]*"

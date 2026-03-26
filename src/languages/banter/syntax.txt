@@ -1,6 +1,7 @@
+#require datatypes.identifier
 #require datatypes.string
-#require datatypes.variable
 #require math.infix
+
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
 
@@ -8,23 +9,22 @@
 <STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
 
 <EXPRESSION>     ::= <MATHEXPR>
-<MATHEXPR>       ::= <STRING>
+<VALUE>          ::= <STRING> | <LABEL>
+<LABEL>          ::= <ID>
 
 <ASSIGNMENT>     ::= let <ID> be <EXPRESSION>
 
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
 <IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
 <IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n else <BLOCK>
-<BLOCK>          ::= \n INDENT <STATEMENT_LIST> DEDENT
+<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT>
 
 <RETURN>         ::= return <EXPRESSION>
 
 <GOTO>           ::= <MARKER> | <JUMP>
-<MARKER>         ::= @ <NUMBER> \n <STATEMENT_LIST>
+<MARKER>         ::= @ <ID> \n <STATEMENT_LIST>
 <NUMBER>         ::= <LABEL> | <BOOL>
 <BOOL>           ::= True | False
-<JUMP>           ::= goto instruction <NUMBER>
+<JUMP>           ::= goto instruction <ID>
 
 <PRINT>          ::= print <EXPRESSION>
-
-<LETTER>         ::= _

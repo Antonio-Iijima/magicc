@@ -49,7 +49,7 @@ def main(args: list = argv) -> None:
     if FLAGS['t']:
         from tests import test
     
-        test(LANGUAGE.rsplit("/")[-1], args)
+        test(LANGUAGE.rsplit("/")[-1], args, FLAGS["d"])
     
     from eval import process
     

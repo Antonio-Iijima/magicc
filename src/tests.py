@@ -5,7 +5,7 @@ from time import time
 
 
 
-def test(name: str, options: list[int]) -> None:
+def test(name: str, options: list[int], dFlag: bool = False) -> None:
     for i in options:
         match name + i:
             case "calculator1":
@@ -19,6 +19,8 @@ def test(name: str, options: list[int]) -> None:
                     ("1 + -12", -11),
                     ("1 + - 12", -11),
                     ("--12", 12),
+                    ("10 % 3", 1),
+                    ("-3 % 7", 4),
                     ("|-26|", 26),
                     ("|---12|", 12),
                     ("|10-20| * 3", 30),
@@ -69,7 +71,7 @@ def test(name: str, options: list[int]) -> None:
 
             start = time()
 
-            parsed = parse(test, dFlag=False)
+            parsed = parse(test, dFlag=dFlag)
             print("\nPARSED\n")
             
             for s, v in {

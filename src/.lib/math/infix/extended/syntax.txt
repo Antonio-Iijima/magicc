@@ -1,5 +1,5 @@
 <MULTIPLY> ::= <NEGATIVE>
-<NEGATIVE> ::= - <FACTOR>
+<NEGATIVE> ::= - <MATHEXPR>
 <DIVIDE>   ::= <MODULO>
 <MODULO>   ::= <TERM> % <FACTOR>
 <FACTOR>   ::= <ABS> | <EXP>

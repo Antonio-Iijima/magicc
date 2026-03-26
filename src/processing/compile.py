@@ -13,7 +13,7 @@ def compile(path: str, dFlag: bool = False) -> None:
         file.write(grammar.compile())
     
     with open("eval.py", "w") as file:
-        file.write(Eval(path, grammar.dependencies).compile())
+        file.write(Eval(path, grammar.dependencies, grammar.MAIN).compile())
     
     if dFlag:
         print()

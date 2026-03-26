@@ -30,6 +30,7 @@ class Rule:
 
 
     def __repr__(self):
+        # return self._str
         return self.__name__
             
                 
