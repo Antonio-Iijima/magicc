@@ -47,8 +47,8 @@ def main(args: list = argv) -> None:
     
     else:
         from AST import LANGUAGE
-    
-        print(f"Language: {LANGUAGE.rsplit("/")[-1]}.")
+            
+        print(f"Language: {LANGUAGE}.")
 
 
     if FLAGS['t']:

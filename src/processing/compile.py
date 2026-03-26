@@ -27,12 +27,3 @@ def compile(path: str) -> None:
     print()
     print("Done!")
     print()
-
-
-
-if __name__ == "__main__":
-    test = Grammar("languages/banter")
-    # print(test)
-    # print(test.compile())
-    ev = Eval(test.path, test.dependencies)
-    print(ev.compile())

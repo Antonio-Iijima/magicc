@@ -135,6 +135,8 @@ EPSILON = "ε"
 
 EPSILA: set = {{EPSILON}}
 
+LANGUAGE = "{self.path.split("/")[-1]}"
+
 
 
 ##### HELPER FUNCTIONS #####
