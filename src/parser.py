@@ -43,7 +43,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
         # Otherwise set up to process states at this token
         tokens.append(token)
 
-        next_token = get_next_token(remaining_tokens)
+        next_token = remaining_tokens[0] if remaining_tokens else None
 
         for state in current_states: state.append(token)
         
@@ -55,7 +55,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
         # adding valid future states to the list as appropriate.
         while reducible_states:
 
-            state = reducible_states.remove()
+            state = reducible_states.pop()
             
             if dFlag: print("State", state)
 
@@ -100,22 +100,24 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
             print("Future states", current_states)
             print()
             
-    # Filter for accepting states; if not found return None explicitly.
-    acceptable_states: set = {
+
+    accepting_states: OrderedSet = OrderedSet(
         state[0] for state in current_states if (
             len(state) == 1
             and isinstance(state[0], PROGRAM)
-        )
-    }
-
+        ))
+    
     if dFlag:
         print()
-        print(list(str(state) for state in acceptable_states))
+        print(list(str(state) for state in accepting_states))
     
-    if not acceptable_states: 
+    if not accepting_states: 
         raise SyntaxError("parser terminated without any accepting states.")
     
-    return Parsed(expr, acceptable_states.pop(), max_states, showTree=dFlag)
+    if (len(accepting_states) > 1): 
+        print(f"WARNING: multiple valid parses found (ambiguous grammar)")
+    
+    return Parsed(expr, accepting_states.pop(), max_states, showTree=dFlag)
 
 
 def tokenize(string: str) -> list:
@@ -187,7 +189,9 @@ def indent(lines: list) -> list:
     return indented
 
 
-def preprocess_input(string: str, indentSensitive: bool):
+def preprocess_input(string: str, indentSensitive: bool) -> list:
+    """Strips # comments and wraps automatic indentation processing."""
+
     lines = string.splitlines()
 
     for i, line in enumerate(lines):
@@ -195,10 +199,3 @@ def preprocess_input(string: str, indentSensitive: bool):
             lines[i] = line[:line.index("#")]
 
     return indent(lines) if indentSensitive else lines
-
-
-def get_next_token(remaining: list) -> str|None:
-    for t in remaining:
-        if not t == " ":
-            return t
-    return None

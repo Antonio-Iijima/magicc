@@ -1,5 +1,9 @@
 from datatypes import OrderedSet
-from utils import preprocess_text, print_warning, SPECIAL
+from utils import (
+    preprocess_text, 
+    print_warning, 
+    SPECIAL
+)
 
 import os
 import re
@@ -22,6 +26,9 @@ class Grammar:
         self.path = self.MAIN = path
         self.modules = {}
         self.dependencies = self.traverse_dependencies(self.path, main=True)
+
+        for module, lines in self.modules.items():
+            self.modules[module] = Module("MAIN" if module == self.MAIN else module, lines)
 
         print_warning("syntax not found", self.WARNINGS)
 
@@ -51,8 +58,7 @@ class Grammar:
 
                     requirements.add(".lib/" + requirement)
 
-                lines = filter(lambda x: not x.startswith("#require"), lines)
-                self.modules[path] = Module("MAIN" if main else path, lines)
+                self.modules[path] = filter(lambda x: not x.startswith("#require"), lines)
 
                 dependencies.extend(requirements)
 
@@ -65,9 +71,9 @@ class Grammar:
 
     
     @staticmethod
-    def add_terminal(rule: 'Nonterminal', terminal: str) -> None:
-        """Adds a new terminal to the `Grammar`."""
-        Grammar.TERMINALS[rule] = terminal
+    def add_terminal(rule: 'Nonterminal', regex: str) -> None:
+        """Adds a new terminal to the `Grammar`, binding it to the provided regular expression."""
+        Grammar.TERMINALS[rule] = regex
 
 
     def __str__(self) -> str:
@@ -97,7 +103,6 @@ MODULES = {self.embed()}
 
 GRAMMAR = {{}}
 
-
 for module, subgrammar in MODULES.items():
     for rule, alternatives in subgrammar.items():
         if not rule in GRAMMAR: GRAMMAR[rule] = {{}}
@@ -120,28 +125,15 @@ TERMINALS = {{
     )
 }}
 
+INDENT_SENSITIVE = {self.INDENT_SENSITIVE}
+
+NEWLINE_SENSITIVE = {self.NEWLINE_SENSITIVE}
+
 K = {Grammar.K}
-
-TOKENS = {{
-    *TERMINALS,
-    *GRAMMAR
-}}
-
-EXPECTED_TOKENS = {{
-    token : [] for token in TOKENS
-}}
-
-EXPECTED_PATTERNS = {{
-    token : [] for token in TOKENS
-}}
 
 EPSILON = "ε"
 
 EPSILA: set = {{EPSILON}}
-
-INDENT_SENSITIVE = {self.INDENT_SENSITIVE}
-
-NEWLINE_SENSITIVE = {self.NEWLINE_SENSITIVE}
 
 
 
@@ -158,7 +150,7 @@ def nullable(x): return type(x) in EPSILA
 
 def expects(previous: Rule|str, next: str|None) -> bool:
     '''Check if `previous` expects `next` or `previous` is `None`.'''
-    return previous == None or type(next) in EXPECTED_TOKENS.get(type(previous), [])
+    return (previous == None) or (type(next) in EXPECTED_TOKENS.get(type(previous), []))
 
 
 
@@ -166,8 +158,8 @@ def expects(previous: Rule|str, next: str|None) -> bool:
 
 
 
-EPSILA = find_nullable_rules(GRAMMAR)
-EXPECTED_TOKENS = build_expected_tokens(GRAMMAR, EPSILA)
+EPSILA            = find_nullable_rules(GRAMMAR)
+EXPECTED_TOKENS   = build_expected_tokens(GRAMMAR, EPSILA)
 EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 """
         
@@ -184,12 +176,15 @@ class Module:
         self.name = "MAIN" if name == Grammar.MAIN else name.removeprefix(".lib/").upper().replace("/", "_")
         self.lines = lines
         self.rules = OrderedSet()
-
-        self.indent = 0
+        self.indent = 7
 
         for line in lines:
-            self.rules.add(Production(self, *line.split(sep)))
+            self.add_rule(*line.split(sep))
             self.indent = max(self.indent, line.index(sep)-len(sep))
+
+
+    def add_rule(self, rule: str, regex: str) -> None:
+        self.rules.add(Production(self, rule, regex))
 
 
     def _str(self) -> str:
@@ -243,7 +238,7 @@ class {self.rule.name}(Rule):
 
 
     def embed(self, indent: int) -> str:
-        return f"{self.rule.name} {" " * (indent-len(self.rule))} : [{f", ".join(pattern.embed() for pattern in self.alternatives)}]"
+        return f"{self.rule.name} {" " * (indent-len(self.rule.name))} : [{f", ".join(pattern.embed() for pattern in self.alternatives)}]"
 
 
 
@@ -265,8 +260,8 @@ class Pattern:
 
                 if nonterminal in ("<INDENT>", "<DEDENT>") and not Grammar.INDENT_SENSITIVE:
                     Grammar.INDENT_SENSITIVE = True
-                    self.module.rules.add(Production(self.module, "<INDENT>", SPECIAL["indent"]))
-                    self.module.rules.add(Production(self.module, "<DEDENT>", SPECIAL["dedent"]))
+                    self.module.add_rule("<INDENT>", SPECIAL["indent"])
+                    self.module.add_rule("<DEDENT>", SPECIAL["dedent"])
                 if terminal == r"\n":
                     Grammar.NEWLINE_SENSITIVE = True
 
@@ -287,25 +282,25 @@ class Pattern:
             (len(self.pattern) == 1) 
             and (variants == 1)
         ): self.optimize()
-        
+
 
     def optimize(self) -> None:
         """Pattern optimization by substituting terminals with single-alternative nonterminals."""
 
         for i, token in enumerate(self.pattern):
             if isinstance(token, Terminal):
-                if (not token.name in Grammar.TERMINALS.values()):
-                    new_rule, regex = Nonterminal(token.sub()), token.name
+                if (token.regex in Grammar.TERMINALS.values()):
+                    for new_rule, regex in Grammar.TERMINALS.items():
+                        if (regex == token.regex):
+                            self.pattern[i] = new_rule
+                            break     
+                else:
+                    new_rule, regex = Nonterminal(token.asRule()), token.regex
                     self.pattern[i] = new_rule
                     
                     Grammar.add_terminal(new_rule, regex)
-                    self.module.rules.add(Production(self.module, new_rule.name, regex))
-                else:
-                    for new_rule, regex in Grammar.TERMINALS.items():
-                        if regex == token.name:
-                            self.pattern[i] = new_rule
-                            break
-
+                    self.module.add_rule(new_rule.name, regex)
+                    
 
     def _str(self) -> str:
         return " ".join(str(token) for token in self.pattern)
@@ -340,15 +335,16 @@ class Nonterminal:
 
 class Terminal:
     def __init__(self, name: str):
-        self.name = name
+        self.regex = name
 
 
-    def sub(self) -> int:
-        return f"<T_{abs(hash(self.name)%100000)}>"
+    def asRule(self) -> str:
+        """Constructs a unique nonterminal identifier for grammar optimization."""
+        return f"<T_{str(hash(self.regex))[2:7]}>"
 
 
     def __str__(self):
-        return self.name
+        return self.regex
     
 
     def __repr__(self):
@@ -356,10 +352,4 @@ class Terminal:
     
 
     def embed(self) -> str:
-        return f"r'{self.name}'"
-
-
-
-if __name__ == "__main__":
-    test = Grammar("languages/banter")
-    print(test.compile())
+        return f"r'{self.regex}'"

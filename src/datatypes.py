@@ -59,12 +59,12 @@ class OrderedSet(dict):
         super().__init__(dict.fromkeys(iterable) if iterable else {})
 
 
-    def add(self, item, overwrite: bool = False):
-        if overwrite: self.pop(item, None)
+    def add(self, item: any) -> None:
         self[item] = None
 
 
-    def remove(self) -> State:
+    def pop(self) -> State:
+        """Removes and returns the last value from the `OrderedSet`."""
         return self.popitem()[0]
 
 
@@ -72,9 +72,9 @@ class OrderedSet(dict):
         return OrderedSet(self.keys())
     
 
-    def extend(self, iterable, overwrite: bool = False) -> 'OrderedSet':
+    def extend(self, iterable) -> 'OrderedSet':
         for item in iterable:
-            self.add(item, overwrite)
+            self.add(item)
 
         return self
     

@@ -1,6 +1,5 @@
-from datatypes import OrderedSet
-from processing.syntax import Grammar
 from utils import pathToFunc, print_warning
+from datatypes import OrderedSet
 import os, re
 
 
@@ -24,6 +23,7 @@ class Eval:
 
 from datatypes import Rule, Parsed
 from parser import parse
+from utils import config
 
 
 
@@ -66,7 +66,9 @@ def evaluate(AST: Rule):
     )
 
 
-def process(string: str, dFlag: bool) -> any:
+def process(string: str) -> any:
+    dFlag = config("flags", "d")
+
     try:
         out = evaluate(parse(string, dFlag=dFlag).AST)
         if out is not None: print(out)

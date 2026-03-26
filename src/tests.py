@@ -1,11 +1,14 @@
 from eval import validate
 from parser import parse
+from utils import config
 
 from time import time
 
 
 
-def test(name: str, options: list[int], dFlag: bool = False) -> None:
+def test(name: str, options: list[int]) -> None:
+    dFlag = config("flags", "d")
+
     for i in options:
         match name + i:
             case "calculator1":

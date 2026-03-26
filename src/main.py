@@ -6,6 +6,7 @@ from processing import compile
 from utils import get_input
 
 from os.path import abspath, exists
+from json import load, dump
 from sys import exit, argv
 from time import time
 from os import remove
@@ -13,20 +14,24 @@ from os import remove
 
 
 def main(args: list = argv) -> None:
-    FLAGS = {
-        flag : False for flag in [
-            "i", # interactive
-            "c", # compile
-            "d", # debug
-            "t", # test
-            "x", # clear
-        ]
-    }
+    with open("config.json") as file: 
+        config = load(file)
+        
+    for flag in [
+        "i", # interactive
+        "c", # compile
+        "d", # debug
+        "t", # test
+        "x", # clear
+    ]:
+        config["flags"][flag] = (f"-{flag}" in argv)
+        config["flags"][flag] and args.remove(f"-{flag}")
+    
+    with open("config.json", "w") as file:
+        dump(config, file)
 
-    for flag in FLAGS:
-        FLAGS[flag] = f"-{flag}" in argv
-        FLAGS[flag] and args.remove(f"-{flag}")
-
+    FLAGS = config["flags"]
+    
 
     if FLAGS['x']:
         exists("AST.py") and remove("AST.py")
@@ -38,7 +43,7 @@ def main(args: list = argv) -> None:
 
     if FLAGS['c']: 
         LANGUAGE = abspath(args.pop(0))
-        compile(LANGUAGE, FLAGS["d"])
+        compile(LANGUAGE)
     
     else:
         from AST import LANGUAGE
@@ -49,20 +54,20 @@ def main(args: list = argv) -> None:
     if FLAGS['t']:
         from tests import test
     
-        test(LANGUAGE.rsplit("/")[-1], args, FLAGS["d"])
+        test(LANGUAGE.rsplit("/")[-1], args)
     
     from eval import process
     
     for arg in args:
         if exists(arg):
             with open(arg) as file:
-                process(file.read(), dFlag=FLAGS['d'])
+                process(file.read())
 
     if FLAGS['i']:
         for line in iter(lambda: get_input("</> "), "quit"):
             if line.strip():
                 if FLAGS['d']: start = time()
-                process(line, FLAGS['d'])
+                process(line)
                 if FLAGS['d']: print(f"Runtime: {time() - start}")
 
 

@@ -1,9 +1,12 @@
 from processing.syntax import Grammar
 from processing.semantics import Eval
 
+from utils import config
 
 
-def compile(path: str, dFlag: bool = False) -> None:
+
+def compile(path: str) -> None:
+    dFlag = config("flags", "d")
 
     print(f"Compiling: {path.rsplit("/")[-1]}")
     print()

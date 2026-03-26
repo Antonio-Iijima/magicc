@@ -1,4 +1,5 @@
 from io import TextIOWrapper
+from json import load
 
 import re
 
@@ -6,11 +7,19 @@ import re
 
 LIB_PATH = ".lib"
 SPECIAL = {
-    "indent"      : "//INDENTATIONMARKER//",
-    "dedent"      : "//DEDENTATIONMARKER//",
+    "indent"      : "//INDENTATION-MARKER//",
+    "dedent"      : "//DEDENTATION-MARKER//",
     "indentation" : "   "
 }
 
+
+
+def config(*keys): 
+    cfg = load(open("config.json"))
+    for key in keys:
+        if key:
+            cfg = cfg[key]
+    return cfg
 
 
 def preprocess_text(text: TextIOWrapper) -> list[str]: 
