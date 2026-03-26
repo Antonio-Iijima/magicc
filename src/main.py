@@ -2,20 +2,17 @@
 
 
 
+from utils import get_input, get_config, set_config
 from processing import compile
-from utils import get_input
 
-from os.path import abspath, exists
-from json import load, dump
 from sys import exit, argv
 from time import time
-from os import remove
 
+import os
 
 
 def main(args: list = argv) -> None:
-    with open("config.json") as file: 
-        config = load(file)
+    config = get_config()
         
     for flag in [
         "i", # interactive
@@ -27,39 +24,39 @@ def main(args: list = argv) -> None:
         config["flags"][flag] = (f"-{flag}" in argv)
         config["flags"][flag] and args.remove(f"-{flag}")
     
-    with open("config.json", "w") as file:
-        dump(config, file)
+    set_config(config)
 
     FLAGS = config["flags"]
     
 
     if FLAGS['x']:
-        exists("AST.py") and remove("AST.py")
-        exists("eval.py") and remove("eval.py")
+        os.path.exists("AST.py") and os.remove("AST.py")
+        os.path.exists("eval.py") and os.remove("eval.py")
         exit()
 
 
     args = args[1:]
 
     if FLAGS['c']: 
-        LANGUAGE = abspath(args.pop(0))
-        compile(LANGUAGE)
+        config["paths"]["language"] = os.path.dirname(args.pop())
+        config["language"] = config["paths"]["language"].split("/")[-1]
+        set_config(config)
+        
+        compile()
     
     else:
-        from AST import LANGUAGE
-            
-        print(f"Language: {LANGUAGE}.")
+        print(f"Language: {config["language"]}.")
 
 
     if FLAGS['t']:
         from tests import test
     
-        test(LANGUAGE.rsplit("/")[-1], args)
+        test(args)
     
     from eval import process
     
     for arg in args:
-        if exists(arg):
+        if os.path.exists(arg):
             with open(arg) as file:
                 process(file.read())
 

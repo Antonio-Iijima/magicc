@@ -1,22 +1,22 @@
 from processing.syntax import Grammar
 from processing.semantics import Eval
 
-from utils import config
+from utils import get_config
 
 
 
-def compile(path: str) -> None:
-    dFlag = config("flags", "d")
+def compile() -> None:
+    dFlag = get_config("flags", "d")
 
-    print(f"Compiling: {path.rsplit("/")[-1]}")
+    print(f"Compiling: {get_config("language")}")
     print()
 
     with open("AST.py", "w") as file:
-        grammar = Grammar(path)
+        grammar = Grammar()
         file.write(grammar.compile())
     
     with open("eval.py", "w") as file:
-        file.write(Eval(path, grammar.dependencies, grammar.MAIN).compile())
+        file.write(Eval(grammar.dependencies).compile())
     
     if dFlag:
         print()

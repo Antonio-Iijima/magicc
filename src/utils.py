@@ -1,25 +1,27 @@
 from io import TextIOWrapper
-from json import load
+from json import load, dump
 
 import re
+import os
 
 
 
-LIB_PATH = ".lib"
-SPECIAL = {
-    "indent"      : "//INDENTATION-MARKER//",
-    "dedent"      : "//DEDENTATION-MARKER//",
-    "indentation" : "   "
-}
-
-
-
-def config(*keys): 
-    cfg = load(open("config.json"))
+def get_config(*keys): 
+    """Look up a value from the config, applying keys sequentially.
+    No arguments returns the config itself."""
+    
+    cfg = load(open(os.path.join(os.path.dirname(__file__), "config.json")))
     for key in keys:
         if key:
             cfg = cfg[key]
     return cfg
+
+
+def set_config(cfg: dict, indent: int = 3):
+    """Writes a provided `dict` to the config.json file."""
+    
+    with open(os.path.join(os.path.dirname(__file__), "config.json"), "w") as file:
+        dump(cfg, file, indent=indent)
 
 
 def preprocess_text(text: TextIOWrapper) -> list[str]: 
@@ -38,8 +40,16 @@ def get_input(prompt: str = "", s: str = "") -> str:
     if s.endswith("\nquit"):
         from sys import exit
         exit()
-    if s.endswith("\n"):
+    
+    elif s.endswith("\nclear"):
+        from os import system, name as OS
+        system('cls' if OS == 'nt' else 'clear')
+        # print(f"Language: {}")
+        return ""
+    
+    elif s.endswith("\n"):
         return s
+    
     return get_input("." * (len(prompt)-1) + " ", s + "\n" + input(prompt))
 
 

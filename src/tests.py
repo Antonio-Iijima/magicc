@@ -1,13 +1,14 @@
+from utils import get_config
 from eval import validate
 from parser import parse
-from utils import config
 
 from time import time
 
 
 
-def test(name: str, options: list[int]) -> None:
-    dFlag = config("flags", "d")
+def test(options: list[int]) -> None:
+    dFlag = get_config("flags", "d")
+    name = get_config("language")
 
     for i in options:
         match name + i:

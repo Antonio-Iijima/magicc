@@ -1,4 +1,4 @@
-from utils import pathToFunc, print_warning
+from utils import pathToFunc, print_warning, get_config
 from datatypes import OrderedSet
 import os, re
 
@@ -10,10 +10,8 @@ class Eval:
         "main"       : []
     }
 
-    def __init__(self, path: str, dependencies: OrderedSet, main: str):
-        self.path = path
+    def __init__(self, dependencies: OrderedSet):
         self.dependencies = dependencies
-        self.main = main
 
 
     def compile(self) -> str:
@@ -22,15 +20,15 @@ class Eval:
 
 
 from datatypes import Rule, Parsed
+from utils import get_config
 from parser import parse
-from utils import config
 
 
 
 ##### MODULES #####
 """ \
         + "".join(File(dependency).compile() for dependency in self.dependencies) \
-        + File(self.path, self.main).compile() \
+        + File().compile() \
         + f"""
 
         
@@ -67,7 +65,7 @@ def evaluate(AST: Rule):
 
 
 def process(string: str) -> any:
-    dFlag = config("flags", "d")
+    dFlag = get_config("flags", "d")
 
     try:
         out = evaluate(parse(string, dFlag=dFlag).AST)
@@ -98,15 +96,17 @@ def validate(parsed: Parsed, solution: any) -> str:
 
 
 class File:
-    def __init__(self, path: str, main: str = None):
-        if main:
-            self.type = "MAIN"
-            self.path = "/".join(main.rsplit("/")[-2:]) # truncate full path for main module
-        else:
+    def __init__(self, path: str = None):
+        main = get_config("paths", "language")
+
+        if path: 
             self.type = "DEPENDENCY"
             self.path = path
+        else: # path not provided for main module; stored in config
+            self.type = "MAIN"
+            self.path = "/".join(main.rsplit("/")[-2:]) # truncate full path for main module
 
-        self.file = path + "/semantics.py"
+        self.file = self.path + "/semantics.py"
 
 
     def compile(self) -> str:

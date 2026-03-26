@@ -20,6 +20,10 @@ class Rule:
             else:
                 print(space*(level+1) + f" ({level+1}) " + c)
 
+    def depth(self):
+        if (len(self.children) == 1) and isinstance(self.children[0], str): return 1
+        return 1 + max(child.depth() for child in self.children)
+
 
     def __eq__(self, other: 'Rule'):
         return isinstance(other, Rule) and self.__hash__() == other.__hash__()
@@ -98,7 +102,10 @@ class Parsed:
         self.sentence = sentence
         self.AST = AST
         self.max_states = max_states
-        if showTree: print(AST.tree())
+        
+        if showTree: 
+            print(AST.tree())
+            print("Depth:", AST.depth())
 
 
     def get(self):

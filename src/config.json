@@ -1,1 +1,19 @@
-{"flags": {"i": true, "c": false, "d": true, "t": false, "x": false}}
+{
+   "flags": {
+      "i": true,
+      "c": true,
+      "d": false,
+      "t": false,
+      "x": false
+   },
+   "paths": {
+      "lib": ".lib",
+      "language": "languages/banter"
+   },
+   "special": {
+      "indent": "//INDENTATION-MARKER//",
+      "dedent": "//DEDENTATION-MARKER//",
+      "indentation": "   "
+   },
+   "language": "banter"
+}

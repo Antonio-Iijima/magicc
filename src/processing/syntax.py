@@ -1,8 +1,8 @@
 from datatypes import OrderedSet
 from utils import (
     preprocess_text, 
-    print_warning, 
-    SPECIAL
+    print_warning,
+    get_config
 )
 
 import os
@@ -15,20 +15,20 @@ class Grammar:
     K = 0
     INDENT_SENSITIVE = False
     NEWLINE_SENSITIVE = False
-    MAIN = ""
     WARNINGS = {
         "dependency" : [],
         "main"       : []
     }
     
 
-    def __init__(self, path: str):
-        self.path = self.MAIN = path
+    def __init__(self):
+        self.main = get_config("paths", "language")
+
         self.modules = {}
-        self.dependencies = self.traverse_dependencies(self.path, main=True)
+        self.dependencies = self.traverse_dependencies(self.main, main=True)
 
         for module, lines in self.modules.items():
-            self.modules[module] = Module("MAIN" if module == self.MAIN else module, lines)
+            self.modules[module] = Module("MAIN" if module == self.main else module, lines)
 
         print_warning("syntax not found", self.WARNINGS)
 
@@ -135,8 +135,6 @@ EPSILON = "ε"
 
 EPSILA: set = {{EPSILON}}
 
-LANGUAGE = "{self.path.split("/")[-1]}"
-
 
 
 ##### HELPER FUNCTIONS #####
@@ -175,7 +173,7 @@ EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 
 class Module:
     def __init__(self, name: str, lines: list, sep: str = "::="):
-        self.name = "MAIN" if name == Grammar.MAIN else name.removeprefix(".lib/").upper().replace("/", "_")
+        self.name = "MAIN" if name == get_config("language") else name.removeprefix(".lib/").upper().replace("/", "_")
         self.lines = lines
         self.rules = OrderedSet()
         self.indent = 7
@@ -262,8 +260,8 @@ class Pattern:
 
                 if nonterminal in ("<INDENT>", "<DEDENT>") and not Grammar.INDENT_SENSITIVE:
                     Grammar.INDENT_SENSITIVE = True
-                    self.module.add_rule("<INDENT>", SPECIAL["indent"])
-                    self.module.add_rule("<DEDENT>", SPECIAL["dedent"])
+                    self.module.add_rule("<INDENT>", get_config("special", "indent"))
+                    self.module.add_rule("<DEDENT>", get_config("special", "dedent"))
                 if terminal == r"\n":
                     Grammar.NEWLINE_SENSITIVE = True
 

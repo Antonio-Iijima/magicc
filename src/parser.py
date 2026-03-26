@@ -114,10 +114,11 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     if not accepting_states: 
         raise SyntaxError("parser terminated without any accepting states.")
     
-    if (len(accepting_states) > 1): 
+    if (len(accepting_states) > 1):
         print(f"WARNING: multiple valid parses found (ambiguous grammar)")
-    
-    return Parsed(expr, accepting_states.pop(), max_states, showTree=dFlag)
+        print(f"Using highest depth parse tree:", max(accepting_states, key=lambda state: state.depth()).depth(), "levels")
+
+    return Parsed(expr, max(accepting_states, key=lambda state: state.depth()), max_states, showTree=dFlag)
 
 
 def tokenize(string: str) -> list:
@@ -138,7 +139,7 @@ def tokenize(string: str) -> list:
 
         if not matches: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
         
-        match, rule, module = sorted(matches, key=lambda tup: len(tup[0]), reverse=True)[0]
+        match, rule, module = max(matches, key=lambda tup: len(tup[0]))
         tokens.append(rule([match], module))
         string = string.removeprefix(match).lstrip(" ")
 
@@ -157,8 +158,8 @@ def indent(lines: list) -> list:
         if (not line.strip()) or line.strip().startswith("#"): 
             continue
 
-        while line.startswith(SPECIAL["indentation"]):
-            line = line.removeprefix(SPECIAL["indentation"])
+        while line.startswith(get_config("special", "indentation")):
+            line = line.removeprefix(get_config("special", "indentation"))
             curr_indent += 1
 
         if line.startswith(" "): 
@@ -168,14 +169,14 @@ def indent(lines: list) -> list:
         diff = curr_indent - prev_indent
 
         while diff < 0:
-            indented[-1] += SPECIAL["dedent"]
+            indented[-1] += get_config("special", "dedent")
             diff += 1
 
         # Newline will come after DEDENTs but before INDENTS
         indented.append("")
         
         while diff > 0:
-            indented[-1] += SPECIAL["indent"]
+            indented[-1] += get_config("special", "indent")
             diff -= 1
             
         indented[-1] += line
@@ -183,7 +184,7 @@ def indent(lines: list) -> list:
 
     # Handle any final DEDENTs
     while prev_indent > 0:
-        indented[-1] += SPECIAL["dedent"]
+        indented[-1] += get_config("special", "dedent")
         prev_indent -= 1
 
     return indented
