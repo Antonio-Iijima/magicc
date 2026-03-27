@@ -1,12 +1,3 @@
-"""
-Exception code details:
-0 : Program returned successfully
-1 : Error
-2 : Jump command
-"""
-
-
-
 g_env = {}
 g_markers = {}
 
