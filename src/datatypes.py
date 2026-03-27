@@ -12,7 +12,7 @@ class Rule:
         self._hash = self.__name__.__hash__() + sum(child.__hash__() for child in children)
 
 
-    def tree(self, level: int = 0, space: str = "   "):
+    def tree(self, level: int = 0, space: str = "   ") -> None:
         print(space*level + f" ({level}) " + self.__name__)
         for c in self.children:
             if isinstance(c, Rule):
@@ -20,7 +20,8 @@ class Rule:
             else:
                 print(space*(level+1) + f" ({level+1}) " + c)
 
-    def depth(self):
+
+    def depth(self) -> int:
         if (len(self.children) == 1) and isinstance(self.children[0], str): return 1
         return 1 + max(child.depth() for child in self.children)
 

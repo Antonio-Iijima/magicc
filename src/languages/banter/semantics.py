@@ -1,3 +1,12 @@
+"""
+Exception code details:
+0 : Program returned successfully
+1 : Error
+2 : Jump command
+"""
+
+
+
 g_env = {}
 g_markers = {}
 
@@ -13,6 +22,9 @@ def p_label(expr):
         return g_env[expr(0)]
     except KeyError:
         raise Exception(1, f"Error: variable {expr(0)} not declared.")
+
+def p_bool(expr):
+    return expr(0) == "True"
 
 
 def p_assignment(expr):
@@ -38,18 +50,22 @@ def p_return(expr):
 
 
 def p_marker(expr):
-    mark = f"marker_{expr(1)}"
+    mark = expr(1)
     jump = True
     while jump:
         try:
             expr(3)
             jump = False
         except Exception as e:
-            jump = (mark in e.args)
-            if not jump: raise e
+            jump = (e.args == (2, mark))
+            if not jump: 
+                if len(e.args) > 0 and e.args[0] == 2:
+                    print(f"ERROR: cannot reference marker '{e.args[1]}' before declaration")
+                e.args = (1, e.args[1])
+                raise e
 
 def p_jump(expr):
-    raise Exception(1, f"marker_{expr(2)}")
+    raise Exception(2, expr(2))
 
 
 def p_print(expr):

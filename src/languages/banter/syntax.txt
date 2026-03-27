@@ -9,8 +9,9 @@
 <STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
 
 <EXPRESSION>     ::= <MATHEXPR>
-<VALUE>          ::= <STRING> | <LABEL>
+<VALUE>          ::= <STRING> | <LABEL> | <BOOL>
 <LABEL>          ::= <ID>
+<BOOL>           ::= True | False
 
 <ASSIGNMENT>     ::= let <ID> be <EXPRESSION>
 
@@ -22,9 +23,8 @@
 <RETURN>         ::= return <EXPRESSION>
 
 <GOTO>           ::= <MARKER> | <JUMP>
-<MARKER>         ::= @ <ID> \n <STATEMENT_LIST>
-<NUMBER>         ::= <LABEL> | <BOOL>
-<BOOL>           ::= True | False
-<JUMP>           ::= goto instruction <ID>
+<MARKER>         ::= @ <MARK> \n <STATEMENT_LIST>
+<JUMP>           ::= goto instruction <MARK>
+<MARK>           ::= <ID> | <NUMBER>
 
 <PRINT>          ::= print <EXPRESSION>

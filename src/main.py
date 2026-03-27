@@ -39,14 +39,14 @@ def main(args: list = argv) -> None:
     args = args[1:]
 
     if FLAGS['c']: 
-        config["paths"]["language"] = os.path.dirname(args.pop())
+        config["paths"]["language"] = os.path.dirname(args.pop(0))
         config["language"] = config["paths"]["language"].split("/")[-1]
         set_config(config)
         
         compile()
     
     else:
-        print(f"Language: {config["language"]}.")
+        print(f"Language: {config["language"]}")
 
 
     if FLAGS['t']:
@@ -72,4 +72,3 @@ def main(args: list = argv) -> None:
 
 if __name__ == "__main__": 
     main()
- 

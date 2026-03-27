@@ -115,8 +115,8 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
         raise SyntaxError("parser terminated without any accepting states.")
     
     if (len(accepting_states) > 1):
-        print(f"WARNING: multiple valid parses found (ambiguous grammar)")
-        print(f"Using highest depth parse tree:", max(accepting_states, key=lambda state: state.depth()).depth(), "levels")
+        print(f"WARNING: {len(accepting_states)} valid parses found (ambiguous grammar)")
+        print(f"Resolving for highest depth parse tree (d={max(accepting_states, key=lambda state: state.depth()).depth()})")
 
     return Parsed(expr, max(accepting_states, key=lambda state: state.depth()), max_states, showTree=dFlag)
 

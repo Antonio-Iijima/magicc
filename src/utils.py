@@ -44,7 +44,7 @@ def get_input(prompt: str = "", s: str = "") -> str:
     elif s.endswith("\nclear"):
         from os import system, name as OS
         system('cls' if OS == 'nt' else 'clear')
-        # print(f"Language: {}")
+        print(f"Language: {get_config("language")}")
         return ""
     
     elif s.endswith("\n"):

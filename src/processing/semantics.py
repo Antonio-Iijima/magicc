@@ -71,10 +71,7 @@ def process(string: str) -> any:
         out = evaluate(parse(string, dFlag=dFlag).AST)
         if out is not None: print(out)
     except Exception as e:
-        if (
-            len(e.args) > 1
-            and e.args[0] in (0, 1)
-        ):
+        if e.args[0] == 0:
             print(e.args[1])
         else:
             raise e
