@@ -11,6 +11,7 @@ from time import time
 import os
 
 
+
 def main(args: list = argv) -> None:
     config = get_config()
         
@@ -71,3 +72,4 @@ def main(args: list = argv) -> None:
 
 if __name__ == "__main__": 
     main()
+ 

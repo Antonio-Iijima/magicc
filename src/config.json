@@ -1,19 +1,19 @@
 {
    "flags": {
-      "i": true,
-      "c": true,
+      "i": false,
+      "c": false,
       "d": false,
       "t": false,
-      "x": false
+      "x": true
    },
    "paths": {
       "lib": ".lib",
-      "language": "languages/banter"
+      "language": "languages/calculator"
    },
    "special": {
       "indent": "//INDENTATION-MARKER//",
       "dedent": "//DEDENTATION-MARKER//",
       "indentation": "   "
    },
-   "language": "banter"
+   "language": "calculator"
 }
