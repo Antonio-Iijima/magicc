@@ -53,52 +53,92 @@ def get_input(prompt: str = "", s: str = "") -> str:
     return get_input("." * (len(prompt)-1) + " ", s + "\n" + input(prompt))
 
 
-def regularize(path, sep="::="):
-    with open(path) as file:
-        text = file.readlines()
-    
-    offset = 0
+def regularize(path):
+    if os.path.isdir(path):
+        for file in os.listdir(path):
+            regularize(os.path.join(path, file))
+    elif path.endswith(".txt"):
+        print(f"Regularizing {path}")
+        
+        with open(path) as file:
+            text = file.read()
+            text = text.splitlines()
+        
+        offset = 0
 
-    for i, line in enumerate(s.strip() for s in text):
-        text[i] = [s.strip() for s in line.split(sep)]
-        if len(text[i]) == 2:
-            offset = max(offset, len(text[i][0]))
+        for i, line in enumerate(s.strip() for s in text):
+            text[i] = [s.strip() for s in line.split("::=")]
+            if len(text[i]) == 2:
+                offset = max(offset, len(text[i][0]))
 
-    for i, line in enumerate(text):
-        if isinstance(line, list):
-            if len(line) == 1: 
-                text[i] = line[0]
-            else:
-                rule, production = line
-                text[i] = f"{rule.upper()}{" " * (offset-len(rule))} ::= {" ".join([s.upper() if (len(s) > 1 and s[::len(s)-1] == "<>") else s for s in production.split()])}"
+        for i, line in enumerate(text):
+            if isinstance(line, list):
+                if len(line) == 1:  
+                    text[i] = line[0]
+                else:
+                    rule, production = line
+                    text[i] = f"{rule.upper()}{" " * (offset-len(rule))} ::= {" ".join([s.upper() if (len(s) > 1 and s[::len(s)-1] == "<>") else s for s in production.split()])}"
 
-    text = "\n".join(text).strip() + "\n"
+        text = "\n".join(text).strip() + "\n"
 
-    with open(path, "w") as file:
-        file.write(text)
+        with open(path, "w") as file:
+            file.write(text)
 
 
 def find_nullable_rules(grammar: dict) -> set:
     """Collect nullable rules (i.e. rules that can be expanded from EPSILON)."""
 
-    nulls = set()
+    nulls = {"ε"}
+
     count = 0
     
     while count < len(nulls):
-        for rule, alternatives in grammar.items():
-            for pattern in alternatives:
-                if (
-                    len(pattern) == 1
-                    and pattern[0] in nulls
-                    and rule not in nulls
-                ):
-                    nulls.add(rule)
+        for rule, modules in grammar.items():
+            for _, alternatives in modules.items():
+                for pattern in alternatives:
+                    if (
+                        len(pattern) == 1
+                        and pattern[0] in nulls
+                        and rule not in nulls
+                    ):
+                        nulls.add(rule)
         count += 1
 
     return nulls
 
 
-def build_expected_tokens(grammar: dict[str, dict], nulls: set) -> dict:
+def eliminate_nulls(grammar: dict, nulls: set) -> dict:
+
+    for rule, modules in list(grammar.items()):
+        for module, alternatives in list(modules.items()):
+            
+            grammar[rule][module] = []
+            
+            for _, pattern in enumerate(alternatives):
+                expanded_null_patterns = [[]]
+                for i, token in enumerate(pattern):
+                    if not token == "ε":
+                        expanded_null_patterns = list(state + [token] for state in expanded_null_patterns)
+                        if token in nulls:
+                            expanded_null_patterns += list(state[:-1] for state in expanded_null_patterns)
+
+                for expanded_null_pattern in expanded_null_patterns:
+                    if expanded_null_pattern and not (
+                        expanded_null_pattern in grammar[rule][module]
+                        or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
+                    ):
+                        grammar[rule][module].append(expanded_null_pattern)
+            
+            if not grammar[rule][module]:
+                grammar[rule].pop(module)
+
+        if not grammar[rule]:
+            grammar.pop(rule)
+    
+    return grammar
+
+
+def build_expected_tokens(grammar: dict[str, dict]) -> dict:
     """Constructs a dictionary mapping every token to a set of all possible subsequent tokens."""
 
     def extend_expected_tokens(curr, next) -> list:    
@@ -160,4 +200,4 @@ def print_warning(msg: str, log: dict) -> None:
 if __name__ == "__main__":
     from sys import argv
 
-    regularize(argv[-1] + "/syntax.txt")
+    regularize(argv[-1])

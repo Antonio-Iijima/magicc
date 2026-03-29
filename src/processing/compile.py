@@ -8,7 +8,7 @@ from utils import get_config
 def compile() -> None:
     dFlag = get_config("flags", "d")
 
-    print(f"Compiling: {get_config("language")}")
+    print(f"Compiling...")
     print()
 
     with open("AST.py", "w") as file:

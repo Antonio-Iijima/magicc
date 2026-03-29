@@ -131,10 +131,6 @@ NEWLINE_SENSITIVE = {self.NEWLINE_SENSITIVE}
 
 K = {Grammar.K}
 
-EPSILON = "ε"
-
-EPSILA: set = {{EPSILON}}
-
 
 
 ##### HELPER FUNCTIONS #####
@@ -145,12 +141,12 @@ def expected_patterns(x) -> tuple[Rule, int, list]:
     return EXPECTED_PATTERNS.get(type(x), [])
 
 
-def nullable(x): return type(x) in EPSILA
+def nullable(x): return type(x) in NULLS
 
 
 def expects(previous: Rule|str, next: str|None) -> bool:
-    '''Check if `previous` expects `next` or `previous` is `None`.'''
-    return (previous == None) or (type(next) in EXPECTED_TOKENS.get(type(previous), []))
+    '''Check if `previous` expects `next` or either are `None`.'''
+    return (previous == None) or (next == None) or (type(next) in EXPECTED_TOKENS.get(type(previous), []))
 
 
 
@@ -158,8 +154,9 @@ def expects(previous: Rule|str, next: str|None) -> bool:
 
 
 
-EPSILA            = find_nullable_rules(GRAMMAR)
-EXPECTED_TOKENS   = build_expected_tokens(GRAMMAR, EPSILA)
+NULLS             = find_nullable_rules(GRAMMAR)
+GRAMMAR           = eliminate_nulls(GRAMMAR, NULLS)
+EXPECTED_TOKENS   = build_expected_tokens(GRAMMAR)
 EXPECTED_PATTERNS = build_expected_patterns(GRAMMAR)
 """
         

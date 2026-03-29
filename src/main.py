@@ -38,21 +38,24 @@ def main(args: list = argv) -> None:
 
     args = args[1:]
 
-    if FLAGS['c']: 
+    if args and os.path.isdir(args[0]):
         config["paths"]["language"] = os.path.dirname(args.pop(0))
         config["language"] = config["paths"]["language"].split("/")[-1]
+        print(f"Language detected: {config["language"]}")
         set_config(config)
         
+        print()
+
         compile()
-    
-    else:
-        print(f"Language: {config["language"]}")
+
+    else: print(f"Language: {config["language"]}")
 
 
     if FLAGS['t']:
         from tests import test
     
         test(args)
+    
     
     from eval import process
     

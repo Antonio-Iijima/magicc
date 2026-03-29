@@ -77,19 +77,21 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
                     # 1) EOI (no next token) or next token is expected
                     # 2) Each token correctly expects the next token
                     if (
-                        (
-                            next_token == None
-                            or expects(reduced[-1], next_token)
-                        ) and (
+                        expects(reduced[-1], next_token)
+                        and (
                             all(idx == k or expects(reduced[idx-k-1], reduced[idx-k]) 
                                 for k in range(min(K, len(reduced))))
                         )
                     ):
                         if dFlag: print("Future", reduced)
                         future_states.add(reduced)
-
+ 
                 # If the current pattern does not match, but could match if given more tokens.
-                # elif type(state[-1]) in pattern: future_states.add(state)
+                # elif (
+                #     (type(state[-1]) in pattern)
+                #     and (expects(state[-1], next_token))
+                # ): 
+                #     future_states.add(state)
 
         max_states = max(max_states, len(future_states))
         if max_states > state_limit: raise RuntimeError(f"Too many states to consider: {max_states}")
@@ -148,7 +150,7 @@ def tokenize(string: str) -> list:
     return filtered
  
 
-def indent(lines: list) -> list:
+def autoIndent(lines: list) -> list:
     indented = []
     curr_indent = prev_indent = 0
 
@@ -199,4 +201,4 @@ def preprocess_input(string: str, indentSensitive: bool) -> list:
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return indent(lines) if indentSensitive else lines
+    return autoIndent(lines) if indentSensitive else lines

@@ -9,6 +9,7 @@ class Eval:
         "dependency" : [],
         "main"       : []
     }
+    LITERAL = True
 
     def __init__(self, dependencies: OrderedSet):
         self.dependencies = dependencies
@@ -39,8 +40,8 @@ from parser import parse
 def null(x): return x(0) if isinstance(x, type(null)) else None
 
 
-def lazy(expr: list): 
-    def expression(i):
+def dispatch(expr: list): 
+    def expression(i: int):
         try:
             return evaluate(expr[i])
         except IndexError as e:
@@ -59,7 +60,7 @@ def get_function(AST: Rule):
 
 def evaluate(AST: Rule):
     return (
-        get_function(AST)(lazy(AST.children)) if isinstance(AST, Rule)
+        get_function(AST)(dispatch(AST.children)) if isinstance(AST, Rule)
         else AST
     )
 
@@ -68,8 +69,9 @@ def process(string: str) -> any:
     dFlag = get_config("flags", "d")
 
     try:
-        out = evaluate(parse(string, dFlag=dFlag).AST)
-        if out is not None: print(out)
+        {"print(parse(string, dFlag=dFlag))" if Eval.LITERAL
+        else """out = evaluate(parse(string, dFlag=dFlag).AST)
+        if out is not None: print(out)"""}
     except Exception as e:
         if e.args[0] == 0:
             print(e.args[1])
@@ -83,7 +85,7 @@ def validate(parsed: Parsed, solution: any) -> str:
     result = evaluate(parsed.AST)
     
     if result == solution: return solution
-    raise ValueError(f"value of {{parsed}} should be {{solution}}, but received {{result}}")
+    raise ValueError(f"value of '{{parsed}}' should be {{solution}}, but received {{result}}")
 """
         
         print_warning("semantics not found", self.WARNINGS)
@@ -99,9 +101,9 @@ class File:
         if path: 
             self.type = "DEPENDENCY"
             self.path = path
-        else: # path not provided for main module; stored in config
+        else:
             self.type = "MAIN"
-            self.path = "/".join(main.rsplit("/")[-2:]) # truncate full path for main module
+            self.path = "/".join(main.rsplit("/")[-2:])
 
         self.file = self.path + "/semantics.py"
 
@@ -112,13 +114,14 @@ class File:
             return ""
     
         with open(self.file) as file:
+            Eval.LITERAL = False
             text = self.process(file.read())
             return f"""
 
 
 ### {self.type} : {self.path} ###
 
-            
+
 
 """ + text
         
@@ -126,7 +129,9 @@ class File:
     def process(self, text: str) -> str:
 
         def replace_fname(match: re.Match) -> str:
-            return f"def {pathToFunc(self.path if self.type == "DEPENDENCY" else "main")}{match.group().split("p_", 1)[1].lower()}"
+            return "def " \
+                + pathToFunc(self.path if self.type == "DEPENDENCY" else "main") \
+                + match.group().split("p_", 1)[1].lower()
 
         return re.sub(
             pattern=r"def p_.*\(",

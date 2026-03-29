@@ -1,5 +1,3 @@
-#require math
-
-<PROGRAM> ::= <SYMBOLEXPR>
+<PROGRAM>    ::= <SYMBOLEXPR>
 <SYMBOLEXPR> ::= x | y | z | \( <SLIST> \)
 <SLIST>      ::= <SYMBOLEXPR> | <SYMBOLEXPR> , <SLIST>

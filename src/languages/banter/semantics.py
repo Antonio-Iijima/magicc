@@ -23,13 +23,13 @@ def p_assignment(expr):
 
 
 def p_if_then(expr):
-    if expr(1): 
+    if expr(1):
         expr(4)
 
 def p_if_then_else(expr):
     if expr(1):
         expr(4)
-    else: 
+    else:
         expr(7)
 
 def p_block(expr):
@@ -49,11 +49,11 @@ def p_marker(expr):
             jump = False
         except Exception as e:
             jump = (e.args == (2, mark))
-            if not jump: 
+            if not jump:
                 if len(e.args) > 0 and e.args[0] == 2:
                     print(f"ERROR: cannot reference marker '{e.args[1]}' before declaration")
                 e.args = (1, e.args[1])
-                raise e
+            raise e
 
 def p_jump(expr):
     raise Exception(2, expr(2))
