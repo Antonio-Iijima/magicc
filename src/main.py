@@ -26,6 +26,7 @@ future runs will use the generated compiler files for that language unless other
     config = get_config()
         
     for flag in [
+        "f", # force compile
         "i", # interpreter
         "d", # debug
         "t", # test
@@ -65,7 +66,7 @@ future runs will use the generated compiler files for that language unless other
 
     print(f"magicc v{config["version"]} </> {config["language"]} {config["implementation"]}")
 
-    if not (config == get_config()):
+    if FLAGS['f'] or not (config == get_config()):
         set_config(config)
         print()
         compile()

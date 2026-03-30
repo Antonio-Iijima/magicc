@@ -5,5 +5,4 @@ until i == 10 do
    let i be i + 1
 
 let l be [1,2,3]
-print head l
-print tail l
+print l

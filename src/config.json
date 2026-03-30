@@ -6,10 +6,11 @@
       "c": true,
       "d": false,
       "t": false,
-      "x": false
+      "x": false,
+      "f": false
    },
-   "implementation": "interpreter",
-   "output": "a.py",
+   "implementation": "compiler",
+   "output": "out.py",
    "paths": {
       "lib": ".lib",
       "language": "languages/parlance"

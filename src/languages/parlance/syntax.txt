@@ -1,7 +1,7 @@
-#require datatypes.list.extended
 #require datatypes.identifier
 #require math.infix.extended
 #require datatypes.string
+#require datatypes.list
 
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
@@ -9,7 +9,7 @@
 <STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
 <STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <UNTIL> | <PRINT>
 
-<EXPRESSION>     ::= <MATHEXPR> | <LISTEXPR>
+<EXPRESSION>     ::= <MATHEXPR>
 <VALUE>          ::= <STRING> | <LABEL> | <BOOL> | <LIST>
 <LABEL>          ::= <ID>
 <BOOL>           ::= True | False

@@ -1,7 +1,0 @@
-#require datatypes.numeric
-
-<LISTEXPR> ::= <INDEX> | <HEAD> | <TAIL> | <CONS>
-<INDEX>    ::= <VALUE>\[<VALUE>\]
-<HEAD>     ::= head <VALUE>
-<TAIL>     ::= tail <VALUE>
-<CONS>     ::= cons <VALUE> <VALUE>
