@@ -2,12 +2,13 @@
    "version": "0.0.0",
    "flags": {
       "i": false,
-      "c": false,
+      "c": true,
       "d": false,
       "t": false,
       "x": false
    },
-   "implementation": "interpreter",
+   "implementation": "compiler",
+   "output": "a.py",
    "paths": {
       "lib": ".lib",
       "language": "languages/banter"

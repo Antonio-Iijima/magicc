@@ -11,9 +11,9 @@ def get_config(*keys):
     No arguments returns the config itself."""
     
     cfg = load(open(os.path.join(os.path.dirname(__file__), "config.json")))
-    for key in keys:
-        if key:
-            cfg = cfg[key]
+
+    for key in keys: cfg = cfg[key]
+
     return cfg
 
 

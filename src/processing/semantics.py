@@ -1,5 +1,3 @@
-from processing.syntax import Grammar
-
 from utils import pathToFunc, print_warning, get_config
 from datatypes import OrderedSet
 
@@ -51,13 +49,13 @@ def validate(parsed: Parsed, solution: any) -> str:
         else:
 
             self.NULL = """
-def null(x): return " ".join(map(evaluate, elements(x))).strip() if isinstance(x, type(null)) else None
+def null(x): return " ".join(map(evaluate, x())).strip() if isinstance(x, type(null)) else None
 """
 
             self.PROCESS = lambda _: f"""
 def process(string: str) -> any:
     try:
-        with open("out.py", "w") as file:
+        with open("{get_config("output")}", "w") as file:
             file.write(evaluate(parse(string, dFlag=get_config("flags", "d")).AST))
 
     except Exception as e:
@@ -89,13 +87,11 @@ from parser import parse
 ##### EVAL #####
 
 
-
-def elements(x): return x(slice(0, {Grammar.K}))
-
 {self.NULL}
 
 def dispatch(expr: list): 
-    def expression(i: int):
+    def expression(i: int = None):
+        if i == None: return expr
         try:
             return evaluate(expr[i])
         except IndexError as e:
@@ -136,10 +132,11 @@ class File:
             self.path = path
         else:
             self.type = "MAIN"
-            # self.path = "/".join(main.rsplit("/")[-2:])
             self.path = main
 
         self.file = f"{self.path}/semantics.py"
+        if not os.path.exists(self.file):
+            self.file = f"{self.path}/{get_config("implementation")}/semantics.py"
 
 
     def compile(self) -> str:

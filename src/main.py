@@ -3,7 +3,7 @@
 
 
 from utils import get_input, get_config, set_config
-from processing import compile
+from processing.compile import compile
 
 from sys import exit, argv
 from time import time
@@ -12,11 +12,21 @@ import os
 
 
 
-def main(args: list = argv) -> None:
+def main(args: list = argv[1:]) -> None:
+    """How to use the CLI:
+
+magicc aims to abstract as much as possible. 
+To this end, the config is saved at the end of each run,
+and values are only changed when provided.
+This means that, for instance, if you provide the `--c` flag and a directory in order to compile,
+future runs will use the generated compiler files for that language unless otherwise specified.
+    
+    
+"""
     config = get_config()
         
     for flag in [
-        "i", # interactive
+        "i", # interpreter
         "d", # debug
         "t", # test
         "x", # clear
@@ -39,24 +49,26 @@ def main(args: list = argv) -> None:
     elif "--c" in args: 
         config["implementation"] = "compiler"
         args.remove("--c")
-    
 
-    set_config(config)
-   
-   
-    args = args[1:]
+
+    if config["implementation"] == "compiler":
+        if len(args) == 2:
+            config["output"] = args.pop()
+        elif len(args) > 2:
+            print(f"ERROR: irregular number of file arguments for compiler (received {len(args)}, expected 2). Please specify exactly one input and one output.")
+            quit()
+
 
     if args and os.path.isdir(args[0]):
         config["paths"]["language"] = os.path.dirname(args.pop(0))
         config["language"] = config["paths"]["language"].split("/")[-1]
-        print(f"magicc v{config["version"]} </> {config["language"]} {config["implementation"]}")
+
+    print(f"magicc v{config["version"]} </> {config["language"]} {config["implementation"]}")
+
+    if not (config == get_config()):
         set_config(config)
-        
         print()
-
         compile()
-
-    else: print(f"Language: {config["language"]}")
 
 
     if FLAGS['t']:
@@ -66,7 +78,8 @@ def main(args: list = argv) -> None:
     
     
     from eval import process
-    
+
+
     for arg in args:
         if os.path.exists(arg):
             with open(arg) as file:

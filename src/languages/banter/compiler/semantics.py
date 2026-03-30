@@ -1,5 +1,5 @@
 def p_program(expr):
-    return f"""# Banter :: Compiled 
+    return f"""# Banter -> Python
     
     
 {expr(0).strip()}
