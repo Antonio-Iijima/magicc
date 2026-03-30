@@ -1,5 +1,8 @@
+from processing.syntax import Grammar
+
 from utils import pathToFunc, print_warning, get_config
 from datatypes import OrderedSet
+
 import os, re
 
 
@@ -13,6 +16,56 @@ class Eval:
 
     def __init__(self, dependencies: OrderedSet):
         self.dependencies = dependencies
+
+        
+        if get_config("implementation") == "interpreter":
+
+            self.NULL = """
+def null(x): return x(0) if isinstance(x, type(null)) else None
+""" 
+
+            self.PROCESS = lambda literal: f"""
+def process(string: str) -> any:
+    dFlag = get_config("flags", "d")
+
+    try:
+        {"print(str(parse(string, dFlag=dFlag)).strip())" if literal
+        else """out = evaluate(parse(string, dFlag=dFlag).AST)
+        if out is not None: print(out)"""}
+    except Exception as e:
+        if e.args[0] == 0:
+            print(e.args[1])
+        else:
+            raise e
+        
+
+def validate(parsed: Parsed, solution: any) -> str:
+    if str(parsed) == solution: return solution
+    
+    result = evaluate(parsed.AST)
+    
+    if result == solution: return solution
+    raise ValueError(f"value of '{{parsed}}' should be {{solution}}, but received {{result}}")
+"""
+
+        else:
+
+            self.NULL = """
+def null(x): return " ".join(map(evaluate, elements(x))).strip() if isinstance(x, type(null)) else None
+"""
+
+            self.PROCESS = lambda _: f"""
+def process(string: str) -> any:
+    try:
+        with open("out.py", "w") as file:
+            file.write(evaluate(parse(string, dFlag=get_config("flags", "d")).AST))
+
+    except Exception as e:
+        if e.args[0] == 0:
+            print(e.args[1])
+        else:
+            raise e
+"""
 
 
     def compile(self) -> str:
@@ -37,8 +90,9 @@ from parser import parse
 
 
 
-def null(x): return x(0) if isinstance(x, type(null)) else None
+def elements(x): return x(slice(0, {Grammar.K}))
 
+{self.NULL}
 
 def dispatch(expr: list): 
     def expression(i: int):
@@ -64,28 +118,7 @@ def evaluate(AST: Rule):
         else AST
     )
 
-
-def process(string: str) -> any:
-    dFlag = get_config("flags", "d")
-
-    try:
-        {"print(parse(string, dFlag=dFlag))" if Eval.LITERAL
-        else """out = evaluate(parse(string, dFlag=dFlag).AST)
-        if out is not None: print(out)"""}
-    except Exception as e:
-        if e.args[0] == 0:
-            print(e.args[1])
-        else:
-            raise e
-        
-
-def validate(parsed: Parsed, solution: any) -> str:
-    if str(parsed) == solution: return solution
-    
-    result = evaluate(parsed.AST)
-    
-    if result == solution: return solution
-    raise ValueError(f"value of '{{parsed}}' should be {{solution}}, but received {{result}}")
+{self.PROCESS(Eval.LITERAL)}
 """
         
         print_warning("semantics not found", self.WARNINGS)
@@ -96,16 +129,17 @@ def validate(parsed: Parsed, solution: any) -> str:
 
 class File:
     def __init__(self, path: str = None):
-        main = get_config("paths", "language")
+        main = f"{get_config("paths", "language")}/{get_config("implementation")}"
 
         if path: 
             self.type = "DEPENDENCY"
             self.path = path
         else:
             self.type = "MAIN"
-            self.path = "/".join(main.rsplit("/")[-2:])
+            # self.path = "/".join(main.rsplit("/")[-2:])
+            self.path = main
 
-        self.file = self.path + "/semantics.py"
+        self.file = f"{self.path}/semantics.py"
 
 
     def compile(self) -> str:

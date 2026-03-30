@@ -17,18 +17,15 @@ def main(args: list = argv) -> None:
         
     for flag in [
         "i", # interactive
-        "c", # compile
         "d", # debug
         "t", # test
         "x", # clear
     ]:
-        config["flags"][flag] = (f"-{flag}" in argv)
+        config["flags"][flag] = (f"-{flag}" in args)
         config["flags"][flag] and args.remove(f"-{flag}")
-    
-    set_config(config)
-
+        
     FLAGS = config["flags"]
-    
+
 
     if FLAGS['x']:
         os.path.exists("AST.py") and os.remove("AST.py")
@@ -36,12 +33,23 @@ def main(args: list = argv) -> None:
         exit()
 
 
+    if "--i" in args: 
+        config["implementation"] = "interpreter"
+        args.remove("--i")
+    elif "--c" in args: 
+        config["implementation"] = "compiler"
+        args.remove("--c")
+    
+
+    set_config(config)
+   
+   
     args = args[1:]
 
     if args and os.path.isdir(args[0]):
         config["paths"]["language"] = os.path.dirname(args.pop(0))
         config["language"] = config["paths"]["language"].split("/")[-1]
-        print(f"Language detected: {config["language"]}")
+        print(f"magicc v{config["version"]} </> {config["language"]} {config["implementation"]}")
         set_config(config)
         
         print()

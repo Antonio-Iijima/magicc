@@ -13,4 +13,4 @@
 <GE>         ::= <MATHEXPR> > <MATHEXPR>
 <GEQ>        ::= <MATHEXPR> >= <MATHEXPR>
 <EQ>         ::= <MATHEXPR> == <MATHEXPR>
-<NEQ>        ::= <MATHEXPR> /= <MATHEXPR>
+<NEQ>        ::= <MATHEXPR> != <MATHEXPR>

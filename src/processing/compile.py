@@ -17,7 +17,7 @@ def compile() -> None:
     
     with open("eval.py", "w") as file:
         file.write(Eval(grammar.dependencies).compile())
-    
+
     if dFlag:
         print()
         print("GRAMMAR")

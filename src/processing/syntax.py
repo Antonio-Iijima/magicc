@@ -34,9 +34,13 @@ class Grammar:
 
 
     def traverse_dependencies(self, path: str, main: bool = False) -> OrderedSet:
-        """Recursively search for `#require`s from a top-level path, preserving order and building grammar modules during traversal."""
+        """Recursively search for `#require`s from a top-level path, preserving order and building grammar modules during traversal.
+        Searches for syntax.txt files in base directory; falls back to specific implementation if not found."""
 
         syntax = f"{path}/syntax.txt"
+        if not os.path.exists(syntax):
+            syntax = f"{path}/{get_config("implementation")}/syntax.txt"
+
         dependencies = OrderedSet()
 
         if os.path.exists(syntax):

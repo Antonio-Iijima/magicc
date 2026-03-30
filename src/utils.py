@@ -44,7 +44,7 @@ def get_input(prompt: str = "", s: str = "") -> str:
     elif s.endswith("\nclear"):
         from os import system, name as OS
         system('cls' if OS == 'nt' else 'clear')
-        print(f"Language: {get_config("language")}")
+        print(f"magicc v{get_config("version")} </> {get_config("language")} {get_config("implementation")}")
         return ""
     
     elif s.endswith("\n"):
@@ -57,6 +57,7 @@ def regularize(path):
     if os.path.isdir(path):
         for file in os.listdir(path):
             regularize(os.path.join(path, file))
+            
     elif path.endswith(".txt"):
         print(f"Regularizing {path}")
         

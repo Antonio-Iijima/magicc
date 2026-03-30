@@ -1,8 +1,9 @@
 let a be "not too far"
+let limit be 1
 let speed be 60
 let score be 73
 
-if limit /= "not too far", then 
+if limit != "not too far", then 
    if speed == 60, then
       let score be 7009.56
 else

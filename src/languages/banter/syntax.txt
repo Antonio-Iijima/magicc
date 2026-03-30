@@ -18,7 +18,7 @@
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
 <IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
 <IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n else <BLOCK>
-<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT>
+<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT> 
 
 <RETURN>         ::= return <EXPRESSION>
 
