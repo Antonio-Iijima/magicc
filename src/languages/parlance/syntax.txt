@@ -1,34 +1,28 @@
-#require datatypes.string
 #require datatypes.list.extended
-#require datatypes.variable
-#require math.infix
+#require datatypes.identifier
+#require math.infix.extended
+#require datatypes.string
 
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
 
 <STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
-<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
+<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <UNTIL> | <PRINT>
 
 <EXPRESSION>     ::= <MATHEXPR> | <LISTEXPR>
-<MATHEXPR>       ::= <STRING>
-
-<NUMBER>         ::= <LIST>
+<VALUE>          ::= <STRING> | <LABEL> | <BOOL> | <LIST>
+<LABEL>          ::= <ID>
+<BOOL>           ::= True | False
 
 <ASSIGNMENT>     ::= let <ID> be <EXPRESSION>
 
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
-<IF_THEN>        ::= if <comparison>, then <BLOCK>
-<IF_THEN_ELSE>   ::= if <comparison>, then <BLOCK> \n else <BLOCK>
-<BLOCK>          ::= \n INDENT <STATEMENT_LIST> DEDENT
+<IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
+<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n else <BLOCK>
+<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT>
 
 <RETURN>         ::= return <EXPRESSION>
 
-<GOTO>           ::= <MARKER> | <JUMP>
-<MARKER>         ::= @ <NUMBER> \n <STATEMENT_LIST>
-<NUMBER>         ::= <LABEL> | <BOOL>
-<BOOL>           ::= True | False
-<JUMP>           ::= goto instruction <NUMBER>
+<UNTIL>          ::= until <COMPARISON> do <BLOCK>
 
 <PRINT>          ::= print <EXPRESSION>
-
-<LETTER>         ::= _

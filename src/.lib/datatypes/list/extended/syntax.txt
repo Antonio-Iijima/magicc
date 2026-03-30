@@ -1,7 +1,7 @@
 #require datatypes.numeric
 
-<LISTEXPR>  ::= <OP_INDEX> | <OP_HEAD> | <OP_TAIL> | <OP_CONS>
-<!OP_INDEX> ::= <LIST>[<INT>]
-<OP_HEAD>   ::= head <LIST>
-<OP_TAIL>   ::= tail <LIST>
-<OP_CONS>   ::= cons <ATOM> <LIST>
+<LISTEXPR> ::= <INDEX> | <HEAD> | <TAIL> | <CONS>
+<INDEX>    ::= <VALUE>\[<VALUE>\]
+<HEAD>     ::= head <VALUE>
+<TAIL>     ::= tail <VALUE>
+<CONS>     ::= cons <VALUE> <VALUE>

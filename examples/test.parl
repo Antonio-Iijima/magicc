@@ -1,0 +1,9 @@
+let i be 0
+
+until i == 10 do
+   print i
+   let i be i + 1
+
+let l be [1,2,3]
+print head l
+print tail l

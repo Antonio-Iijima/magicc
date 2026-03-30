@@ -1,5 +1,6 @@
 {
    "version": "0.0.0",
+   "language": "parlance",
    "flags": {
       "i": false,
       "c": true,
@@ -7,16 +8,15 @@
       "t": false,
       "x": false
    },
-   "implementation": "compiler",
+   "implementation": "interpreter",
    "output": "a.py",
    "paths": {
       "lib": ".lib",
-      "language": "languages/banter"
+      "language": "languages/parlance"
    },
    "special": {
       "indent": "//INDENTATION-MARKER//",
       "dedent": "//DEDENTATION-MARKER//",
       "indentation": "   "
-   },
-   "language": "banter"
+   }
 }
