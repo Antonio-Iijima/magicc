@@ -2,89 +2,91 @@ from utils import get_config
 from eval import validate
 from parser import parse
 
+from sys import setrecursionlimit
 from time import time
 
 
 
-def test(options: list[int]) -> None:
-    dFlag = get_config("flags", "d")
+def test(tests: list[int]) -> None:
+    dFlag = get_config("flags", "debug")
     name = get_config("language")
+    
+    setrecursionlimit(2**31-1)
+        
+    testcases = {
+        "calculator" : [
+            [ # 0
+                ("123", 123),
+                ("1 + 2 + 3", 6),
+                ("8 ** 2", 64),
+                ("(2 + 3) * 5", 25),
+                ("10 - (3 - 2)", 9),
+                ("10 - 3 - 2", 5), 
+                ("1 + -12", -11),
+                ("1 + - 12", -11),
+                ("--12", 12),
+                ("10 % 3", 1),
+                ("-3 % 7", 4),
+                ("|-26|", 26),
+                ("|---12|", 12),
+                ("|10-20| * 3", 30),
+                ("-( | 10 - 20 | ** 3 )", -1000),
+                ("1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1", 10),
+                ("1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1", 1)
+            ],
+            [ # 1
+                (" + ".join(["1"]*n), n) for n in range(100, 901, 100)
+            ],
+            [ # 2
+                ("".join(map(str, range(1, 367))), int("".join(map(str, range(1, 367))))),
+                ("12345678982 + 123456773657984", 123469119336966)
+            ]
+        ],
+        "slist" : [
+            [
+                ("(x)", "(x)"),
+                ("(x, y)", "(x, y)"),
+                ("(x, y, (z))", "(x, y, (z))"),
+                ("(x , (y) , z)", "(x , (y) , z)")
+            ]
+        ],
+        "palindromes" : [
+            [ # 0
+                ("a", "a"),
+                ("b", "b"),
+                ("aa", "aa"),
+                ("abba", "abba"),
+                ("aabbaa", "aabbaa"),
+                ("aaba", None),
+            ],
+            [ # 1
+                ("a"*n, "a"*n) for n in range(0, 30, 5)
+            ]
+        ],
+        "lisp" : [
+            [
+                ("(+ 1 2)", 3),
+                ("(* 10 3)", 30),
+                ("(** 2 11)", 2048),
+            ]
+        ]
+    }[name]
 
-    for i in options:
-        match name + i:
-            case "calculator1":
-                tests = [
-                    ("123", 123),
-                    ("1 + 2 + 3", 6),
-                    ("8 ** 2", 64),
-                    ("(2 + 3) * 5", 25),
-                    ("10 - (3 - 2)", 9),
-                    ("10 - 3 - 2", 5), 
-                    ("1 + -12", -11),
-                    ("1 + - 12", -11),
-                    ("--12", 12),
-                    ("10 % 3", 1),
-                    ("-3 % 7", 4),
-                    ("|-26|", 26),
-                    ("|---12|", 12),
-                    ("|10-20| * 3", 30),
-                    ("-( | 10 - 20 | ** 3 )", -1000),
-                    ("1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1", 10),
-                    ("1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1 * 1", 1)
-                ]
-            case "calculator2":
-                from sys import setrecursionlimit
-                setrecursionlimit(2**31-1)
-                tests = [
-                    (" + ".join(["1"]*n), n) for n in range(100, 901, 100)
-                ]
-            case "calculator3":
-                N = 367
-                tests = [
-                    ("".join(map(str, range(1, N))), int("".join(map(str, range(1, N))))),
-                    ("12345678982 + 123456773657984", 123469119336966)
-                ]
-            case "slist1":
-                tests = [
-                    ("(x)", "(x)"),
-                    ("(x, y)", "(x, y)"),
-                    ("(x, y, (z))", "(x, y, (z))"),
-                    ("(x , (y) , z)", "(x , (y) , z)")
-                ]
-            case "palindromes1":
-                tests = [
-                    ("a", "a"),
-                    ("b", "b"),
-                    ("aa", "aa"),
-                    ("abba", "abba"),
-                    ("aabbaa", "aabbaa"),
-                    ("aaba", None),
-                ]
-            case "palindromes2":
-                tests = [
-                    ("a"*n, "a"*n) for n in range(0, 30, 5)
-                ]
-            case "lisp1":
-                tests = [
-                    ("(+ 1 2)", 3),
-                    ("(* 10 3)", 30),
-                    ("(** 2 11)", 2048),
-                ]
+    for i in tests:
+        try:
+            for test, solution in testcases[i]:
+                start = time()
 
-        for test, solution in tests:
+                parsed = parse(test, dFlag=dFlag)
+                print("\nPARSED\n")
+                
+                for s, v in {
+                    "Eval" : validate(parsed, solution),
+                    "Max States" : parsed.max_states,
+                }.items(): print(f"{s:10s} : {v}")
+                
+                print()
 
-            start = time()
-
-            parsed = parse(test, dFlag=dFlag)
-            print("\nPARSED\n")
-            
-            for s, v in {
-                # "Sentence" : str(parsed),
-                # "AST" : parsed.AST,
-                "Eval" : validate(parsed, solution),
-                "Max States" : parsed.max_states,
-            }.items(): print(f"{s:10s} : {v}")
-            
-            print()
-
-            print(f"Runtime: {time()-start}")
+                print(f"Runtime: {time()-start}")
+        except IndexError as e:
+            raise IndexError(f"tried to access test {i}, but {name} has only {len(testcases)} tests.")

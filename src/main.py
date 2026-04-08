@@ -1,99 +1,106 @@
-"""Customize everything, but nothing more."""
+from utils import get_config, set_config, get_input
 
+import processing.compile
 
+import click, os
 
-from utils import get_input, get_config, set_config
-from processing.compile import compile
-
-from sys import exit, argv
 from time import time
 
-import os
+
+
+@click.group(context_settings=dict(help_option_names=['-h', '--help']))
+def cli(): pass
 
 
 
-def main(args: list = argv[1:]) -> None:
-    """How to use the CLI:
+@cli.command
+@click.argument("path", type=click.Path(exists=True, file_okay=False, resolve_path=True))
+@click.option("-i", "--interpreter", "option", flag_value="interpreter", help="Compile an interpreter.", default=True)
+@click.option("-c", "--compiler", "option", flag_value="compiler", help="Compile a compiler.")
+def compile(path: str, option: bool):
+    """Compiles a language system from the files provided in PATH."""
 
-magicc aims to abstract as much as possible. 
-To this end, the config is saved at the end of each run,
-and values are only changed when provided.
-This means that, for instance, if you provide the `--c` flag and a directory in order to compile,
-future runs will use the generated compiler files for that language unless otherwise specified.
-    
-    
-"""
-    config = get_config()
-        
-    for flag in [
-        "f", # force compile
-        "i", # interpreter
-        "d", # debug
-        "t", # test
-        "x", # clear
-    ]:
-        config["flags"][flag] = (f"-{flag}" in args)
-        config["flags"][flag] and args.remove(f"-{flag}")
-        
-    FLAGS = config["flags"]
+    cfg = get_config()
+
+    cfg["paths"]["language"] = "/".join(path.split("/")[-2:])
+    cfg["language"] = path.split("/")[-1]
+    cfg["implementation"] = option
+
+    set_config(cfg)
+
+    processing.compile.compile()
 
 
-    if FLAGS['x']:
+
+@cli.command
+@click.argument("input", nargs=-1)
+@click.option("-o", "--output", default=get_config("output"), help="Name for output file (only necessary when compiling).", show_default=True)
+@click.option("-f", "--force", is_flag=True, help="Force recompilation.")
+@click.option("-i", "--interactive", is_flag=True, help="Run in interative mode.")
+@click.option("-d", "--debug", is_flag=True, help="Run in debug mode.")
+@click.option("-x", "--clear", is_flag=True, help="Delete cached compiled files.")
+def run(input, **flags):
+    """Runs a compiled language with OPTIONS."""
+
+    cfg = get_config()
+
+    cfg["input"] = input
+    cfg["output"] = flags.pop("output")
+    cfg["flags"] = flags
+
+    isModified = not (cfg == get_config())
+
+    set_config(cfg)
+
+    if cfg["flags"]["force"] or isModified:
+        processing.compile.compile()
+
+
+    print(f"magicc v{cfg["version"]} </> {cfg["language"]} {cfg["implementation"]}")
+
+
+    if cfg["flags"]["clear"]:
         os.path.exists("AST.py") and os.remove("AST.py")
         os.path.exists("eval.py") and os.remove("eval.py")
-        exit()
 
-
-    if "--i" in args: 
-        config["implementation"] = "interpreter"
-        args.remove("--i")
-    elif "--c" in args: 
-        config["implementation"] = "compiler"
-        args.remove("--c")
-
-
-    if config["implementation"] == "compiler":
-        if len(args) == 2:
-            config["output"] = args.pop()
-        elif len(args) > 2:
-            print(f"ERROR: irregular number of file arguments for compiler (received {len(args)}, expected 2). Please specify exactly one input and one output.")
-            quit()
-
-
-    if args and os.path.isdir(args[0]):
-        config["paths"]["language"] = os.path.dirname(args.pop(0))
-        config["language"] = config["paths"]["language"].split("/")[-1]
-
-    print(f"magicc v{config["version"]} </> {config["language"]} {config["implementation"]}")
-
-    if FLAGS['f'] or not (config == get_config()):
-        set_config(config)
-        print()
-        compile()
-
-
-    if FLAGS['t']:
-        from tests import test
-    
-        test(args)
-    
     
     from eval import process
 
 
-    for arg in args:
-        if os.path.exists(arg):
-            with open(arg) as file:
-                process(file.read())
+    for filename in input:
+        with open(filename) as file:
+            process(file.read())
 
-    if FLAGS['i']:
+    if cfg["flags"]["interactive"]:
         for line in iter(lambda: get_input("</> "), "quit"):
             if line.strip():
-                if FLAGS['d']: start = time()
+                if cfg["flags"]["debug"]: start = time()
                 process(line)
-                if FLAGS['d']: print(f"Runtime: {time() - start}")
+                if cfg["flags"]["debug"]: print(f"Runtime: {time() - start}")    
 
 
 
-if __name__ == "__main__": 
-    main()
+@cli.command
+@click.argument("tests", type=int, nargs=-1)
+def test(tests):
+    """Run specified built-in test cases."""
+    
+    if get_config("implementation") == "compiler":
+        print("No test cases for compiled languages.")
+        return
+
+
+    from tests import test
+
+    cfg = get_config()
+    
+    cfg["tests"] = tests
+    
+    set_config(cfg)
+
+    test(tests)
+
+
+
+if __name__ == "__main__":
+    cli()

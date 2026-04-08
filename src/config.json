@@ -1,23 +1,25 @@
 {
    "version": "0.0.0",
-   "language": "parlance",
+   "language": "calculator",
    "flags": {
-      "i": false,
-      "c": true,
-      "d": false,
-      "t": false,
-      "x": false,
-      "f": false
+      "force": false,
+      "interactive": false,
+      "debug": false,
+      "clear": false
    },
-   "implementation": "compiler",
-   "output": "out.py",
+   "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/parlance"
+      "language": "languages/calculator"
    },
    "special": {
       "indent": "//INDENTATION-MARKER//",
       "dedent": "//DEDENTATION-MARKER//",
       "indentation": "   "
-   }
+   },
+   "input": [
+      "../examples/1.banter"
+   ],
+   "output": "out.py",
+   "tests": []
 }

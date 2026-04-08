@@ -19,12 +19,12 @@ class Eval:
         if get_config("implementation") == "interpreter":
 
             self.NULL = """
-def null(x): return x(0) if isinstance(x, type(null)) else None
+def null(x): return x(0) if isinstance(x, Expr) else None
 """ 
 
             self.PROCESS = lambda literal: f"""
 def process(string: str) -> any:
-    dFlag = get_config("flags", "d")
+    dFlag = get_config("flags", "debug")
 
     try:
         {"print(str(parse(string, dFlag=dFlag)).strip())" if literal
@@ -37,7 +37,7 @@ def process(string: str) -> any:
             raise e
         
 
-def validate(parsed: Parsed, solution: any) -> str:
+def validate(parsed, solution: any) -> str:
     if str(parsed) == solution: return solution
     
     result = evaluate(parsed.AST)
@@ -49,14 +49,14 @@ def validate(parsed: Parsed, solution: any) -> str:
         else:
 
             self.NULL = """
-def null(x): return " ".join(map(evaluate, x())).strip() if isinstance(x, type(null)) else None
+def null(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr) else None
 """
 
             self.PROCESS = lambda _: f"""
 def process(string: str) -> any:
     try:
         with open("{get_config("output")}", "w") as file:
-            file.write(evaluate(parse(string, dFlag=get_config("flags", "d")).AST))
+            file.write(evaluate(parse(string, dFlag=get_config("flags", "debug")).AST))
 
     except Exception as e:
         if e.args[0] == 0:
@@ -71,8 +71,8 @@ def process(string: str) -> any:
 
 
 
-from datatypes import Rule, Parsed
 from utils import get_config
+from datatypes import Rule
 from parser import parse
 
 
@@ -87,18 +87,13 @@ from parser import parse
 ##### EVAL #####
 
 
+
+class Expr(list):
+    def __call__(self, i):
+        return evaluate(self[i])
+   
+
 {self.NULL}
-
-def dispatch(expr: list): 
-    def expression(i: int = None):
-        if i == None: return expr
-        try:
-            return evaluate(expr[i])
-        except IndexError as e:
-            print(f"Error in expression {{expr}}: index {{i}}")
-            raise e
-    return expression
-
 
 def get_function(AST: Rule):
     return (
@@ -110,7 +105,7 @@ def get_function(AST: Rule):
 
 def evaluate(AST: Rule):
     return (
-        get_function(AST)(dispatch(AST.children)) if isinstance(AST, Rule)
+        get_function(AST)(Expr(AST.children)) if isinstance(AST, Rule)
         else AST
     )
 

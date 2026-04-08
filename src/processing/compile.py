@@ -6,9 +6,9 @@ from utils import get_config
 
 
 def compile() -> None:
-    dFlag = get_config("flags", "d")
+    dFlag = get_config("flags", "debug")
 
-    print(f"Compiling...")
+    print(f"Compiling {get_config("language")} {get_config("implementation")}...")
     print()
 
     with open("AST.py", "w") as file:
