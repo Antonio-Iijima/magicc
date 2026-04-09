@@ -2,10 +2,10 @@
    "version": "0.0.0",
    "language": "calculator",
    "flags": {
+      "clear": true,
       "force": false,
       "interactive": false,
-      "debug": false,
-      "clear": false
+      "debug": false
    },
    "implementation": "interpreter",
    "paths": {
@@ -18,7 +18,7 @@
       "indentation": "   "
    },
    "input": [
-      "../examples/1.banter"
+      "languages/banter/"
    ],
    "output": "out.py",
    "tests": []

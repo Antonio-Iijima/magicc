@@ -2,7 +2,8 @@ from utils import get_config, set_config, get_input
 
 import processing.compile
 
-import click, os
+import click
+import os
 
 from time import time
 
