@@ -3,6 +3,21 @@ g_markers = {}
 
 
 
+def inorder(node, indent=0):
+    if isinstance(node, str):
+        print("   " * indent + repr(node))
+    else:
+        print("   " * indent + str(node))
+        for child in node.children:
+            inorder(child, indent+1)
+
+
+def p_program(expr):
+    inorder(expr[0])
+    # print(repr(expr[0]))
+    # expr(0)
+
+
 def p_statement_list_1(expr):
     expr(0)
     expr(2)

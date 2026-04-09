@@ -7,7 +7,7 @@ from time import time
 
 
 
-def test(tests: list[int]) -> None:
+def test(tests: list[int] = None) -> None:
     dFlag = get_config("flags", "debug")
     name = get_config("language")
     
@@ -70,7 +70,11 @@ def test(tests: list[int]) -> None:
                 ("(** 2 11)", 2048),
             ]
         ]
-    }[name]
+    }.get(name)
+
+    if testcases is None: return print(f"No test cases found for {name}.")
+    
+    tests = tests or list(range(len(testcases)))
 
     for i in tests:
         try:

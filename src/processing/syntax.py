@@ -1,7 +1,7 @@
 from datatypes import OrderedSet
 from utils import (
     preprocess_text, 
-    print_warning,
+    print_warnings,
     get_config
 )
 
@@ -30,7 +30,7 @@ class Grammar:
         for module, lines in self.modules.items():
             self.modules[module] = Module("MAIN" if module == self.main else module, lines)
 
-        print_warning("syntax not found", self.WARNINGS)
+        print_warnings("syntax not found", self.WARNINGS)
 
 
     def traverse_dependencies(self, path: str, main: bool = False) -> OrderedSet:

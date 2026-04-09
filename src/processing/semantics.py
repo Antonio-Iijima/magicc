@@ -1,4 +1,4 @@
-from utils import pathToFunc, print_warning, get_config
+from utils import pathToFunc, print_warnings, get_config
 from datatypes import OrderedSet
 
 import os, re
@@ -12,22 +12,33 @@ class Eval:
     }
     LITERAL = True
 
+
     def __init__(self, dependencies: OrderedSet):
         self.dependencies = dependencies
 
-        
-        if get_config("implementation") == "interpreter":
+      
+    def embed_default(self) -> str:
 
-            self.NULL = """
-def null(x): return x(0) if isinstance(x, Expr) else None
-""" 
+        if (get_config("implementation") == "interpreter"):
+            return """
+def default(x): return x(0) if isinstance(x, Expr) else None
+"""
 
-            self.PROCESS = lambda literal: f"""
+        else: 
+            return """
+def default(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr) else None
+"""
+
+
+    def embed_process(self, isLiteral):
+
+        if (get_config("implementation") == "interpreter"):
+            return f"""
 def process(string: str) -> any:
     dFlag = get_config("flags", "debug")
 
     try:
-        {"print(str(parse(string, dFlag=dFlag)).strip())" if literal
+        {"print(str(parse(string, dFlag=dFlag)).strip())" if isLiteral
         else """out = evaluate(parse(string, dFlag=dFlag).AST)
         if out is not None: print(out)"""}
     except Exception as e:
@@ -44,15 +55,10 @@ def validate(parsed, solution: any) -> str:
     
     if result == solution: return solution
     raise ValueError(f"value of '{{parsed}}' should be {{solution}}, but received {{result}}")
-"""
-
+""" 
+        
         else:
-
-            self.NULL = """
-def null(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr) else None
-"""
-
-            self.PROCESS = lambda _: f"""
+            return f"""
 def process(string: str) -> any:
     try:
         with open("{get_config("output")}", "w") as file:
@@ -92,14 +98,13 @@ class Expr(list):
     def __call__(self, i):
         return evaluate(self[i])
    
-
-{self.NULL}
+{self.embed_default()}
 
 def get_function(AST: Rule):
     return (
         globals().get(f"{{AST.fname}}_{{AST.variant}}")
         or globals().get(AST.fname)
-        or null
+        or default
     )
 
 
@@ -109,10 +114,10 @@ def evaluate(AST: Rule):
         else AST
     )
 
-{self.PROCESS(Eval.LITERAL)}
+{self.embed_process(Eval.LITERAL)}
 """
         
-        print_warning("semantics not found", self.WARNINGS)
+        print_warnings("semantics not found", self.WARNINGS)
         
         return text
     

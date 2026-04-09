@@ -7,8 +7,8 @@ class Rule:
         self.__name__ = type(self).__name__
         self.fname = pathToFunc(modulename) + self.__name__.lower()
         self.variant = variant
-        self._str = " ".join(map(str, children))
-        self.children = tuple(c for c in children if c)
+        self.children = tuple(filter(None, children))
+        self.modulename = modulename
         self._hash = self.__name__.__hash__() + sum(child.__hash__() for child in children)
 
 
@@ -18,7 +18,7 @@ class Rule:
             if isinstance(c, Rule):
                 c.tree(level+1)
             else:
-                print(space*(level+1) + f" ({level+1}) " + c)
+                print(space*(level+1) + f" ({level+1}) " + repr(c))
 
 
     def depth(self) -> int:
@@ -34,13 +34,16 @@ class Rule:
         return self._hash
 
 
-    def __repr__(self):
-        # return self._str
-        return self.__name__
+    def __repr__(self, i=0):
+        return \
+            "\n" + "   " * i \
+            + f"{self.__name__}([{", ".join(repr(child) if isinstance(child, str) else child.__repr__(i+1) for child in self.children)}]," \
+            + "\n" + "   " * i \
+            +  f"{repr(self.modulename)}, {self.variant})"
             
                 
     def __str__(self):
-        return self._str
+        return self.__name__
 
 
 

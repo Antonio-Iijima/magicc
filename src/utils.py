@@ -10,7 +10,8 @@ def get_config(*keys):
     """Look up a value from the config, applying keys sequentially.
     No arguments returns the config itself."""
     
-    cfg = load(open(os.path.join(os.path.dirname(__file__), "config.json")))
+    with open(os.path.join(os.path.dirname(__file__), "config.json")) as file:
+        cfg = load(file)
 
     for key in keys: cfg = cfg[key]
 
@@ -185,7 +186,7 @@ def pathToFunc(path: str) -> str:
     return f"p_{path.lower().removeprefix(".lib/").replace("/", "_")}_".lower()
 
 
-def print_warning(msg: str, log: dict) -> None:
+def print_warnings(msg: str, log: dict) -> None:
     from datatypes import OrderedSet
 
     if log["dependency"] or log["main"]:

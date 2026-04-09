@@ -1,25 +1,24 @@
 {
    "version": "0.0.0",
-   "language": "calculator",
+   "language": "banter",
+   "lock": false,
    "flags": {
-      "clear": true,
+      "interactive": true,
       "force": false,
-      "interactive": false,
-      "debug": false
+      "debug": false,
+      "clear": false
    },
    "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/calculator"
+      "language": "languages/banter"
    },
    "special": {
       "indent": "//INDENTATION-MARKER//",
       "dedent": "//DEDENTATION-MARKER//",
       "indentation": "   "
    },
-   "input": [
-      "languages/banter/"
-   ],
+   "input": [],
    "output": "out.py",
    "tests": []
 }

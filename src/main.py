@@ -1,6 +1,6 @@
 from utils import get_config, set_config, get_input
 
-import processing.compile
+import processing
 
 import click
 import os
@@ -13,23 +13,42 @@ from time import time
 def cli(): pass
 
 
+@cli.command(hidden=True)
+def lock():
+    print("[LOCK]")
+    key(True)
 
-@cli.command
+
+@cli.command(hidden=True)
+def unlock():
+    print("[UNLOCK]")
+    key(False)
+
+
+def key(val: bool):
+    cfg = get_config()
+    cfg["lock"] = val
+    set_config(cfg)
+
+
+@cli.command(hidden=get_config("lock"))
 @click.argument("path", type=click.Path(exists=True, file_okay=False, resolve_path=True))
-@click.option("-i", "--interpreter", "option", flag_value="interpreter", help="Compile an interpreter.", default=True)
-@click.option("-c", "--compiler", "option", flag_value="compiler", help="Compile a compiler.")
-def compile(path: str, option: bool):
+@click.option("-i", "--interpreter", "implementation", flag_value="interpreter", help="Compile an interpreter.", default=True)
+@click.option("-c", "--compiler", "implementation", flag_value="compiler", help="Compile a compiler.")
+def compile(path: str, implementation: bool):
     """Compiles a language system from the files provided in PATH."""
 
     cfg = get_config()
 
+    if cfg["lock"]: return print("[LOCK] Cannot compile new language from executable.")
+
     cfg["paths"]["language"] = "/".join(path.split("/")[-2:])
     cfg["language"] = path.split("/")[-1]
-    cfg["implementation"] = option
+    cfg["implementation"] = implementation
 
     set_config(cfg)
 
-    processing.compile.compile()
+    processing.compile()
 
 
 
@@ -40,31 +59,36 @@ def compile(path: str, option: bool):
 @click.option("-i", "--interactive", is_flag=True, help="Run in interative mode.")
 @click.option("-d", "--debug", is_flag=True, help="Run in debug mode.")
 @click.option("-x", "--clear", is_flag=True, help="Delete cached compiled files.")
-def run(input, **flags):
+def run(input: tuple, **flags):
     """Runs a compiled language with OPTIONS."""
 
     cfg = get_config()
 
-    cfg["input"] = input
+    cfg["input"] = list(input) # stored in config as a list
     cfg["output"] = flags.pop("output")
     cfg["flags"] = flags
 
     isModified = not (cfg == get_config())
 
     set_config(cfg)
-
-    if cfg["flags"]["force"] or isModified:
-        processing.compile.compile()
-
+    
 
     print(f"magicc v{cfg["version"]} </> {cfg["language"]} {cfg["implementation"]}")
 
 
     if cfg["flags"]["clear"]:
-        os.path.exists("AST.py") and os.remove("AST.py")
-        os.path.exists("eval.py") and os.remove("eval.py")
+        for filename in ("AST.py", "eval.py"):
+            if os.path.exists(filename):
+                os.remove(filename) or print(f"Removed {filename}")
+            else:
+                print(f"{filename} not found")
+        quit()
 
-    
+
+    if cfg["flags"]["force"] or isModified:
+        processing.compile()
+
+
     from eval import process
 
 
@@ -84,21 +108,21 @@ def run(input, **flags):
 @cli.command
 @click.argument("tests", type=int, nargs=-1)
 def test(tests):
-    """Run specified built-in test cases."""
+    """Run specified built-in test cases; if none are specified, run all available. 
+    Recompiles before testing (except if locked)."""
     
     if get_config("implementation") == "compiler":
-        print("No test cases for compiled languages.")
-        return
+        return print("No test cases for compiled languages.")
 
+
+    processing.compile()
 
     from tests import test
 
     cfg = get_config()
-    
     cfg["tests"] = tests
-    
     set_config(cfg)
-
+    
     test(tests)
 
 
