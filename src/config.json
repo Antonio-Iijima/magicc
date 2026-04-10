@@ -3,8 +3,8 @@
    "language": "banter",
    "lock": false,
    "flags": {
-      "interactive": true,
       "force": false,
+      "interactive": false,
       "debug": false,
       "clear": false
    },

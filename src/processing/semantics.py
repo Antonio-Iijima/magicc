@@ -15,6 +15,13 @@ class Eval:
 
     def __init__(self, dependencies: OrderedSet):
         self.dependencies = dependencies
+        self.exception = """
+    except Exception as e:
+        if e.args[0] in (0, 1):
+            print(e.args[1])
+        else:
+            raise e
+"""
 
       
     def embed_default(self) -> str:
@@ -41,11 +48,7 @@ def process(string: str) -> any:
         {"print(str(parse(string, dFlag=dFlag)).strip())" if isLiteral
         else """out = evaluate(parse(string, dFlag=dFlag).AST)
         if out is not None: print(out)"""}
-    except Exception as e:
-        if e.args[0] == 0:
-            print(e.args[1])
-        else:
-            raise e
+{self.exception}
         
 
 def validate(parsed, solution: any) -> str:
@@ -63,12 +66,7 @@ def process(string: str) -> any:
     try:
         with open("{get_config("output")}", "w") as file:
             file.write(evaluate(parse(string, dFlag=get_config("flags", "debug")).AST))
-
-    except Exception as e:
-        if e.args[0] == 0:
-            print(e.args[1])
-        else:
-            raise e
+{self.exception}
 """
 
 
@@ -120,7 +118,7 @@ def evaluate(AST: Rule):
         print_warnings("semantics not found", self.WARNINGS)
         
         return text
-    
+
 
 
 class File:

@@ -15,10 +15,10 @@ def compile() -> None:
 
     with open("AST.py", "w") as file:
         grammar = Grammar()
-        file.write(grammar.compile())
+        file.write(grammar.compile().strip()+"\n")
     
     with open("eval.py", "w") as file:
-        file.write(Eval(grammar.dependencies).compile())
+        file.write(Eval(grammar.dependencies).compile().strip()+"\n")
 
     if get_config("flags", "debug"):
         print()
