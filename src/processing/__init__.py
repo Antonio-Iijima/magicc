@@ -9,7 +9,6 @@ def compile() -> None:
 
     if get_config("lock"): return None
     
-    print()
     print(f"Compiling...")
     print()
 

@@ -119,10 +119,12 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
         raise SyntaxError("parser terminated without any accepting states.")
     
     if (len(accepting_states) > 1):
-        print(f"WARNING: {len(accepting_states)} valid parses found (ambiguous grammar)")
-        print(f"Resolving for highest depth parse tree (d={max(accepting_states, key=lambda state: state.depth()).depth()})")
+        accepted = min(accepting_states, key=lambda state: state.depth())
+        print(f"WARNING: {len(accepting_states)} parse trees found (ambiguous grammar)")
+        print(f"Resolving for minimum depth parse tree (d={accepted.depth()})")
+    else: accepted = accepting_states.pop()
 
-    return Parsed(expr, max(accepting_states, key=lambda state: state.depth()), max_states, showTree=dFlag)
+    return Parsed(expr, accepted, max_states)
 
 
 def tokenize(unprocessed: str) -> list:
@@ -144,7 +146,7 @@ def tokenize(unprocessed: str) -> list:
         if not matches: 
             raise SyntaxError(f"line {past.count("\n")+1}, unrecognized token '{string[0]}'")
 
-        match, rule, module = max(matches, key=lambda tup: len(tup[0]))        
+        match, rule, module = max(matches, key=lambda tup: len(tup[0]))
                 
         if (tokens or ("\n" not in match)): tokens.append(rule([match], module))
         
@@ -154,14 +156,18 @@ def tokenize(unprocessed: str) -> list:
     filtered = list(filter(None, tokens))
 
     return filtered
- 
 
-def autoIndent(lines: list) -> list:
+
+def autoIndent(lines: list[str]) -> list:
     indented = []
     emptyLines = []
     curr_indent = prev_indent = 0
 
-    indent, dedent, indentation = get_config("special").values()
+    levels = list((len(line)-len(line.lstrip(" "))) for line in lines)
+    level = max(set(levels).difference({0}) or {1}, key=lambda val: levels.count(val))
+
+    indentation = " " * level
+    indent, dedent = list(get_config("indentation").values())[:2]
 
     for i, line in enumerate(lines):
         
@@ -174,8 +180,8 @@ def autoIndent(lines: list) -> list:
             curr_indent += 1
 
         if line.startswith(" "): 
-            count = line.count(" ", 0, 2)
-            raise IndentationError(f"invalid indent in line {i+1}: {count} extra space{"" if count == 1 else "s"}.")
+            expected = (len(line)-len(line.lstrip(" ")))%level
+            raise IndentationError(f"line {i+1}, {expected} space{"s" * (expected != 1)}.")
 
         diff = curr_indent - prev_indent
 
@@ -206,12 +212,10 @@ def autoIndent(lines: list) -> list:
 def preprocess_input(string: str) -> list:
     """Strips # comments and wraps automatic indentation processing."""
 
-    from AST import INDENT_SENSITIVE
-
     lines = string.splitlines()
 
     for i, line in enumerate(lines):
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return "\n".join(autoIndent(lines)) if INDENT_SENSITIVE else "\n".join(lines).strip()
+    return "\n".join(autoIndent(lines)) if get_config("indentation", "sensitive") else " ".join(lines).strip()

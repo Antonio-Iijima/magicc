@@ -72,7 +72,6 @@ def process(string: str) -> any:
 
 
 
-from utils import get_config
 from datatypes import Rule
 from parser import parse
 
@@ -120,7 +119,11 @@ def evaluate(AST: Rule):
 
 class File:
     def __init__(self, path: str = None):
-        main = f"{get_config("paths", "language")}/{get_config("implementation")}"
+        """Resolve and compile syntax files. 
+        Search for semantics.py in `path/<implementation>/`;
+        if not found, fall back to `path/`."""
+
+        main = get_config("paths", "language")
 
         if path: 
             self.type = "DEPENDENCY"
@@ -129,9 +132,9 @@ class File:
             self.type = "MAIN"
             self.path = main
 
-        self.file = f"{self.path}/semantics.py"
+        self.file = f"{self.path}/{get_config("implementation")}/semantics.py"
         if not os.path.exists(self.file):
-            self.file = f"{self.path}/{get_config("implementation")}/semantics.py"
+            self.file = f"{self.path}/semantics.py"
 
 
     def compile(self) -> str:

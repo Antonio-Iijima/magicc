@@ -13,13 +13,13 @@
       "lib": ".lib",
       "language": "languages/banter"
    },
-   "special": {
+   "indentation": {
       "indent": " //INDENTATION-MARKER// ",
       "dedent": " //DEDENTATION-MARKER// ",
-      "indentation": "   "
+      "sensitive": true
    },
    "input": [
-      "../examples/5b.banter"
+      "../examples/factorial.banter"
    ],
    "output": "out.py",
    "tests": []

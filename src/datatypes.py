@@ -12,15 +12,6 @@ class Rule:
         self._hash = self.__name__.__hash__() + sum(child.__hash__() for child in children)
 
 
-    def tree(self, level: int = 0, space: str = "   ") -> None:
-        print(space*level + f" ({level}) " + self.__name__)
-        for c in self.children:
-            if isinstance(c, Rule):
-                c.tree(level+1)
-            else:
-                print(space*(level+1) + f" ({level+1}) " + repr(c))
-
-
     def depth(self) -> int:
         if (len(self.children) == 1) and isinstance(self.children[0], str): return 1
         return 1 + max(child.depth() for child in self.children)
@@ -102,14 +93,10 @@ class OrderedSet(dict):
 
 
 class Parsed:
-    def __init__(self, sentence: str, AST: Rule, max_states: int, showTree: bool = False):
+    def __init__(self, sentence: str, AST: Rule, max_states: int):
         self.sentence = sentence
         self.AST = AST
         self.max_states = max_states
-        
-        if showTree: 
-            print(AST.tree())
-            print("Depth:", AST.depth())
 
 
     def get(self):

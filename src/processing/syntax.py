@@ -2,7 +2,8 @@ from datatypes import OrderedSet
 from utils import (
     preprocess_text, 
     print_warnings,
-    get_config
+    get_config,
+    set_config
 )
 
 import os
@@ -13,8 +14,6 @@ import re
 class Grammar:
     TERMINALS = {}
     K = 0
-    INDENT_SENSITIVE = False
-    NEWLINE_SENSITIVE = False
     WARNINGS = {
         "dependency" : [],
         "main"       : []
@@ -22,7 +21,13 @@ class Grammar:
     
 
     def __init__(self):
-        self.main = get_config("paths", "language")
+        cfg = get_config()
+
+        cfg["indentation"]["sensitive"] = False
+        self.main = cfg["paths"]["language"]
+
+        set_config(cfg)
+
 
         self.modules = {}
         self.dependencies = self.traverse_dependencies(self.main, main=True)
@@ -128,10 +133,6 @@ TERMINALS = {{
     and isinstance(alternatives[0][0], str)
     )
 }}
-
-INDENT_SENSITIVE = {self.INDENT_SENSITIVE}
-
-NEWLINE_SENSITIVE = {self.NEWLINE_SENSITIVE}
 
 K = {Grammar.K}
 
@@ -259,12 +260,14 @@ class Pattern:
                 nonterminal = match.group()
                 terminal, pattern = map(lambda s: s.strip(), pattern.split(nonterminal, 1))
 
-                if nonterminal in ("<INDENT>", "<DEDENT>") and not Grammar.INDENT_SENSITIVE:
-                    Grammar.INDENT_SENSITIVE = True
-                    self.module.add_rule("<INDENT>", get_config("special", "indent"))
-                    self.module.add_rule("<DEDENT>", get_config("special", "dedent"))
-                if terminal == r"\n":
-                    Grammar.NEWLINE_SENSITIVE = True
+                if nonterminal in ("<INDENT>", "<DEDENT>") and not get_config("indentation", "sensitive"):
+                    
+                    self.module.add_rule("<INDENT>", get_config("indentation", "indent"))
+                    self.module.add_rule("<DEDENT>", get_config("indentation", "dedent"))
+                    
+                    cfg = get_config()
+                    cfg["indentation"]["sensitive"] = True
+                    set_config(cfg)
 
                 if terminal:
                     self.pattern.extend(Terminal(token) for token in terminal.split())
