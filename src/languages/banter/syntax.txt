@@ -5,8 +5,8 @@
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
 
-<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
-<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <PRINT>
+<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n+ <STATEMENT_LIST>
+<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <MARKER> | <PRINT>
 
 <EXPRESSION>     ::= <MATHEXPR>
 <VALUE>          ::= <STRING> | <LABEL> | <BOOL>
@@ -17,14 +17,13 @@
 
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
 <IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
-<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n else <BLOCK>
-<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT>
+<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n+ else <BLOCK>
+<BLOCK>          ::= \n+ <INDENT> <STATEMENT_LIST> <DEDENT>
 
 <RETURN>         ::= return <EXPRESSION>
 
-<GOTO>           ::= <MARKER> | <JUMP>
-<MARKER>         ::= @ <MARK> \n <STATEMENT_LIST>
-<JUMP>           ::= goto instruction <MARK>
+<GOTO>           ::= goto instruction <MARK>
+<MARKER>           ::= @ <MARK> \n+ <STATEMENT_LIST>
 <MARK>           ::= <ID> | <NUMBER>
 
-<PRINT>          ::= print <EXPRESSION>
+<PRINT>          ::= print <EXPRESSION> | print

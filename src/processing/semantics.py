@@ -160,12 +160,12 @@ class File:
     def process(self, text: str) -> str:
 
         def replace_fname(match: re.Match) -> str:
-            return "def " \
-                + pathToFunc(self.path if self.type == "DEPENDENCY" else "main") \
+            return \
+                pathToFunc(self.path if self.type == "DEPENDENCY" else "main") \
                 + match.group().split("p_", 1)[1].lower()
 
         return re.sub(
-            pattern=r"def p_.*\(",
+            pattern=r"p_.*\(",
             repl=replace_fname,
             string=text
         )

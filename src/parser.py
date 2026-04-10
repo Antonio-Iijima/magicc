@@ -123,12 +123,13 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
     return Parsed(expr, max(accepting_states, key=lambda state: state.depth()), max_states, showTree=dFlag)
 
 
-def tokenize(string: str) -> list:
-    from AST import TERMINALS, INDENT_SENSITIVE
+def tokenize(unprocessed: str) -> list:
+    from AST import TERMINALS
     
-    lines = preprocess_input(string, INDENT_SENSITIVE)
-    
-    original = string = "\n".join((line for line in lines if line.strip())).strip()
+    lines = preprocess_input(unprocessed)
+    string = "\n".join(lines)
+
+    past = ""
 
     tokens = []
 
@@ -139,11 +140,15 @@ def tokenize(string: str) -> list:
             match = regex.match(string)
             if match: matches.append((match.group(), rule, module))
 
-        if not matches: raise SyntaxError(f"index {len(original)-len(string)}: unrecognized token '{string[0]}' in input '{original}'")
+        if not matches: 
+            raise SyntaxError(f"line {past.count("\n")+1}, unrecognized token '{string[0]}'")
+
+        match, rule, module = max(matches, key=lambda tup: len(tup[0]))        
+                
+        if (tokens or ("\n" not in match)): tokens.append(rule([match], module))
         
-        match, rule, module = max(matches, key=lambda tup: len(tup[0]))
-        tokens.append(rule([match], module))
         string = string.removeprefix(match).lstrip(" ")
+        past += match
 
     filtered = list(filter(None, tokens))
 
@@ -152,16 +157,19 @@ def tokenize(string: str) -> list:
 
 def autoIndent(lines: list) -> list:
     indented = []
+    emptyLines = []
     curr_indent = prev_indent = 0
+
+    indent, dedent, indentation = get_config("special").values()
 
     for i, line in enumerate(lines):
         
-        # Remove commented and empty lines
-        if (not line.strip()) or line.strip().startswith("#"): 
+        if (not line.strip()):
+            emptyLines.append(line)
             continue
 
-        while line.startswith(get_config("special", "indentation")):
-            line = line.removeprefix(get_config("special", "indentation"))
+        while line.startswith(indentation):
+            line = line.removeprefix(indentation)
             curr_indent += 1
 
         if line.startswith(" "): 
@@ -171,29 +179,33 @@ def autoIndent(lines: list) -> list:
         diff = curr_indent - prev_indent
 
         while diff < 0:
-            indented[-1] += get_config("special", "dedent")
+            indented[-1] += dedent
             diff += 1
 
         # Newline will come after DEDENTs but before INDENTS
+        indented.extend(emptyLines)
         indented.append("")
         
         while diff > 0:
-            indented[-1] += get_config("special", "indent")
+            indented[-1] += indent
             diff -= 1
             
         indented[-1] += line
+        emptyLines = []
         prev_indent, curr_indent = curr_indent, 0
 
     # Handle any final DEDENTs
     while prev_indent > 0:
-        indented[-1] += get_config("special", "dedent")
+        indented[-1] += dedent
         prev_indent -= 1
 
     return indented
 
 
-def preprocess_input(string: str, indentSensitive: bool) -> list:
+def preprocess_input(string: str) -> list:
     """Strips # comments and wraps automatic indentation processing."""
+
+    from AST import INDENT_SENSITIVE
 
     lines = string.splitlines()
 
@@ -201,4 +213,4 @@ def preprocess_input(string: str, indentSensitive: bool) -> list:
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return autoIndent(lines) if indentSensitive else lines
+    return autoIndent(lines) if INDENT_SENSITIVE else lines

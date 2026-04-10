@@ -54,7 +54,7 @@ def compile(path: str, implementation: bool):
 
 @cli.command
 @click.argument("input", nargs=-1)
-@click.option("-o", "--output", default=get_config("output"), help="Name for output file (only necessary when compiling).", show_default=True)
+@click.option("-o", "--output", default=get_config("output"), hidden=(get_config("implementation")=="interpreter"), help="Name for output file.", show_default=True)
 @click.option("-f", "--force", is_flag=True, help="Force recompilation.")
 @click.option("-i", "--interactive", is_flag=True, help="Run in interative mode.")
 @click.option("-d", "--debug", is_flag=True, help="Run in debug mode.")

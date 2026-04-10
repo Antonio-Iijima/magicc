@@ -1,22 +1,49 @@
+evaluate: callable
 g_env = {}
 g_markers = {}
 
 
 
-def inorder(node, indent=0):
-    if isinstance(node, str):
-        print("   " * indent + repr(node))
+def find_markers(node, path: list = None) -> None:
+    """Find paths to all marker statements in program and store in `g_markers`."""
+
+    if path is None: path = []
+
+    if not isinstance(node, str):
+        if (str(node) == "MARKER"):
+            g_markers[evaluate(node.children[1])] = path
+            find_markers(node.children[3], path + [3])
+        else:
+            for i, child in enumerate(node.children):
+                find_markers(child, path + [i])
+
+
+def sequence(node, path) -> list:
+    """Build evaluation path of expression from a given marker statement onwards."""
+
+    if (path == []):
+        return [node.children[3]]    
     else:
-        print("   " * indent + str(node))
-        for child in node.children:
-            inorder(child, indent+1)
+        i = path[0]
+        return sequence(node.children[i], path[1:]) + list(node.children[i+1:])
 
 
 def p_program(expr):
-    inorder(expr[0])
-    # print(repr(expr[0]))
-    # expr(0)
+    program = expr[0]
+    nodes = [program]
 
+    find_markers(program)
+
+    while nodes:
+        try:
+            evaluate(nodes.pop(0))
+        
+        except Exception as e:
+            if e.args[:2] == (2, "goto"):
+                nodes = sequence(program, g_markers[e.args[2]])
+            else: raise e
+    
+    
 
 def p_statement_list_1(expr):
     expr(0)
@@ -48,31 +75,22 @@ def p_if_then_else(expr):
         expr(7)
 
 def p_block(expr):
-    return expr(2)
+    return expr(2)  
 
 
 def p_return(expr):
     raise Exception(0, expr(1))
 
 
+def p_goto(expr):
+    raise Exception(2, "goto", expr(2))
+
 def p_marker(expr):
-    mark = expr(1)
-    jump = True
-    while jump:
-        try:
-            expr(3)
-            jump = False
-        except Exception as e:
-            jump = (e.args == (2, mark))
-            if not jump:
-                if len(e.args) > 0 and e.args[0] == 2:
-                    print(f"ERROR: cannot reference marker '{e.args[1]}' before declaration")
-                e.args = (1, e.args[1])
-            raise e
-
-def p_jump(expr):
-    raise Exception(2, expr(2))
+    expr(3)
 
 
-def p_print(expr):
+def p_print_0(expr):
     print(expr(1))
+
+def p_print_1(expr):
+    print()

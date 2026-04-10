@@ -14,8 +14,8 @@
       "language": "languages/banter"
    },
    "special": {
-      "indent": "//INDENTATION-MARKER//",
-      "dedent": "//DEDENTATION-MARKER//",
+      "indent": " //INDENTATION-MARKER// ",
+      "dedent": " //DEDENTATION-MARKER// ",
       "indentation": "   "
    },
    "input": [],

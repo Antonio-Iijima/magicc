@@ -1,5 +1,0 @@
-let a be 1
-@ mark
-let a be a + 1
-print a
-goto instruction mark
