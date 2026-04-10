@@ -42,15 +42,12 @@ def default(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr)
         if (get_config("implementation") == "interpreter"):
             return f"""
 def process(string: str) -> any:
-    dFlag = get_config("flags", "debug")
-
     try:
-        {"print(str(parse(string, dFlag=dFlag)).strip())" if isLiteral
-        else """out = evaluate(parse(string, dFlag=dFlag).AST)
+        {"print(str(parse(string)).strip())" if isLiteral
+        else """out = evaluate(parse(string).AST)
         if out is not None: print(out)"""}
 {self.exception}
         
-
 def validate(parsed, solution: any) -> str:
     if str(parsed) == solution: return solution
     
@@ -65,7 +62,7 @@ def validate(parsed, solution: any) -> str:
 def process(string: str) -> any:
     try:
         with open("{get_config("output")}", "w") as file:
-            file.write(evaluate(parse(string, dFlag=get_config("flags", "debug")).AST))
+            file.write(evaluate(parse(string).AST))
 {self.exception}
 """
 

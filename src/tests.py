@@ -81,7 +81,7 @@ def test(tests: list[int] = None) -> None:
             for test, solution in testcases[i]:
                 start = time()
 
-                parsed = parse(test, dFlag=dFlag)
+                parsed = parse(test)
                 print("\nPARSED\n")
                 
                 for s, v in {

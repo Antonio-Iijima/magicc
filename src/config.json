@@ -18,7 +18,9 @@
       "dedent": " //DEDENTATION-MARKER// ",
       "indentation": "   "
    },
-   "input": [],
+   "input": [
+      "../examples/5b.banter"
+   ],
    "output": "out.py",
    "tests": []
 }

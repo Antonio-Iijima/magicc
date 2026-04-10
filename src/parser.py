@@ -3,13 +3,15 @@ from datatypes import *
 
 
 
-def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
+def parse(expr: str, state_limit: int = 2**100) -> Parsed:
     from AST import (
         expects, expected_patterns,
         PROGRAM, K, 
         EXPECTED_TOKENS,
         EXPECTED_PATTERNS
     )
+
+    dFlag = get_config("flags", "debug")
 
     remaining_tokens = tokenize(expr)
     tokens = []
@@ -126,8 +128,7 @@ def parse(expr: str, state_limit: int = 2**100, dFlag: bool = False) -> Parsed:
 def tokenize(unprocessed: str) -> list:
     from AST import TERMINALS
     
-    lines = preprocess_input(unprocessed)
-    string = "\n".join(lines)
+    string = preprocess_input(unprocessed)
 
     past = ""
 
@@ -213,4 +214,4 @@ def preprocess_input(string: str) -> list:
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return autoIndent(lines) if INDENT_SENSITIVE else lines
+    return "\n".join(autoIndent(lines)) if INDENT_SENSITIVE else "\n".join(lines).strip()

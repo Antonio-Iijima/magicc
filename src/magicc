@@ -13,4 +13,4 @@ pyinstaller main.py \
 python3 main.py unlock
 
 rm -r build
-rm $2.spec
+rm ./*.spec
