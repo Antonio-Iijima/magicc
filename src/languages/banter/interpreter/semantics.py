@@ -36,13 +36,14 @@ def p_program(expr):
 
     while nodes:
         try:
-            return evaluate(nodes.pop(0))
+            out = evaluate(nodes.pop(0))
         
         except Exception as e:
             if e.args[:2] == (2, "goto"):
                 nodes = sequence(program, g_markers[e.args[2]])
             else: raise e
     
+    return out
     
 
 def p_statement_list_1(expr):
