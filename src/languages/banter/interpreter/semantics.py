@@ -36,7 +36,7 @@ def p_program(expr):
 
     while nodes:
         try:
-            evaluate(nodes.pop(0))
+            return evaluate(nodes.pop(0))
         
         except Exception as e:
             if e.args[:2] == (2, "goto"):

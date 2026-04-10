@@ -23,7 +23,7 @@
 <RETURN>         ::= return <EXPRESSION>
 
 <GOTO>           ::= goto instruction <MARK>
-<MARKER>           ::= @ <MARK> \n+ <STATEMENT_LIST>
+<MARKER>         ::= @ <MARK> \n+ <STATEMENT_LIST>
 <MARK>           ::= <ID> | <NUMBER>
 
 <PRINT>          ::= print <EXPRESSION> | print
