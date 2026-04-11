@@ -1,6 +1,1 @@
-#require datatypes.numeric
-
-<LETTER>    ::= <MAJUSCULE> | <MINISCULE>
-<MAJUSCULE> ::= [A-Z]
-<MINISCULE> ::= [a-z]
-<STRING>    ::= "[\w\d\s]*"
+<STRING> ::= "[^"\n]*"

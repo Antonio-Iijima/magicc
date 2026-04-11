@@ -1,4 +1,3 @@
 <NUMBER> ::= <INT> | <FLOAT>
 <FLOAT>  ::= \d*\.\d+
 <INT>    ::= 0 | [1-9]\d*
-<DIGIT>  ::= \d

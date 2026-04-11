@@ -55,9 +55,9 @@ def compile(path: str, implementation: bool):
 @cli.command
 @click.argument("input", nargs=-1)
 @click.option("-o", "--output", default=get_config("output"), hidden=(get_config("implementation")=="interpreter"), help="Name for output file.", show_default=True)
-@click.option("-f", "--force", is_flag=True, help="Force recompilation.")
-@click.option("-i", "--interactive", is_flag=True, help="Run in interative mode.")
+@click.option("-i", "--interactive", is_flag=True, hidden=(get_config("implementation")=="compiler"), help="Run in interative mode.")
 @click.option("-d", "--debug", is_flag=True, help="Run in debug mode.")
+@click.option("-f", "--force", is_flag=True, help="Force recompilation.")
 @click.option("-x", "--clear", is_flag=True, help="Delete cached compiled files.")
 def run(input: tuple, **flags):
     """Runs a compiled language with OPTIONS."""

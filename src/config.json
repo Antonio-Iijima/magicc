@@ -3,12 +3,12 @@
    "language": "banter",
    "lock": false,
    "flags": {
-      "force": false,
       "interactive": false,
       "debug": false,
+      "force": false,
       "clear": false
    },
-   "implementation": "compiler",
+   "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
       "language": "languages/banter"
@@ -19,7 +19,7 @@
       "sensitive": true
    },
    "input": [
-      "../examples/5b.banter"
+      "../examples/4.banter"
    ],
    "output": "out.py",
    "tests": []
