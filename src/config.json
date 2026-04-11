@@ -3,9 +3,9 @@
    "language": "banter",
    "lock": false,
    "flags": {
+      "force": true,
       "interactive": false,
       "debug": false,
-      "force": false,
       "clear": false
    },
    "implementation": "interpreter",

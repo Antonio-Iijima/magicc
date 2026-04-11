@@ -189,18 +189,11 @@ def pathToFunc(path: str) -> str:
 def print_warnings(msg: str, log: dict) -> None:
     from datatypes import OrderedSet
 
-    if isinstance(log, list) and log:
-        print("WARNING: " + msg)
-        for warning in log:
-            print(f"       | {warning}")
-
-    elif log.get("dependency") or log.get("main"):
-        print("WARNING: " + msg)
-        for path in OrderedSet(log.get("dependency", [])):
-            print(f"       | {path}")
-
-        if log.get("main"):
-            print(f"       | {log["main"][0]}")
+    for type, warnings in sorted(log.items(), key=lambda tup: len(tup[0]), reverse=True):
+        if warnings:
+            print("WARNING: " + msg + f" ({type})")
+            for path in OrderedSet(warnings):
+                print(f"       | {path}")
 
 
 
