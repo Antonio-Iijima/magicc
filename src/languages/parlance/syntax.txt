@@ -1,15 +1,15 @@
 #require datatypes.identifier
-#require math.infix.extended
 #require datatypes.string
 #require datatypes.list
+#require math.infix
 
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
 
-<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n <STATEMENT_LIST>
-<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <UNTIL> | <PRINT>
+<STATEMENT_LIST> ::= <STATEMENT> | <STATEMENT> \n+ <STATEMENT_LIST>
+<STATEMENT>      ::= <ASSIGNMENT> | <CONDITIONAL> | <RETURN> | <GOTO> | <MARKER> | <PRINT>
 
-<EXPRESSION>     ::= <MATHEXPR>
+<EXPRESSION>     ::= <MATHEXPR> | <LISTEXPR>
 <VALUE>          ::= <STRING> | <LABEL> | <BOOL> | <LIST>
 <LABEL>          ::= <ID>
 <BOOL>           ::= True | False
@@ -18,11 +18,17 @@
 
 <CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
 <IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
-<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n else <BLOCK>
-<BLOCK>          ::= \n <INDENT> <STATEMENT_LIST> <DEDENT>
+<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n+ else <BLOCK>
+<BLOCK>          ::= \n+ <INDENT> <STATEMENT_LIST> <DEDENT>
 
 <RETURN>         ::= return <EXPRESSION>
 
-<UNTIL>          ::= until <COMPARISON> do <BLOCK>
+<GOTO>           ::= goto instruction <MARK>
+<MARKER>         ::= @ <MARK> \n+ <STATEMENT_LIST>
+<MARK>           ::= <EXPRESSION>
 
-<PRINT>          ::= print <EXPRESSION>
+<PRINT>          ::= print <EXPRESSION> | print
+
+<LISTEXPR>       ::= <EXPRESSION> \[ <SLICE> \]
+<SLICE>          ::= <INDEX> | <INDEX> : <INDEX>
+<INDEX>          ::= <EXPRESSION> | ε

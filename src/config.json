@@ -1,17 +1,17 @@
 {
    "version": "0.0.0",
-   "language": "banter",
+   "language": "parlance",
    "lock": false,
    "flags": {
-      "force": true,
       "interactive": false,
       "debug": false,
+      "force": false,
       "clear": false
    },
    "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/banter"
+      "language": "languages/parlance"
    },
    "indentation": {
       "indent": " //INDENTATION-MARKER// ",
@@ -19,7 +19,7 @@
       "sensitive": true
    },
    "input": [
-      "../examples/4.banter"
+      "a.parl"
    ],
    "output": "out.py",
    "tests": []

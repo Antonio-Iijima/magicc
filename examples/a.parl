@@ -1,0 +1,13 @@
+let flist be [1,2,3]
+
+goto instruction flist[1]
+
+@1
+return "At 1"
+
+@2
+return "At 2"
+
+@3
+return "At 3"
+
