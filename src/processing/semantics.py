@@ -132,8 +132,14 @@ class File:
             self.type = "MAIN"
             self.path = main
 
-        self.file = f"{self.path}/{get_config("implementation")}/semantics.py"
+        implementation = get_config("implementation")
+        self.file = f"{self.path}/{implementation}/semantics.py"
         if not os.path.exists(self.file):
+            if self.type == "MAIN": 
+                print_warnings(
+                    msg=f"{implementation} semantics not found",
+                    log=["semantics may not be implementation-specific"]
+                )
             self.file = f"{self.path}/semantics.py"
 
 

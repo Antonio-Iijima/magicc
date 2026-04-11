@@ -8,7 +8,7 @@
       "debug": false,
       "clear": false
    },
-   "implementation": "interpreter",
+   "implementation": "compiler",
    "paths": {
       "lib": ".lib",
       "language": "languages/banter"
@@ -19,7 +19,7 @@
       "sensitive": true
    },
    "input": [
-      "../examples/factorial.banter"
+      "../examples/5b.banter"
    ],
    "output": "out.py",
    "tests": []

@@ -8,7 +8,6 @@ from time import time
 
 
 def test(tests: list[int] = None) -> None:
-    dFlag = get_config("flags", "debug")
     name = get_config("language")
     
     setrecursionlimit(2**31-1)
@@ -92,5 +91,5 @@ def test(tests: list[int] = None) -> None:
                 print()
 
                 print(f"Runtime: {time()-start}")
-        except IndexError as e:
+        except IndexError:
             raise IndexError(f"tried to access test {i}, but {name} has only {len(testcases)} tests.")
