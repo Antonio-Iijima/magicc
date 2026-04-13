@@ -1,13 +1,8 @@
-let flist be [1,2,3]
+let b be 100
+let a be 0
 
-goto instruction flist[1]
-
-@1
-return "At 1"
-
-@2
-return "At 2"
-
-@3
-return "At 3"
-
+@b
+if a < b, then
+    let a be a + 1
+    print a
+    goto instruction b

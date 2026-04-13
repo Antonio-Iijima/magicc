@@ -1,21 +1,37 @@
 evaluate: callable
 g_env = {}
 g_markers = {}
+g_program = None
 
 
 
-def find_markers(node, path: list = None) -> None:
-    """Find paths to all marker statements in program and store in `g_markers`."""
+def find_marker(destination) -> any:
+    """Finds path to a provided destination marker statement; caches in `g_markers`. Returns the destination."""
 
-    if path is None: path = []
+    def search(node, path):
+        if not isinstance(node, str):
+            if (str(node) == "MARKER"):
 
-    if not isinstance(node, str):
-        if (str(node) == "MARKER"):
-            g_markers[evaluate(node.children[1])] = path
-            find_markers(node.children[3], path + [3])
-        else:
-            for i, child in enumerate(node.children):
-                find_markers(child, path + [i])
+                try:
+                    mark = evaluate(node.children[1])
+                except Exception as e:
+                    if e.args[0] == 1 and e.args[1].endswith("not declared."):
+                        mark = None
+                    else:
+                        raise e
+                
+                if mark == destination:
+                    g_markers[mark] = path
+                else:
+                    search(node.children[3], path + [3])
+            else:
+                for i, child in enumerate(node.children):
+                    search(child, path + [i])
+
+    if not (destination in g_markers): 
+        search(g_program, [])
+    
+    return destination
 
 
 def sequence(node, path) -> list:
@@ -29,10 +45,10 @@ def sequence(node, path) -> list:
 
 
 def p_program(expr):
-    program = expr[0]
-    nodes = [program]
-
-    find_markers(program)
+    global g_program
+    
+    g_program = expr[0]
+    nodes = [g_program]
 
     while nodes:
         try:
@@ -40,7 +56,10 @@ def p_program(expr):
         
         except Exception as e:
             if e.args[:2] == (2, "goto"):
-                nodes = sequence(program, g_markers[e.args[2]])
+                path = g_markers.get(e.args[2])
+                if path is None:
+                    raise Exception(1, f"marker '{e.args[2]}' not found.")
+                nodes = sequence(g_program, path)
             else: raise e
     
     return out
@@ -55,7 +74,7 @@ def p_label(expr):
     try:
         return g_env[expr(0)]
     except KeyError:
-        raise Exception(1, f"Error: variable {expr(0)} not declared.")
+        raise Exception(1, f"variable {expr(0)} not declared.")
 
 def p_bool(expr):
     return expr(0) == "True"
@@ -82,9 +101,12 @@ def p_block(expr):
 def p_return(expr):
     raise Exception(0, expr(1))
 
+def p_return_1(expr):
+    raise Exception(0)
+
 
 def p_goto(expr):
-    raise Exception(2, "goto", expr(2))
+    raise Exception(2, "goto", find_marker(expr(2)))
 
 def p_marker(expr):
     expr(3)
@@ -98,22 +120,26 @@ def p_print_1(expr):
 
 
 def p_listexpr(expr):
-    return expr(0)[expr(2)]
+    try:
+        return expr(0)[expr(2)]
+    except IndexError as e:
+        raise Exception(1, f"index {expr(2)} out of range")
 
 
 def p_slice_0(expr):
     return expr(0)
 
-def p_slice(expr):
-    print(list(str(e) for e in expr))
+def p_slice_1(expr):
+    
     a, b = None, None
     
-    if len(expr) == 2:
-        if str(expr[0]) == "INDEX":
-            a = expr(0)
-        else:
-            b = expr(1)
-    elif len(expr) == 3:
-        a, b = expr(0), expr(2)
+    match len(expr):
+        case 2:
+            if str(expr[0]) == "INDEX":
+                a = expr(0)
+            else:
+                b = expr(1)
+        case 3:
+            a, b = expr(0), expr(2)
 
     return slice(a, b)

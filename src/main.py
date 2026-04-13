@@ -3,44 +3,31 @@ from utils import get_config, set_config, get_input
 import processing
 
 import click
+import sys
 import os
 
 from time import time
 
 
 
+BUNDLED = (getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'))
+
+
 @click.group(context_settings=dict(help_option_names=['-h', '--help']))
 def cli(): pass
 
 
-@cli.command(hidden=True)
-def lock():
-    print("[LOCK]")
-    key(True)
 
-
-@cli.command(hidden=True)
-def unlock():
-    print("[UNLOCK]")
-    key(False)
-
-
-def key(val: bool):
-    cfg = get_config()
-    cfg["lock"] = val
-    set_config(cfg)
-
-
-@cli.command(hidden=get_config("lock"))
+@cli.command(hidden=BUNDLED)
 @click.argument("path", type=click.Path(exists=True, file_okay=False, resolve_path=True))
 @click.option("-i", "--interpreter", "implementation", flag_value="interpreter", help="Compile an interpreter.", default=True)
 @click.option("-c", "--compiler", "implementation", flag_value="compiler", help="Compile a compiler.")
 def compile(path: str, implementation: bool):
     """Compiles a language system from the files provided in PATH."""
 
-    cfg = get_config()
+    if BUNDLED: return print("Cannot compile from bundled language.")
 
-    if cfg["lock"]: return print("[LOCK] Cannot compile new language from executable.")
+    cfg = get_config()
 
     cfg["paths"]["language"] = "/".join(path.split("/")[-2:])
     cfg["language"] = path.split("/")[-1]

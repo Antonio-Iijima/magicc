@@ -3,11 +3,14 @@ from processing.semantics import Eval
 
 from utils import get_config
 
+import sys
+
 
 
 def compile() -> None:
-
-    if get_config("lock"): return None
+    
+    # Disable recompilation if running from PyInstaller bundle.
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'): return None
     
     print(f"Compiling...")
     print()

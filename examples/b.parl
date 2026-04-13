@@ -1,0 +1,13 @@
+let a be -1
+
+goto instruction a
+
+@b
+print "We made it to b!"
+return "Done"
+
+
+@a
+print "In a"
+let b be 0
+goto instruction 0

@@ -1,7 +1,7 @@
 #require datatypes.identifier
 #require datatypes.string
 #require datatypes.list
-#require math.infix
+#require math.infix.extended
 
 
 <PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
@@ -21,7 +21,7 @@
 <IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n+ else <BLOCK>
 <BLOCK>          ::= \n+ <INDENT> <STATEMENT_LIST> <DEDENT>
 
-<RETURN>         ::= return <EXPRESSION>
+<RETURN>         ::= return <EXPRESSION> | return
 
 <GOTO>           ::= goto instruction <MARK>
 <MARKER>         ::= @ <MARK> \n+ <STATEMENT_LIST>

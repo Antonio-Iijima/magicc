@@ -116,20 +116,26 @@ def eliminate_nulls(grammar: dict, nulls: set) -> dict:
             
             grammar[rule][module] = []
             
-            for _, pattern in enumerate(alternatives):
-                expanded_null_patterns = [[]]
-                for i, token in enumerate(pattern):
-                    if not token == "ε":
-                        expanded_null_patterns = list(state + [token] for state in expanded_null_patterns)
-                        if token in nulls:
-                            expanded_null_patterns += list(state[:-1] for state in expanded_null_patterns)
+            for variant, pattern in enumerate(alternatives):
+                expanded_null_patterns = [(variant, [])]
+                
+                for token in pattern:
 
-                for expanded_null_pattern in expanded_null_patterns:
+                    # For non-epsilon tokens, append to each state;
+                    # if token is nullable, also add a new alternative where it is not included. 
+                    if not token == "ε":
+                        expanded_null_patterns = list((variant, state + [token]) for (variant, state) in expanded_null_patterns)
+                        if token in nulls:
+                            expanded_null_patterns += list((variant, state[:-1]) for (variant, state) in expanded_null_patterns)
+
+                # Filter out duplicates / infinite recursion
+                for (variant, expanded_null_pattern) in expanded_null_patterns:
+                    
                     if expanded_null_pattern and not (
                         expanded_null_pattern in grammar[rule][module]
-                        or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
+                        or len(expanded_null_pattern) == 2 and expanded_null_pattern[1] == rule
                     ):
-                        grammar[rule][module].append(expanded_null_pattern)
+                        grammar[rule][module].append((variant, expanded_null_pattern))
             
             if not grammar[rule][module]:
                 grammar[rule].pop(module)
@@ -149,7 +155,7 @@ def build_expected_tokens(grammar: dict[str, dict]) -> dict:
 
         # Recurse into subsequent grammar rules
         for module in grammar.get(next, []):
-            for pattern in grammar[next][module]:
+            for (variant, pattern) in grammar[next][module]:
                 token = pattern[0]
                 if (not isinstance(token, str)) and (not token in expected_tokens[curr]):
                     extend_expected_tokens(curr, token)
@@ -158,7 +164,7 @@ def build_expected_tokens(grammar: dict[str, dict]) -> dict:
 
     for modules in grammar.values():
         for alternatives in modules.values():
-            for pattern in (p for p in alternatives if len(p) > 1):
+            for pattern in (p for (v, p) in alternatives if p):
                 for curr, next in zip(pattern[:-1], pattern[1:]):
                     extend_expected_tokens(curr, next)
                         
@@ -171,7 +177,7 @@ def build_expected_patterns(grammar: dict):
 
     for rule, modules in grammar.items():
         for module, alternatives in modules.items():
-            for variant, pattern in enumerate(alternatives):
+            for (variant, pattern) in alternatives:
                 for token in (t for t in pattern if not isinstance(t, (str, int))):
                     if not (token in expected_patterns): expected_patterns[token] = []
                     

@@ -1,11 +1,10 @@
 {
    "version": "0.0.0",
    "language": "parlance",
-   "lock": false,
    "flags": {
+      "force": true,
       "interactive": false,
       "debug": false,
-      "force": false,
       "clear": false
    },
    "implementation": "interpreter",
@@ -19,7 +18,7 @@
       "sensitive": true
    },
    "input": [
-      "a.parl"
+      "../examples/a.parl"
    ],
    "output": "out.py",
    "tests": []

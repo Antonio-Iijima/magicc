@@ -1,0 +1,16 @@
+let i be 0
+
+@1.1
+let n be i
+let answer be 1
+
+@1
+if n > 0, then
+    let answer be answer * n
+    let n be n - 1
+    goto instruction 1
+else
+    print answer
+    let i be i + 1
+    if i < 50, then
+        goto instruction 1.1

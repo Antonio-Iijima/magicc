@@ -17,10 +17,13 @@ class Eval:
         self.dependencies = dependencies
         self.exception = """
     except Exception as e:
-        if e.args[0] in (0, 1):
-            print(e.args[1])
-        else:
-            raise e
+        match e.args[0]:
+            case 0:
+                if e.args[1:]: print(e.args[1])
+            case 1:
+                print(f"ERROR: {e.args[1]}")
+            case _:
+                raise e
 """
 
       
@@ -37,7 +40,7 @@ def default(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr)
 """
 
 
-    def embed_process(self, isLiteral):
+    def embed_process(self, isLiteral: bool):
 
         if (get_config("implementation") == "interpreter"):
             return f"""
