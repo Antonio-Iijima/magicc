@@ -2,8 +2,8 @@
    "version": "0.0.0",
    "language": "boolexpr",
    "flags": {
-      "interactive": true,
       "force": true,
+      "interactive": false,
       "debug": false,
       "clear": false
    },
@@ -17,7 +17,9 @@
       "dedent": " //DEDENTATION-MARKER// ",
       "sensitive": false
    },
-   "input": [],
+   "input": [
+      "../examples/a.bool"
+   ],
    "output": "out.py",
    "tests": []
 }

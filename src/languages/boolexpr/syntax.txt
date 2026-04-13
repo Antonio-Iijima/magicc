@@ -4,4 +4,4 @@
 <VARLIST>      ::= <VAR> | <VAR> , <VARLIST>
 <EXPR>         ::= <EXPR> & <EXPR> | <EXPR> \| <EXPR> | ~ <EXPR> | <LITERAL> | <VAR>
 <LITERAL>      ::= t | f
-<VAR>          ::= [a-z^t^f]
+<VAR>          ::= [a-eg-su-z]
