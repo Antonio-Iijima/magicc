@@ -1,0 +1,7 @@
+<PROGRAM>      ::= <BOOLEXPR> | <BOOLEXPR> \n+ <PROGRAM>
+<BOOLEXPR>     ::= \( <DECLARATIONS> , <EXPR> \)
+<DECLARATIONS> ::= \[ \] | \[ <VARLIST> \]
+<VARLIST>      ::= <VAR> | <VAR> , <VARLIST>
+<EXPR>         ::= <EXPR> & <EXPR> | <EXPR> \| <EXPR> | ~ <EXPR> | <LITERAL> | <VAR>
+<LITERAL>      ::= t | f
+<VAR>          ::= [a-z^t^f]

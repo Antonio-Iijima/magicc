@@ -1,25 +1,23 @@
 {
    "version": "0.0.0",
-   "language": "parlance",
+   "language": "boolexpr",
    "flags": {
+      "interactive": true,
       "force": true,
-      "interactive": false,
       "debug": false,
       "clear": false
    },
    "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/parlance"
+      "language": "languages/boolexpr"
    },
    "indentation": {
       "indent": " //INDENTATION-MARKER// ",
       "dedent": " //DEDENTATION-MARKER// ",
-      "sensitive": true
+      "sensitive": false
    },
-   "input": [
-      "../examples/a.parl"
-   ],
+   "input": [],
    "output": "out.py",
    "tests": []
 }
