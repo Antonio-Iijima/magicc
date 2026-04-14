@@ -2,12 +2,12 @@
    "version": "0.0.0",
    "language": "boolexpr",
    "flags": {
-      "force": true,
+      "debug": true,
       "interactive": false,
-      "debug": false,
+      "force": false,
       "clear": false
    },
-   "implementation": "interpreter",
+   "implementation": "compiler",
    "paths": {
       "lib": ".lib",
       "language": "languages/boolexpr"
@@ -18,9 +18,7 @@
       "indentation": false,
       "newlines": true
    },
-   "input": [
-      "../examples/b.bool"
-   ],
+   "input": [],
    "output": "out.py",
    "tests": []
 }

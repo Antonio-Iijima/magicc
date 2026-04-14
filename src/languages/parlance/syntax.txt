@@ -13,7 +13,7 @@
 <VALUE>          ::= <STRING> | <LABEL> | <BOOL> | <LIST>
 <LABEL>          ::= <ID>
 <BOOL>           ::= True | False
-<ATOM> ::= <VALUE>
+<ATOM>           ::= <VALUE>
 
 <ASSIGNMENT>     ::= let <ID> be <EXPRESSION>
 

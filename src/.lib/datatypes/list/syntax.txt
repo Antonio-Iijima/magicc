@@ -1,2 +1,2 @@
-<LIST>       ::= \[ \] | \[ <ATOMS> \]
-<ATOMS>      ::= <ATOM> | <ATOM> , <ATOMS>
+<LIST>  ::= \[ \] | \[ <ATOMS> \]
+<ATOMS> ::= <ATOM> | <ATOM> , <ATOMS>
