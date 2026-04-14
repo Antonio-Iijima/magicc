@@ -1,11 +1,12 @@
-def p_empty_list(expr):
+def p_list_0(expr):
     return []
 
-def p_lat(expr):
+def p_list_1(expr):
     return [ *expr(1) ]
 
+
 def p_atoms_0(expr):
-    return (expr(0),)
+    return (expr(0), )
 
 def p_atoms_1(expr):
     return (expr(0), *expr(2))

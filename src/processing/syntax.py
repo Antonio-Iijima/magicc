@@ -23,7 +23,8 @@ class Grammar:
     def __init__(self):
         cfg = get_config()
 
-        cfg["indentation"]["sensitive"] = False
+        cfg["formatting"]["indentation"] = False
+        cfg["formatting"]["newlines"] = False
         self.main = cfg["paths"]["language"]
 
         set_config(cfg)
@@ -268,16 +269,22 @@ class Pattern:
                 nonterminal = match.group()
                 terminal, pattern = map(lambda s: s.strip(), pattern.split(nonterminal, 1))
 
-                if nonterminal in ("<INDENT>", "<DEDENT>") and not get_config("indentation", "sensitive"):
+                if nonterminal in ("<INDENT>", "<DEDENT>") and not get_config("formatting", "indentation"):
                     
-                    self.module.add_rule("<INDENT>", get_config("indentation", "indent"))
-                    self.module.add_rule("<DEDENT>", get_config("indentation", "dedent"))
+                    self.module.add_rule("<INDENT>", get_config("formatting", "indent"))
+                    self.module.add_rule("<DEDENT>", get_config("formatting", "dedent"))
                     
                     cfg = get_config()
-                    cfg["indentation"]["sensitive"] = True
+                    cfg["formatting"]["indentation"] = True
                     set_config(cfg)
 
                 if terminal:
+                    
+                    if (r"\n" in terminal) and not get_config("formatting", "newlines"):
+                        cfg = get_config()
+                        cfg["formatting"]["newlines"] = True
+                        set_config(cfg)
+
                     self.pattern.extend(Terminal(token) for token in terminal.split())
                 
                 self.pattern.append(Nonterminal(nonterminal))

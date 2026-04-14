@@ -1,0 +1,6 @@
+let a be 2
+let l be [1,2,a]
+print l
+let a be 3
+print l
+print a

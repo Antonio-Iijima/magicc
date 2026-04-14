@@ -12,13 +12,14 @@
       "lib": ".lib",
       "language": "languages/boolexpr"
    },
-   "indentation": {
+   "formatting": {
       "indent": " //INDENTATION-MARKER// ",
       "dedent": " //DEDENTATION-MARKER// ",
-      "sensitive": false
+      "indentation": false,
+      "newlines": true
    },
    "input": [
-      "../examples/a.bool"
+      "../examples/b.bool"
    ],
    "output": "out.py",
    "tests": []

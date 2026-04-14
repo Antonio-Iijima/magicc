@@ -1,7 +1,12 @@
+#require datatypes.list
+
+
 <PROGRAM>      ::= <BOOLEXPR> | <BOOLEXPR> \n+ <PROGRAM>
-<BOOLEXPR>     ::= \( <DECLARATIONS> , <EXPR> \)
-<DECLARATIONS> ::= \[ \] | \[ <VARLIST> \]
-<VARLIST>      ::= <VAR> | <VAR> , <VARLIST>
-<EXPR>         ::= <EXPR> & <EXPR> | <EXPR> \| <EXPR> | ~ <EXPR> | <LITERAL> | <VAR>
+<BOOLEXPR>     ::= \( <LIST> , <EXPR> \)
+<ATOM>         ::= <VAR>
+<EXPR>         ::= <OR>
+<OR>           ::= <EXPR> \| <OR> | <AND>
+<AND>          ::= <EXPR> & <AND> | <NOT>
+<NOT>          ::= ~ <EXPR> | <LITERAL> | <VAR>
 <LITERAL>      ::= t | f
 <VAR>          ::= [a-eg-su-z]

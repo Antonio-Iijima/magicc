@@ -202,6 +202,10 @@ def print_warnings(msg: str, log: dict) -> None:
                 print(f"       | {path}")
 
 
+def stringify(l: list[object]) -> list[str]:
+    return list(map(str, l))
+
+
 
 if __name__ == "__main__":
     from sys import argv

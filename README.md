@@ -1,5 +1,7 @@
 # magicc: a general interpreter/compiler compiler
 
+###### **NB** The README is only guaranteed to be accurate for the commit it was a part of. If there is any appreciable Δt between the last README update and the last project update, you may safely assume the README is out of date.
+
 *magicc* is a system for simplified programming language development. As such, there are two primary ways to use it, and therefore two parallel guides. Those only interested in using the languages created by magicc can safely stop reading after the section titled [Basic Usage](#basic-usage). Those interested in using magicc for language development and prototyping should continue to the [Advanced Usage](#advanced-usage) section.
 
 

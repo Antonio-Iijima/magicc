@@ -1,4 +1,3 @@
-def p_program(expr):
-    for i in range(len(expr)-1):
-        print(expr(i))
-    return expr(-1)
+def p_program_1(expr):
+    print(expr(0))
+    return expr(2)

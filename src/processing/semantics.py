@@ -92,8 +92,8 @@ from parser import parse
 
 
 class Expr(list):
-    def __call__(self, i):
-        return evaluate(self[i])
+    def __call__(self, i, *args, **kwargs):
+        return evaluate(self[i], *args, **kwargs)
    
 {self.embed_default()}
 
@@ -105,9 +105,9 @@ def get_function(AST: Rule):
     )
 
 
-def evaluate(AST: Rule):
+def evaluate(AST: Rule, *args, **kwargs):
     return (
-        get_function(AST)(Expr(AST.children)) if isinstance(AST, Rule)
+        get_function(AST)(Expr(AST.children), *args, **kwargs) if isinstance(AST, Rule)
         else AST
     )
 

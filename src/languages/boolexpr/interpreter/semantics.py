@@ -1,4 +1,4 @@
-g_vars = {}
+g_vars = set()
 
 
 
@@ -12,29 +12,23 @@ def p_boolexpr(expr):
     return expr(3)
 
 
-def p_declarations_1(expr):
-    expr(1)
+def p_atom(expr):
+    g_vars.add(expr(0))
 
 
-def p_varlist_0(expr):
-    g_vars[expr(0)] = True
-
-def p_varlist_1(expr):
-    g_vars[expr(0)] = True
-    expr(2)
-
-
-def p_expr_0(expr):
+def p_and_0(expr):
     return expr(0) and expr(2)
 
-def p_expr_1(expr):
+def p_or_0(expr):
     return expr(0) or expr(2)
 
-def p_expr_2(expr):
+
+def p_not_0(expr):
     return not expr(1)
 
-def p_expr_3(expr):
-    return expr(0) == 't'
+def p_not_2(expr):
+    return expr(0) in g_vars
 
-def p_expr_4(expr):
-    return g_vars.get(expr(0), False)
+
+def p_literal(expr):
+    return expr(0) == 't'

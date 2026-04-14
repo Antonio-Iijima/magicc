@@ -122,7 +122,7 @@ def p_print_1(expr):
 def p_listexpr(expr):
     try:
         return expr(0)[expr(2)]
-    except IndexError as e:
+    except IndexError:
         raise Exception(1, f"index {expr(2)} out of range")
 
 

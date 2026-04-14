@@ -51,15 +51,13 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
         
         reducible_states = current_states.copy()
 
-        if dFlag: print("Current states", current_states)
-
         # We need to iteratively reduce all states as far as possible,
         # adding valid future states to the list as appropriate.
         while reducible_states:
 
             state = reducible_states.pop()
             
-            if dFlag: print("State", state)
+            if dFlag: print("State", stringify(state))
 
             for (rule, module, variant, pattern) in expected_patterns(state[-1]):
 
@@ -71,7 +69,7 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
 
                     reduced = State(state[:idx] + [rule(reducible, module, variant)])
 
-                    if dFlag: print("Reduced", reduced)
+                    if dFlag: print("Reduced", stringify(reduced))
 
                     reducible_states.add(reduced)
                     
@@ -85,7 +83,7 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
                                 for k in range(min(K, len(reduced))))
                         )
                     ):
-                        if dFlag: print("Future", reduced)
+                        if dFlag: print("Future", stringify(reduced)) or print()
                         future_states.add(reduced)
  
                 # If the current pattern does not match, but could match if given more tokens.
@@ -99,11 +97,6 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
         if max_states > state_limit: raise RuntimeError(f"Too many states to consider: {max_states}")
         
         current_states, future_states = future_states or current_states, OrderedSet()
-
-        if dFlag: 
-            print("Future states", current_states)
-            print()
-            
 
     accepting_states: OrderedSet = OrderedSet(
         state[0] for state in current_states if (
@@ -167,7 +160,8 @@ def autoIndent(lines: list[str]) -> list:
     level = max(set(levels).difference({0}) or {1}, key=lambda val: levels.count(val))
 
     indentation = " " * level
-    indent, dedent = list(get_config("indentation").values())[:2]
+    formatting = get_config("formatting")
+    indent, dedent = formatting["indent"], formatting["dedent"]
 
     for i, line in enumerate(lines):
         
@@ -218,4 +212,10 @@ def preprocess_input(string: str) -> list:
         if "#" in line:
             lines[i] = line[:line.index("#")]
 
-    return "\n".join(autoIndent(lines)) if get_config("indentation", "sensitive") else " ".join(lines).strip()
+    formatting = get_config("formatting")
+    indentation, newlines = formatting["indentation"], formatting["newlines"]
+
+    return (
+        "\n".join(autoIndent(lines)) if indentation
+        else ("\n" if newlines else " ").join(lines).strip()
+    )
