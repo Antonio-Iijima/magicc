@@ -1,16 +1,16 @@
 {
    "version": "0.0.0",
-   "language": "boolexpr",
+   "language": "calculator",
    "flags": {
       "force": true,
       "interactive": false,
       "debug": false,
       "clear": false
    },
-   "implementation": "compiler",
+   "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/boolexpr"
+      "language": "languages/calculator"
    },
    "formatting": {
       "indent": " //INDENTATION-MARKER// ",

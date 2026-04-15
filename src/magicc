@@ -12,3 +12,5 @@ pyinstaller main.py \
 
 rm -r build
 rm ./*.spec
+
+# md_toc --in-place --no-list-coherence github -l6 ../README.md
