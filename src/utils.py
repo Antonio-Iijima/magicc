@@ -133,7 +133,7 @@ def eliminate_nulls(grammar: dict, nulls: set) -> dict:
                     
                     if expanded_null_pattern and not (
                         expanded_null_pattern in grammar[rule][module]
-                        or len(expanded_null_pattern) == 2 and expanded_null_pattern[1] == rule
+                        or len(expanded_null_pattern) == 1 and expanded_null_pattern[0] == rule
                     ):
                         grammar[rule][module].append((variant, expanded_null_pattern))
             
@@ -178,7 +178,7 @@ def build_expected_patterns(grammar: dict):
     for rule, modules in grammar.items():
         for module, alternatives in modules.items():
             for (variant, pattern) in alternatives:
-                for token in (t for t in pattern if not isinstance(t, (str, int))):
+                for token in (t for t in pattern if not isinstance(t, str)):
                     if not (token in expected_patterns): expected_patterns[token] = []
                     
                     if not (pattern in expected_patterns[token]):

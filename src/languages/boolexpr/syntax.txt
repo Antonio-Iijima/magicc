@@ -4,9 +4,8 @@
 <PROGRAM>  ::= <BOOLEXPR> | <BOOLEXPR> \n+ <PROGRAM>
 <BOOLEXPR> ::= \( <LIST> , <EXPR> \)
 <ATOM>     ::= <VAR>
-<EXPR>     ::= <OR>
-<OR>       ::= <EXPR> \| <OR> | <AND>
-<AND>      ::= <EXPR> & <AND> | <NOT>
-<NOT>      ::= ~ <EXPR> | <LITERAL> | <VAR>
+<EXPR>     ::= <AND> \| <EXPR> | <AND>
+<AND>      ::= <NOT> & <AND> | <NOT>
+<NOT>      ::= ~ <NOT> | <LITERAL> | <VAR>
 <LITERAL>  ::= t | f
 <VAR>      ::= [a-eg-su-z]

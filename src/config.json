@@ -2,9 +2,9 @@
    "version": "0.0.0",
    "language": "boolexpr",
    "flags": {
-      "debug": true,
+      "force": true,
       "interactive": false,
-      "force": false,
+      "debug": false,
       "clear": false
    },
    "implementation": "compiler",
@@ -18,7 +18,9 @@
       "indentation": false,
       "newlines": true
    },
-   "input": [],
-   "output": "out.py",
+   "input": [
+      "../examples/b.bool"
+   ],
+   "output": "out.cpp",
    "tests": []
 }
