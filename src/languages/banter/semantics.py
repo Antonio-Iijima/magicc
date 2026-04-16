@@ -1,4 +1,3 @@
-evaluate: callable
 g_env = {}
 g_markers = {}
 
@@ -11,10 +10,10 @@ def find_markers(node, path: list = None) -> None:
 
     if not isinstance(node, str):
         if (str(node) == "MARKER"):
-            g_markers[evaluate(node.children[1])] = path
-            find_markers(node.children[3], path + [3])
+            g_markers[node(1)] = path
+            find_markers(node[3], path + [3])
         else:
-            for i, child in enumerate(node.children):
+            for i, child in enumerate(node):
                 find_markers(child, path + [i])
 
 
@@ -22,27 +21,27 @@ def sequence(node, path) -> list:
     """Build evaluation path of expression from a given marker statement onwards."""
 
     if (path == []):
-        return [node.children[3]]    
+        return [node[3]]
     else:
         i = path[0]
-        return sequence(node.children[i], path[1:]) + list(node.children[i+1:])
+        return sequence(node[i], path[1:]) + list(node[i+1:])
 
 
 def p_program(expr):
     program = expr[0]
     nodes = [program]
-
+    
     find_markers(program)
 
     while nodes:
         try:
-            out = evaluate(nodes.pop(0))
-        
+            out = nodes.pop(0)()
+
         except Exception as e:
             if e.args[:2] == (2, "goto"):
                 nodes = sequence(program, g_markers[e.args[2]])
             else: raise e
-    
+
     return out
     
 

@@ -1,6 +1,6 @@
 {
    "version": "0.0.0",
-   "language": "calculator",
+   "language": "parlance",
    "flags": {
       "force": true,
       "interactive": false,
@@ -10,16 +10,16 @@
    "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/calculator"
+      "language": "languages/parlance"
    },
    "formatting": {
       "indent": " //INDENTATION-MARKER// ",
       "dedent": " //DEDENTATION-MARKER// ",
-      "indentation": false,
+      "indentation": true,
       "newlines": true
    },
    "input": [
-      "../examples/b.bool"
+      "../examples/5b.banter"
    ],
    "output": "out.cpp",
    "tests": []

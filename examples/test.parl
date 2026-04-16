@@ -1,8 +1,10 @@
 let i be 0
 
-until i == 10 do
+@1
+if i < 10, then
    print i
    let i be i + 1
+   goto instruction 1
 
 let l be [1,2,3]
 print l

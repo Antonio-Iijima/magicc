@@ -47,14 +47,14 @@ def default(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr)
 def process(string: str) -> any:
     try:
         {"print(str(parse(string)).strip())" if isLiteral
-        else """out = evaluate(parse(string).AST)
+        else """out = _evaluate(parse(string))
         if out is not None: print(out)"""}
 {self.exception}
         
 def validate(parsed, solution: any) -> str:
     if str(parsed) == solution: return solution
     
-    result = evaluate(parsed.AST)
+    result = _evaluate(parsed)
     
     if result == solution: return solution
     raise ValueError(f"value of '{{parsed}}' should be {{solution}}, but received {{result}}")
@@ -65,7 +65,7 @@ def validate(parsed, solution: any) -> str:
 def process(string: str) -> any:
     try:
         with open("{get_config("output")}", "w") as file:
-            file.write(evaluate(parse(string).AST))
+            file.write(_evaluate(parse(string)))
 {self.exception}
 """
 
@@ -76,7 +76,9 @@ def process(string: str) -> any:
 
 
 from datatypes import Rule
-from parser import parse
+from parser import parse, Parsed
+
+from collections.abc import Sequence
 
 
 
@@ -91,24 +93,55 @@ from parser import parse
 
 
 
-class Expr(list):
-    def __call__(self, i, *args, **kwargs):
-        return evaluate(self[i], *args, **kwargs)
+class Expr(Sequence):
+    '''Immutable, callable `Sequence` object which returns its elements as instances of itself.'''
+
+    def __new__(cls, node: Rule):
+        if isinstance(node, Rule):
+            return super().__new__(cls)            
+        return node
+
+    def __init__(self, node: Rule):
+        self._children = node.children
+        self._node = node
+
+    def __getitem__(self, index: int|slice):
+        item = self._children[index]
+        if isinstance(index, slice):
+            return tuple(Expr(e) for e in item)
+        return Expr(item)
+  
+    def __len__(self):
+        return len(self._children)
    
+    def __str__(self):
+        return self._node.__str__()
+
+    def __repr__(self):
+        return self._node.__repr__()
+
+    def __call__(self, i: int = None, *args, **kwargs):
+        e = self if (i == None) else self[i]
+        return _eval(e, *args, **kwargs)
+
 {self.embed_default()}
 
-def get_function(AST: Rule):
+def _get_function(node: Rule):
     return (
-        globals().get(f"{{AST.fname}}_{{AST.variant}}")
-        or globals().get(AST.fname)
+        globals().get(f"{{node.fname}}_{{node.variant}}")
+        or globals().get(node.fname)
         or default
     )
 
 
-def evaluate(AST: Rule, *args, **kwargs):
+def _evaluate(expression: Parsed):
+    return _eval(Expr(expression.AST))
+
+
+def _eval(expr: Expr, *args, **kwargs):
     return (
-        get_function(AST)(Expr(AST.children), *args, **kwargs) if isinstance(AST, Rule)
-        else AST
+        _get_function(expr._node)(expr, *args, **kwargs) if isinstance(expr, Expr)
+        else expr
     )
 
 {self.embed_process(Eval.LITERAL)}

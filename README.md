@@ -24,7 +24,9 @@
       - [Function Names](#function-names)
       - [Default Behavior](#default-behavior)
     - [Evaluation](#evaluation)
-      - [What is `expr`?](#what-is-expr)
+      - [Understanding `expr`](#understanding-expr)
+      - [An Example](#an-example)
+      - [Addenda](#addenda)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -188,16 +190,55 @@ Another example, from the `datatypes.numeric` module,
 ### Evaluation
 
 
-Every attribute must take at least one argument, `expr`. This is an object, and it is the core abstraction which makes language evaluation with magicc possible.
+magicc collects all the attribute functions specified in the main and dependency `semantics.py` files, and connects them all through a hidden evaluation function. This function is internal and is never accessed directly, and should **not** be used in the `semantics.py` file. 
+
+Every attribute must take at least one argument, `expr`. This object represents a node of the AST and its children, and forms the core abstraction which makes elegant language evaluation with magicc possible.
 
 
-#### What is `expr`?
+#### Understanding `expr`
 
-At the top level of the program, the evaluation function looks up the attribute associated with `<PROGRAM>`, and calls it with a special object: the `expr`. `expr` is a callable list of the children of `<PROGRAM>`, and of any subsequent node.
 
-`<expr>` can be used as a normal list and indexed or iterated over to directly access the unevaluated child nodes of the current rule.
+`expr` is always either an instance of the `Expr` class, or a `str` (that is, a terminal, which can be handled normally).
 
-Alternatively, `expr` can be called (e.g. `expr(0)`, `expr(2)`) like a function, where the first argument is always the index of the child whose value to return. The main `evaluate` function is thus hidden from the language developer. To directly traverse the AST, use `expr` as a list; to recursively evaluate the tree, call it like a function. Calling `str` on a node will return the name of the production rule, e.g. `str(expr[0]) == "MARKER"`.
+Each `Expr` instance is a callable, immutable sequence. This allows it hide the evaluation function under a simple syntax like `expr(0)`, while enabling direct node access via indexing, e.g. `expr[0]`.
+
+In more detail, the `Expr` class contains two attributes: the node it was created from, and that node's children. Iteration, indexing, and slicing all apply to the children of the node; thus `expr[1:]` returns a tuple containing all child nodes of `expr` at indices 1 or higher, and `expr[0]` returns the child node at index 0, as expected.
+
+Evaluation provides more interesting functionality. Calling `expr(i)` evaluates the child node of `expr` at index `i` using the hidden evaluation function. In contrast to slicing, calls must take an `int` index as the first argument; any further arguments will be passed through to the bound semantic function of `expr[i]`. `expr` can also be called with `None` as the explicit first argument, or with no arguments; this will evaluate the node itself (and its children as determined by its attribute function).
+
+The `__getitem__` method of `Expr` will always return either a `tuple[Expr]` (as in slicing), or an `Expr` (indexing, iteration, &c.). In other words, `Expr` is the interface between the bare AST and the higher level language implementation The intended way to evaluate nodes function is by calling `expr`, and the intended way to access the unevaluated nodes (as their own instances of `Expr`, of course) is by indexing or iterating over `expr`.
+
+> The general design principle is: to directly traverse the AST, treat `expr` as a sequence; to recursively evaluate the tree, call it like a function.
+
+
+#### An Example
+
+
+Let us take as an example the attribute `p_print_0(expr)` from Banter, bound to the first alternative of the `<PRINT>` rule. 
+
+When `p_print_0(expr)` is called, `expr` will be an `Expr` object bundling
+1) the `PRINT` node,
+2) the unevaluated child nodes of `<PRINT>` in the AST as an immutable sequence, and
+3) a function to evaluate either the node itself or specific children.
+
+When we call `expr(1)` in `p_print_0(expr)`, the `Expr` object interprets this as: "Evaluate the child of `expr` at index 0 and return that value." The expression `expr[1]`, on the other hand, corresponds to: "Look up the child of the `<PRINT>` node at index 1, and return it either as a string (if it's a terminal) or as a new `Expr` (if it's a node)".
+
+This system of access and evaluation makes writing traversals of the AST very straightforward:
+
+```py
+def preorder(node) -> list:
+    traversal = [node]
+    if not isinstance(node, str):
+        for child in node: 
+            traversal += preorder(child)
+    return traversal
+```
+
+
+#### Addenda
+
+
+`Expr` implements `__str__` and `__repr__`, both of which are deferred to the implementations provided by the node itself, allowing the developer to easily view the object structure or check for specific nodes, e.g. `str(expr[0]) == "MARKER"`, `str(expr) == "IDENTIFIER"`, &c.
 
 For a better understanding of how this system works, see the `EVAL` section of a generated `AST.py` file and compare it to what you see in the semantic functions.
 
