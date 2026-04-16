@@ -3,9 +3,9 @@
 
 clear
 
-# update TOC in README.md
+# update TOC in README.md; now done through VScode extension Markdown All in One
 
-python3 -m md_toc --in-place --no-list-coherence github -l6 ../README.md
+# md_toc --in-place --no-list-coherence github -l3 ../README.md
 
 # compile language
 

@@ -2,9 +2,9 @@
    "version": "0.0.0",
    "language": "parlance",
    "flags": {
-      "force": true,
       "interactive": false,
       "debug": false,
+      "force": false,
       "clear": false
    },
    "implementation": "interpreter",
@@ -18,9 +18,7 @@
       "indentation": true,
       "newlines": true
    },
-   "input": [
-      "../examples/5b.banter"
-   ],
+   "input": [],
    "output": "out.cpp",
    "tests": []
 }
