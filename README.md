@@ -36,6 +36,7 @@
 
 ### Requirements
 
+
 magicc was developed using Python 3.12. Support for earlier versions is not guaranteed.
 
 magicc uses [PyInstaller](https://pyinstaller.org/en/stable/) for compilation. It is strongly recommended to use a Python virtual environment for managing all dependencies, which are provided in `.requirements`.
@@ -248,5 +249,6 @@ If you have ideas for interesting features, find or fix a bug, or notice a typo,
 
 
 ## License
+
 
 magicc is licensed under a [GNU General Public License](https://github.com/Antonio-Iijima/CFG-Parser/blob/main/LICENSE).
