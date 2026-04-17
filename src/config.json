@@ -1,6 +1,6 @@
 {
    "version": "0.0.0",
-   "language": "parlance",
+   "language": "banter",
    "flags": {
       "interactive": false,
       "debug": false,
@@ -10,7 +10,7 @@
    "implementation": "interpreter",
    "paths": {
       "lib": ".lib",
-      "language": "languages/parlance"
+      "language": "languages/banter"
    },
    "formatting": {
       "indent": " //INDENTATION-MARKER// ",
@@ -19,7 +19,7 @@
       "newlines": true
    },
    "input": [
-      "../examples/lists.parl"
+      "../examples/b.bool"
    ],
    "output": "out.cpp",
    "tests": []
