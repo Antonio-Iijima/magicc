@@ -18,6 +18,7 @@
   - [EBNF Syntax](#ebnf-syntax)
     - [Nonterminals](#nonterminals)
     - [Terminals](#terminals)
+    - [Modularity and `#require`](#modularity-and-require)
   - [Semantic Attributes](#semantic-attributes)
     - [Function Names](#function-names)
     - [Default Behavior](#default-behavior)
@@ -92,18 +93,7 @@ The `syntax.txt` file is specified in standard EBNF, e.g.
 
 This defines the structure of the AST that will be generated.
 
-Grammar specifications are modular and can be imported. Currently, arbitrary module definition is not supported; magicc includes a `.lib/` folder with built-in modules, which can be imported using `#require` followed by the path to the module separated by `.`, e.g. from the Banter grammar,
-
-```
-#require datatypes.identifier
-#require datatypes.string
-#require math.infix
-
-
-<PROGRAM>        ::= <STATEMENT_LIST> | <EXPRESSION>
-```
-
-Every main syntax file (i.e. not an imported module) **must** contain a `<PROGRAM>` rule as the top-level production. This serves as the consistent entrypoint for the AST.
+Every main syntax file (i.e. not an imported module) **must** contain a `<PROGRAM>` rule as the top-level production. This serves as the consistent entrypoint for the AST. See `languages/` for examples.
 
 
 #### Nonterminals
@@ -133,6 +123,22 @@ Spaces are used to divide elements of each production rule, but are not treated 
 ```
 <EXPR>     ::= <AND> \| <EXPR> | <AND>
 ```
+
+
+#### Modularity and `#require`
+
+
+Grammar specifications are modular and can be imported. Currently, arbitrary module definition is not supported; magicc includes a `.lib/` folder with built-in modules, which can be imported using `#require` followed by the path to the module separated by `.`. For example,
+
+```
+#require datatypes.identifier
+#require datatypes.string._
+#require math.infix.extended
+```
+
+Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but not any submodules of `math.infix` like `math.infix.extended`. 
+
+To recursively import all the submodules of a module as well, use `#require module._`.
 
 
 ### Semantic Attributes

@@ -1,6 +1,4 @@
-#require datatypes.identifier
-#require datatypes.string
-#require datatypes.list
+#require datatypes._
 #require math.infix.extended
 
 

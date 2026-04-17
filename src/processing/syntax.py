@@ -3,7 +3,8 @@ from utils import (
     preprocess_text, 
     print_warnings,
     get_config,
-    set_config
+    set_config,
+    lib
 )
 
 import os
@@ -32,6 +33,10 @@ class Grammar:
 
         self.modules = {}
         self.dependencies = self.traverse_dependencies(self.main, main=True)
+
+        # from rich import print
+        # print(self.dependencies)
+        # quit()
 
         for module, lines in self.modules.items():
             self.modules[module] = Module("MAIN" if module == self.main else module, lines)
@@ -71,10 +76,28 @@ class Grammar:
 
                 while basic_requirements:
                     requirement = basic_requirements.pop(0)
-                    if "/" in requirement:
-                        requirements.extend(f".lib/{"/".join(requirement.split("/")[:i+1])}" for i in range(requirement.count("/")))
 
-                    requirements.add(".lib/" + requirement)
+                    # import all modules in folder if specified by ._ suffix
+                    if requirement.endswith("/_"):
+                        requirement = requirement.strip("/_")
+                        submodule = lib(requirement)
+
+                        for subfile in os.listdir(submodule):
+                            
+                            subfilename = "/".join((submodule, subfile))
+
+                            if os.path.isdir(subfilename) and not any(subfilename.endswith(s) for s in ("interpreter", "compiler")):
+                                basic_requirements.append("/".join((requirement, subfile, "_")))
+                                requirements.add(subfilename)
+
+                    # also import all antecedent modules
+                    else:
+                        if "/" in requirement: 
+                            # sequentially import antecedent modules, e.g. math, math/infix, math/infix/extended
+                            requirements.extend(lib(requirement[:match.start()]) for match in re.finditer("/", requirement))
+
+                        # and of course add the current requirement as well
+                        requirements.add(lib(requirement))
 
                 self.modules[path] = filter(lambda x: not x.startswith("#require"), lines)
 

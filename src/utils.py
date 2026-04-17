@@ -26,7 +26,7 @@ def set_config(cfg: dict, indent: int = 3):
 
 
 def preprocess_text(text: TextIOWrapper) -> list[str]: 
-    return [line for line in text.read().splitlines() if line.strip() and not line.startswith("--")]
+    return list(filter(lambda line: any(line.startswith(s) for s in ("<", "#require")), map(lambda s: s.strip(), text.read().splitlines())))
 
 
 def is_nonterminal(prod: str) -> bool: 
@@ -204,6 +204,11 @@ def print_warnings(msg: str, log: dict) -> None:
 
 def stringify(l: list[object]) -> list[str]:
     return list(map(str, l))
+
+
+def lib(path: str) -> str:
+    """Prepend `.lib/` to `path` and replace all `.` with `/`."""
+    return f".lib/{path.replace(".", "/")}"
 
 
 

@@ -18,7 +18,9 @@
       "indentation": true,
       "newlines": true
    },
-   "input": [],
+   "input": [
+      "../examples/lists.parl"
+   ],
    "output": "out.cpp",
    "tests": []
 }
