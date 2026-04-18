@@ -10,14 +10,14 @@ def p_program(expr):
 def p_boolexpr(expr):
     global g_env
 
-    g_env = set(expr(1))
+    g_env = dict.fromkeys(expr(1), "true")
 
     return f"""#include <iostream>
 
 using namespace std;
 
 int main() {{
-    {"\n   ".join(f"bool {var} = {"true" if var in g_env else "false"}" for var in expr(1))}
+    {"\n    ".join(f"bool {var} = {g_env.get(var, "false")};" for var in g_env)}
 
     bool result = {expr(3)};
 
@@ -42,10 +42,9 @@ def p_and_0(expr):
 def p_not_0(expr):
     return f"! {expr(1)}"
 
+def p_not_2(expr):
+    return g_env.get(expr(0), "false")
+
 
 def p_literal(expr):
     return "true" if expr(0) == 't' else "false"
-
-def p_var(expr):
-    var = expr(0)
-    return var if var in g_env else "false"

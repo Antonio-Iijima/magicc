@@ -31,12 +31,12 @@ class Eval:
 
         if (get_config("implementation") == "interpreter"):
             return """
-def default(x): return x(0) if isinstance(x, Expr) else None
+def default(x: Expr): return x(0)
 """
 
         else: 
             return """
-def default(x): return " ".join(x)).strip() if isinstance(x, Expr) else None
+def default(x: Expr): return " ".join((e() if isinstance(e, Expr) else str(e)) for e in x)
 """
 
 
