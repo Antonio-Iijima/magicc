@@ -36,7 +36,7 @@ def default(x): return x(0) if isinstance(x, Expr) else None
 
         else: 
             return """
-def default(x): return " ".join(map(evaluate, x)).strip() if isinstance(x, Expr) else None
+def default(x): return " ".join(x)).strip() if isinstance(x, Expr) else None
 """
 
 

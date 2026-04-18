@@ -3,6 +3,7 @@ g_env = set()
 
 
 def p_program(expr):
+    print(f"Compiling {expr} to C++")
     return expr(0)
 
 
@@ -16,8 +17,7 @@ def p_boolexpr(expr):
 using namespace std;
 
 int main() {{
-{"\n   ".join(f"bool {var} = \
-                        {"true" if var in g_env else "false"}" for var in expr(1))}
+    {"\n   ".join(f"bool {var} = {"true" if var in g_env else "false"}" for var in expr(1))}
 
     bool result = {expr(3)};
 
