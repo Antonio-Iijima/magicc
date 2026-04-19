@@ -5,7 +5,7 @@ def applicative(func):
     def wrapper(*args):
         return func(*map(evaluate, args))
 
-    wrapper.__qualname__ = f"{func.__name__}"
+    wrapper.__qualname__ = f"{func.__name__.removeprefix("f_")}"
     return wrapper
 
 def scoped(func):
@@ -52,6 +52,26 @@ def f_exp(a, b):
 def f_mod(a, b):
     return a % b
 
+@applicative
+def f_le(a, b):
+    return a < b
+
+@applicative
+def f_leq(a, b):
+    return a <= b
+
+@applicative
+def f_ge(a, b):
+    return a > b
+
+@applicative
+def f_geq(a, b):
+    return a >= b
+
+@applicative
+def f_eq(a, b):
+    return a == b
+
 # is applicative, but handled in lookup
 def f_cxr(x: str, output: list) -> any:
     """Tail-recursive evaluation of `cxr` expressions (arbitrary combinations of `car` and `cdr`)."""
@@ -61,6 +81,10 @@ def f_cxr(x: str, output: list) -> any:
 
 def f_quote(x):
     return x
+
+@applicative
+def f_eval(x):
+    return evaluate(x)
 
 def f_lambda(params, body):
     
@@ -83,26 +107,6 @@ def f_cond(*options):
     for option in options:
         condition, body = option
         if condition == "else" or evaluate(condition): return evaluate(body)
-
-@applicative
-def f_le(a, b):
-    return a < b
-
-@applicative
-def f_leq(a, b):
-    return a <= b
-
-@applicative
-def f_ge(a, b):
-    return a > b
-
-@applicative
-def f_geq(a, b):
-    return a >= b
-
-@applicative
-def f_eq(a, b):
-    return a == b
 
 
 ### ENVIRONMENT & BUILTINS ###
