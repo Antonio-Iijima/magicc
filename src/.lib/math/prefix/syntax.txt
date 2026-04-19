@@ -1,11 +1,16 @@
-<MATHEXPR> ::= <ADD> | <SUBTRACT> | <TERM>
-<ADD>      ::= <OP_ADD> <MATHEXPR> <TERM>
-<SUBTRACT> ::= <OP_SUBTRACT> <MATHEXPR> <TERM>
-<TERM>     ::= <MULTIPLY> | <DIVIDE> | <FACTOR>
-<MULTIPLY> ::= <OP_MULTIPLY> <TERM> <FACTOR>
-<DIVIDE>   ::= <IDIVIDE> | <FDIVIDE>
-<FACTOR>   ::= <LPAREN> <MATHEXPR> <RPAREN> | <ABS> | <EXP> | <NUMBER> | <OP_SUBTRACT> <FACTOR>
-<ABS>      ::= <OP_PIPE> <MATHEXPR> <OP_PIPE>
-<IDIVIDE>  ::= <OP_IDIVIDE> <TERM> <FACTOR>
-<FDIVIDE>  ::= <OP_FDIVIDE> <TERM> <FACTOR>
-<EXP>      ::= <OP_EXP> <FACTOR> <FACTOR>
+<MATHEXPR>   ::= <ADD> | <SUBTRACT> | <TERM> | <COMPARISON>
+<ADD>        ::= \+ <MATHEXPR> <TERM>
+<SUBTRACT>   ::= - <MATHEXPR> <TERM>
+<TERM>       ::= <MULTIPLY> | <DIVIDE> | <FACTOR>
+<MULTIPLY>   ::= \* <TERM> <FACTOR>
+<DIVIDE>     ::= / <TERM> <FACTOR>
+<FACTOR>     ::= \( <MATHEXPR> \) | <VALUE>
+<VALUE>      ::= <NUMBER>
+
+<COMPARISON> ::= <LE> | <LEQ> | <GE> | <GEQ> | <EQ> | <NEQ>
+<LE>         ::= < <MATHEXPR> <MATHEXPR>
+<LEQ>        ::= <= <MATHEXPR> <MATHEXPR>
+<GE>         ::= > <MATHEXPR> <MATHEXPR>
+<GEQ>        ::= >= <MATHEXPR> <MATHEXPR>
+<EQ>         ::= == <MATHEXPR> <MATHEXPR>
+<NEQ>        ::= != <MATHEXPR> <MATHEXPR>
