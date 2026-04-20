@@ -101,7 +101,7 @@ Every main syntax file (i.e. not an imported module) **must** contain a `<PROGRA
 
 All nonterminals are recognized by enclosing `<>` and are not case-sensitive. 
 
-Nonterminals must follow the C identifier naming standard (characters must be aphanumeric or _, and must start with a letter or underscore).
+Nonterminals must follow the C identifier naming standard (all characters must be aphanumeric or _, and must start with a letter or underscore).
 
 For indented languages, magicc provides two special nonterminals, `<INDENT>` and `<DEDENT>`. These wrap indented sections of the grammar, and automatically handle the indentation of intervening lines, e.g. from the Banter grammar,
 
@@ -112,17 +112,27 @@ For indented languages, magicc provides two special nonterminals, `<INDENT>` and
 <BLOCK>          ::= \n+ <INDENT> <STATEMENT_LIST> <DEDENT>
 ```
 
+The standard indentation is automatically determined by whatever convention is used most often. If every block is indented 3 spaces, then the indentation will be set to 3 spaces. Consistency is all that is required. If the special indentation nonterminals are not used, the language parsing will be indentation-agnostic.
+
 
 #### Terminals
 
 
 All terminals are treated as regular expressions and are therefore case-sensitive. 
 
-Spaces are used to divide elements of each production rule, but are not treated literally; to indicate a literal space, use a regular expression. The pipe symbol `|` by default indicates alternation in the production rules; escape to use it literally, e.g. from the Boolexpr grammar,
+Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic.
+
+
+#### Escaping Regex
+
+
+Spaces are used to divide elements of each production rule, but are not treated literally; to indicate a literal space, use a regular expression (`\s`). The pipe symbol `|` by default indicates alternation in the production rules; escape to use it literally, e.g. from the Boolexpr grammar,
 
 ```
 <EXPR>     ::= <AND> \| <EXPR> | <AND>
 ```
+
+All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `\"`, `\'`).
 
 
 #### Modularity and `#require`
@@ -136,9 +146,9 @@ Grammar specifications are modular and can be imported. Currently, arbitrary mod
 #require math.infix.extended
 ```
 
-Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but not any submodules of `math.infix` like `math.infix.extended`. 
+Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but **not** any submodules of `math.infix` like `math.infix.extended`. 
 
-To recursively import all the submodules of a module as well, use `#require module._`.
+Use an underscore to recursively import all the submodules of a module as well, e.g. `#require module._`.
 
 
 ### Semantic Attributes
@@ -150,7 +160,7 @@ The `semantics.py` file is typically provided in either an `interpreter/` or a `
 #### Function Names
 
 
-The semantics file will contain functions following the naming convention `p_<rule>[<variant>]`. Functions that do not follow this convention will still be included but will not be bound to nodes of the AST. 
+The semantics file will contain functions following the naming convention `p_<rule>[_<variant>]`. Functions that do not follow this convention will still be included but will not be bound to nodes of the AST. 
 
 
 #### Default Behavior
@@ -207,11 +217,11 @@ Every attribute must take at least one argument, `expr`. This object represents 
 
 Each `Expr` instance is a callable, immutable sequence. This allows it hide the evaluation function under a simple syntax like `expr(0)`, while enabling direct node access via indexing, e.g. `expr[0]`.
 
-In more detail, the `Expr` class contains two attributes: the node it was created from, and that node's children. Iteration, indexing, and slicing all apply to the children of the node; thus `expr[1:]` returns a tuple containing all child nodes of `expr` at indices 1 or higher, and `expr[0]` returns the child node at index 0, as expected.
+In more detail, the `Expr` class contains two attributes: the node from which it was created, and that node's children. Iteration, indexing, and slicing all apply to the children of the node; thus `expr[1:]` returns a tuple containing all child nodes of `expr` at indices 1 or higher, and `expr[0]` returns the child node at index 0, as expected.
 
 Evaluation provides more interesting functionality. Calling `expr(i)` evaluates the child node of `expr` at index `i` using the hidden evaluation function. In contrast to slicing, calls must take an `int` index as the first argument; any further arguments will be passed through to the bound semantic function of `expr[i]`. `expr` can also be called with `None` as the explicit first argument, or with no arguments; this will evaluate the node itself (and its children as determined by its attribute function).
 
-The `__getitem__` method of `Expr` will always return either a `tuple[Expr]` (as in slicing), or an `Expr` (indexing, iteration, &c.). In other words, `Expr` is the interface between the bare AST and the higher level language implementation The intended way to evaluate nodes function is by calling `expr`, and the intended way to access the unevaluated nodes (as their own instances of `Expr`, of course) is by indexing or iterating over `expr`.
+The `__getitem__` method of `Expr` will always return either a `tuple[Expr]` (as in slicing), or an `Expr` (indexing, iteration, &c.). In other words, `Expr` is the interface between the bare AST and the higher level language implementation. The intended way to evaluate nodes function is by calling `expr`, and the intended way to access the unevaluated nodes (as their own instances of `Expr`, of course) is by indexing or iterating over `expr`.
 
 > *The fundamental design principle is: to directly traverse the AST, treat `expr` as a sequence; to recursively evaluate the tree, call it like a function.*
 
