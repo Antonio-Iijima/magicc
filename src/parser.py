@@ -4,6 +4,8 @@ from datatypes import *
 
 
 def parse(expr: str, state_limit: int = 2**100) -> Parsed:
+    """To-do: Implement GLR parser."""
+    
     from AST import (
         expects, expected_patterns,
         PROGRAM, K, 
