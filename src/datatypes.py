@@ -99,9 +99,11 @@ class Parsed:
         self.max_states = max_states
 
 
-    def get(self):
-        return self.AST
-
-
     def __str__(self):
         return self.sentence
+
+
+
+class Token:
+    def __init__(self, tok, line: int, col: int):
+        pass

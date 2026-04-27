@@ -19,7 +19,7 @@
       "newlines": false
    },
    "input": [
-      "../examples/a.lsp"
+      "in.lsp"
    ],
    "output": "out.cpp",
    "tests": []

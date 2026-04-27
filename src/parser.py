@@ -17,6 +17,11 @@ def parse(expr: str, state_limit: int = 2**100) -> Parsed:
 
     remaining_tokens = tokenize(expr)
     tokens = []
+    
+    # from glr import GLR
+    # GLR().parse(remaining_tokens)
+    # quit()
+
 
     current_states = OrderedSet((State(),))
     future_states = OrderedSet()
