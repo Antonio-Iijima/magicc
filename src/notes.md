@@ -1,6 +1,8 @@
 ### NOTES
 ---
 
+#### Deremer-Penello Algorithm
+
 - **A.** Compute which nonterminals are nullable.
 - **B.** Initialize **Read** to **DR**: one set (bit vector of length the number of terminals) for each
 nonterminal transition, by inspection of the transition's successor state.
@@ -18,3 +20,14 @@ the grammar is not LR(k) for any k.
 - **G.** Union the **Follow** sets to form the **LA** sets according to the **l o o k b a c k** links computed
 in part F.
 - **H.** Check for conflicts; if none, announce that the grammar is LALR(1)--we have a parser.
+
+
+### Naming
+---
+This project will be concluded here. 
+Future development will be done in a new repository
+under the name [*Pecora*](https://github.com/Antonio-Iijima/pecora.git).
+Note that we had to choose the clade *Pecora* 
+to include both the *Cervidae* (Elkhound) and the *Bovidae* (Yacc, Bison, etc.).
+This project will draw inspiration from all of them.
+The algorithm is a novel RNGIELALR (Right-Nulled General Inadequacy Elimination Lookahead LR) approach, which unifies elements from multiple proven parsing techniques into a single state-of-the-art design.
