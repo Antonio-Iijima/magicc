@@ -1,10 +1,14 @@
+import sys
+
+
+
 g_env = {}
 g_markers = {}
 
 
 
 class Goto(Exception): pass
-class ReturnValue(Exception): pass
+class Output(Exception): pass
 
 
 
@@ -21,10 +25,10 @@ def find_markers(node, path: list = None) -> None:
                 find_markers(child, path + [i])
 
 
-def sequence(node, path) -> list:
+def sequence(node, path: list) -> list:
     """Build evaluation path of expression from a given marker statement onwards."""
 
-    if (path == []):
+    if path == []:
         return [node[1]]
     else:
         i = path[0]
@@ -32,20 +36,20 @@ def sequence(node, path) -> list:
 
 
 def p_program(expr):
-    program = expr[0]
-    nodes = [program]
+    start_node = expr[0]
+    program = [start_node]
     
-    find_markers(program)
+    find_markers(start_node)
 
-    while nodes:
-        try: out = nodes.pop(0)()
+    while program:
+        try: out = program.pop(0)()
 
-        except ReturnValue as e:
+        except Output as e:
             print(e.args[0])
-            quit()
+            sys.exit()
         
         except Goto as e:
-            nodes = sequence(program, g_markers[e.args[0]])
+            program = sequence(start_node, g_markers[e.args[0]])
         
     return out
 
@@ -76,8 +80,8 @@ def p_block_0(expr):
     return expr(2)
 
 
-def p_return(expr):
-    raise ReturnValue(expr(1))
+def p_output(expr):
+    raise Output(expr(1))
 
 
 def p_goto(expr):
