@@ -317,18 +317,18 @@ def declare(rule: Nonterminal):
     DECLARATIONS[MODULE].add(rule)
 
 
-def flip(s: str, exclude: tuple) -> str:
+def sfilter(s: str, exclude: tuple) -> str:
     replace = {".", "/", "_"}.difference(exclude).pop()
     return s.translate({ ord(e) : replace for e in exclude })
 
 def toModule(s: str) -> str:
-    return flip(s, {".", "/"}).upper()
+    return sfilter(s, {".", "/"}).upper()
 
 def toPath(s: str) -> str:
-    return flip(s, {".", "_"}).lower()
+    return sfilter(s, {".", "_"}).lower()
 
 def toRequirement(s: str) -> str:
-    return flip(s, {"/", "_"}).lower()
+    return sfilter(s, {"/", "_"}).lower()
     
 
 
