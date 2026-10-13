@@ -16,7 +16,6 @@ def find_markers(node, path: list = None) -> None:
     if not isinstance(node, str):
         if (str(node) == "MARKER"):
             g_markers[node(1)] = path
-            find_markers(node[3], path + [3])
         else:
             for i, child in enumerate(node):
                 find_markers(child, path + [i])
@@ -26,7 +25,7 @@ def sequence(node, path) -> list:
     """Build evaluation path of expression from a given marker statement onwards."""
 
     if (path == []):
-        return [node[3]]
+        return [node[1]]
     else:
         i = path[0]
         return sequence(node[i], path[1:]) + list(node[i+1:])
@@ -46,14 +45,17 @@ def p_program(expr):
             quit()
         
         except Goto as e:
-            nodes = sequence(program, g_markers[e.args[2]])
+            nodes = sequence(program, g_markers[e.args[0]])
         
     return out
-    
 
-def p_statements_1(expr):
+def p_instructions_0(expr):
     expr(0)
-    expr(2)
+    expr(1)
+
+def p_stmts_0(expr):
+    expr(0)
+    expr(1)
 
 
 def p_assignment(expr):
@@ -68,7 +70,7 @@ def p_if_then_else(expr):
     if expr(1):
         expr(4)
     else:
-        expr(7)
+        expr(6)
 
 def p_block_0(expr):
     return expr(2)
@@ -80,10 +82,6 @@ def p_return(expr):
 
 def p_goto(expr):
     raise Goto(expr(2))
-
-
-def p_marker(expr):
-    expr(3)
 
 
 def p_print_0(expr):

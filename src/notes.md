@@ -24,10 +24,18 @@ in part F.
 
 ### Naming
 ---
-This project will be concluded here. 
+
+Major changes to this project will no longer be published here.
+
 Future development will be done in a new repository
 under the name [*Pecora*](https://github.com/Antonio-Iijima/pecora.git).
 Note that we had to choose the clade *Pecora* 
 to include both the *Cervidae* (Elkhound) and the *Bovidae* (Yacc, Bison, etc.).
 This project will draw inspiration from all of them.
 The algorithm is a novel RNGIELALR (Right-Nulled General Inadequacy Elimination Lookahead LR) approach, which unifies elements from multiple proven parsing techniques into a single state-of-the-art design.
+
+
+### To-do
+---
+
+- Rewrite module references using OOP

@@ -200,17 +200,17 @@ def autoIndent(lines: list[str]) -> list:
 
         diff = curr_indent - prev_indent
 
-        while diff < 0:
-            indented[-1] += dedent
-            diff += 1
-
-        # Newline will come after DEDENTs but before INDENTS
+        # Newlines now come before INDENT/DEDENT
         indented.extend(emptyLines)
         indented.append("")
-        
+
         while diff > 0:
             indented[-1] += indent
             diff -= 1
+        
+        while diff < 0:
+            indented[-1] += dedent
+            diff += 1
             
         indented[-1] += line
         emptyLines = []
@@ -224,8 +224,16 @@ def autoIndent(lines: list[str]) -> list:
     return indented
 
 
-def preprocess_input(string: str, indentation, newlines) -> list:
+
+def filter_comments(string : str) -> list[str]:
     lines = string.splitlines()
+    # return list(re.split(r"#[^\n]*", line)[0] for line in lines)
+    return lines
+
+
+
+def preprocess_input(string: str, indentation, newlines) -> str:
+    lines = filter_comments(string)
     return (
         "\n".join(autoIndent(lines)) if indentation
         else ("\n" if newlines else " ").join(lines)

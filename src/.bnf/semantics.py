@@ -521,7 +521,14 @@ def get_parsetable_str():
                 if not p in conflicts:
                     conflicts[p] = {}
 
-                conflict = "/".join(("S" if action > 0 else "R" if action < 0 else "A") for action in TABLE[p][token])
+                conflict = "/".join(sorted(
+                    ((
+                        "S" if action > 0 
+                        else "R" if action < 0 
+                        else "A"
+                    ) for action in TABLE[p][token]),
+                    reverse=True
+                ))
 
                 if not conflict in conflicts:
                     conflicts[p][conflict] = []
@@ -549,7 +556,7 @@ def get_parsetable_str():
                 )
             data = tuple(map(len, sets))
 
-            print(f"""Scanner set optimization data
+            print(f"""scanset optimization data
 
 Original    : {len(TERMINALS)}
 Average     : {mean(data):.3f}

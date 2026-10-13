@@ -1,7 +1,7 @@
 {
    "project": "magicc",
-   "version": "1.0.2",
-   "language": ".bnf",
+   "version": "1.1.0",
+   "language": "banter",
    "implementation": "interpreter",
    "flags": {
       "interactive": false,
@@ -16,7 +16,7 @@
    "paths": {
       "root": "/home/ai/github/magicc/src",
       "config": "/home/ai/github/magicc/src/config.json",
-      "language": "/home/ai/github/magicc/src/.bnf",
+      "language": "/home/ai/github/magicc/languages/banter",
       "lib": ".lib",
       "metacompiler": ".bnf"
    },
