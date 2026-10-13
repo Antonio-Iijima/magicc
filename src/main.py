@@ -35,7 +35,7 @@ def main(input: tuple, **flags):
             if os.path.isfile(file):
                 if filename.startswith("__"): continue
                 os.remove(file) or print(f"Removed parser/{filename}")
-        quit()
+        sys.exit()
 
 
     if CONFIG.flags.force or CONFIG.isModified:
