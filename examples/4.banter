@@ -2,8 +2,8 @@ let wrong be 3
 let right be 7
 
 if wrong + wrong == right, then 
-   output True 
+   return True 
 else
-   output False # this one
+   return False # this one
 
-output "this will never execute"
+return "this will never execute"
