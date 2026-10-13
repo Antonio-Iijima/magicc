@@ -10,8 +10,10 @@ MAIN = "MAIN"
 Nonterminal.MAIN = MAIN
 NEWLINES = False
 INDENTATION = False
-MODULE: dict = MAIN
-PATHS: list = [MAIN]
+
+MODULE: list = []
+
+PATHS: list = [MAIN.name.asPath]
 ALIASES: dict = {}
 REFERENCES: dict = {}
 DECLARATIONS: dict = {}
@@ -43,9 +45,8 @@ from collections.abc import Sequence as __Sequence__
 
 
 
-def p_program(expr, module: str = MAIN):
+def p_program(expr, module: str = None):
     from compiler import parse
-
     
     global MODULE
     global PATHS
@@ -57,6 +58,10 @@ def p_program(expr, module: str = MAIN):
     global CONFLICTS
     global WARNINGS
     global EVAL
+
+    
+    if module is None:
+        module = Module(MAIN)
 
 
     def get_filename(directory: str, file: str):
@@ -76,18 +81,13 @@ def p_program(expr, module: str = MAIN):
             WARNINGS[category][subcategory].append(directory)
         
         return filename
-        
 
-    ALIASES[module] = {}
-    REFERENCES[module] = set()
-    DECLARATIONS[module] = set()
-
-    MODULE = module
+    MODULE.append(module)
     expr(0)
-    MODULE = module
+    MODULE.pop()
 
     # Execution after this point only happens once, in the main module. 
-    if module != MAIN: return
+    if MODULE != []: return
 
     print("Metacompiling") if CONFIG.flags.metacompile else print(f"Compiling" + (" onefile" if CONFIG.flags.onefile else ""))
     print()
@@ -224,7 +224,9 @@ def p_grammar_1(expr):
 
 
 def p_require(expr):
-    path = toPath(expr(1))
+    global MODULE
+
+    MODULE[-1].require(expr(1))
 
     ref = (expr(3) if len(expr) > 2 else path)
     ALIASES[MODULE][toModule(ref)] = toModule(path)
@@ -302,18 +304,18 @@ def declare(rule: Nonterminal):
     DECLARATIONS[MODULE].add(rule)
 
 
-def sfilter(s: str, exclude: tuple) -> str:
+def flip(s: str, exclude: tuple) -> str:
     replace = {".", "/", "_"}.difference(exclude).pop()
     return s.translate({ ord(e) : replace for e in exclude })
 
 def toModule(s: str) -> str:
-    return sfilter(s, {".", "/"}).upper()
+    return flip(s, {".", "/"}).upper()
 
 def toPath(s: str) -> str:
-    return sfilter(s, {".", "_"}).lower()
+    return flip(s, {".", "_"}).lower()
 
 def toRequirement(s: str) -> str:
-    return sfilter(s, {"/", "_"}).lower()
+    return flip(s, {"/", "_"}).lower()
     
 
 
