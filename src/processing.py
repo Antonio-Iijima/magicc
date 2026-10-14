@@ -227,7 +227,13 @@ def autoIndent(lines: list[str]) -> list:
 
 
 
-def preprocess_input(string: str, definitions: dict, indentation: bool, newlines: bool) -> str:
+def preprocess_input(
+        string: str, 
+        definitions: dict, 
+        indentation: bool, 
+        newlines: bool
+    ) -> str:
+    
     SINGLE = "single_comment"
     MULTI = "multi_comment"
 

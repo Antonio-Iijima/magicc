@@ -1,3 +1,5 @@
-NEWLINE -> "\n+"
+NEWLINE    -> "\n+"
 
 IDENTIFIER -> "[_a-zA-Z]\w*"
+
+ATOMS      -> "" | ATOM ATOMS

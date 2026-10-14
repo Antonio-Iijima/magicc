@@ -241,7 +241,7 @@ def p_main_grammar_1(expr):
 
 def p_main_define(expr):
     global DEFINITIONS
-    DEFINITIONS[expr(1)] = expr(2)
+    DEFINITIONS[expr(1)] = expr(2)[1:-1]
 
 
 def p_main_require(expr):
@@ -300,10 +300,8 @@ def p_main_terminal_0(expr):
     
     return terminal
 
-
 def p_main_terminal_1(expr):
     return EPSILON()
-
 
 
 def dereference(name: str) -> tuple:
@@ -650,7 +648,7 @@ NULLABLE cache: {NULLABLE.cache_info()}
 indentation = {INDENTATION}
 newlines = {NEWLINES}
 definitions = {{
-    {",\n    ".join(f"'{k}' : r{v}" for k, v in DEFINITIONS.items())}
+    {",\n    ".join(f"'{k}' : r\"{v}\"" for k, v in DEFINITIONS.items())}
 }}
 
 
