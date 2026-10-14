@@ -1,4 +1,5 @@
-#require datatypes.list
+#require datatypes.list as L
+#require stdlib
 
-PROGRAM -> LIST
-ATOM    -> "\d+"
+PROGRAM     -> L.LIST
+STDLIB.ATOM -> "\d+"

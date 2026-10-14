@@ -191,7 +191,7 @@ class __Expr__(__Sequence__):
         return self.evaluate(e, *args, **kwargs)
 
     def default(self, x: '__Expr__'):
-        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(x(i) for i in range(len(x)))"}
+        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(str(x(i)) for i in range(len(x)))"}
 
     def get_function(self, node: __Rule__):
         return (

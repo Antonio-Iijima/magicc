@@ -206,7 +206,7 @@ class __Expr__(__Sequence__):
         return self.evaluate(e, *args, **kwargs)
 
     def default(self, x: '__Expr__'):
-        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(x(i) for i in range(len(x)))"}
+        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(str(x(i)) for i in range(len(x)))"}
 
     def get_function(self, node: __Rule__):
         return (
@@ -687,6 +687,13 @@ def embed_eval(filename: str, modulename: str) -> str:
 
 
 def p_stdlib_newline(expr): pass
+
+
+def p_stdlib_atoms_0(expr):
+    return ()
+
+def p_stdlib_atoms_1(expr):
+    return (expr(0), *expr(1))
 
 
 
