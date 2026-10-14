@@ -10,6 +10,7 @@ MAIN = "MAIN"
 Nonterminal.MAIN = MAIN
 NEWLINES = False
 INDENTATION = False
+DEFINITIONS: dict = {}
 MODULE: dict = MAIN
 PATHS: list = [MAIN]
 ALIASES: dict = {}
@@ -221,6 +222,11 @@ class __Expr__(__Sequence__):
 def p_grammar_1(expr):
     expr(0)
     expr(2)
+
+
+def p_define(expr):
+    global DEFINITIONS
+    DEFINITIONS[expr(1)] = expr(2)
 
 
 def p_require(expr):
@@ -628,6 +634,9 @@ NULLABLE cache: {NULLABLE.cache_info()}
 
 indentation = {INDENTATION}
 newlines = {NEWLINES}
+definitions = {{
+    {",\n    ".join(f"'{k}' : r{v}" for k, v in DEFINITIONS.items())}
+}}
 
 
 

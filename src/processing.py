@@ -13,6 +13,7 @@ def parse(
         remaining: str,
         rules: tuple[tuple],
         table: dict[int, dict],
+        definitions: dict[str, str],
         indentation: bool,
         newlines: bool,
         PROGRAM: Rule,
@@ -33,6 +34,7 @@ def parse(
     
     remaining = preprocess_input(
         string=remaining,
+        definitions=definitions,
         indentation=indentation,
         newlines=newlines
     )
@@ -225,15 +227,19 @@ def autoIndent(lines: list[str]) -> list:
 
 
 
-def filter_comments(string : str) -> list[str]:
+def preprocess_input(string: str, definitions: dict, indentation: bool, newlines: bool) -> str:
+    SINGLE = "single_comment"
+    MULTI = "multi_comment"
+
+    for comment in (SINGLE, MULTI):
+        pattern = definitions.get(comment)
+        if pattern is not None:
+            for match in re.finditer(pattern, string):
+                if match:
+                    string = string.replace(match.group(), "", 1)
+
     lines = string.splitlines()
-    # return list(re.split(r"#[^\n]*", line)[0] for line in lines)
-    return lines
-
-
-
-def preprocess_input(string: str, indentation, newlines) -> str:
-    lines = filter_comments(string)
+    
     return (
         "\n".join(autoIndent(lines)) if indentation
         else ("\n" if newlines else " ").join(lines)

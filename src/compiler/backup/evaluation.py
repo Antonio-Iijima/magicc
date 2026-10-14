@@ -25,6 +25,7 @@ MAIN = "MAIN"
 Nonterminal.MAIN = MAIN
 NEWLINES = False
 INDENTATION = False
+DEFINITIONS: dict = {}
 MODULE: dict = MAIN
 PATHS: list = [MAIN]
 ALIASES: dict = {}
@@ -236,6 +237,11 @@ class __Expr__(__Sequence__):
 def p_main_grammar_1(expr):
     expr(0)
     expr(2)
+
+
+def p_main_define(expr):
+    global DEFINITIONS
+    DEFINITIONS[expr(1)] = expr(2)
 
 
 def p_main_require(expr):
@@ -643,6 +649,9 @@ NULLABLE cache: {NULLABLE.cache_info()}
 
 indentation = {INDENTATION}
 newlines = {NEWLINES}
+definitions = {{
+    {",\n    ".join(f"'{k}' : r{v}" for k, v in DEFINITIONS.items())}
+}}
 
 
 
@@ -672,6 +681,14 @@ def embed_eval(filename: str, modulename: str) -> str:
             repl=replace_fname,
             string=file.read()
         )
+
+
+
+##### stdlib #####
+
+
+
+def p_stdlib_newline(expr): pass
 
 
 

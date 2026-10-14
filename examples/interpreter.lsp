@@ -65,24 +65,28 @@
         ((null. m) '())
         (True (cons (eval. (car m) a) (evlis. (cdr m) a)))))
 
+#| this 
+is an example
+of a multiline
+comment |#
 
-# test cases
+; test cases
 
 (eval. 'x '((x a) (y b)))
-# a
+; a
 
 (eval. '(eq 'a 'a) '())
-# t
+; t
 
 (eval. '(cons x '(b c)) '((x a) (y b)))
-# (a b c)
+; (a b c)
 
 (eval. '(cond ((atom x) 'atom) (True 'list)) '((x '(a b))))
-# list
+; list
 
 (eval. '(f '(b c))
  '((f (lambda (x) (cons 'a x)))))
-# (a b c)
+; (a b c)
 
 (eval. '((label firstatom (lambda (x)
     (cond 
@@ -90,10 +94,10 @@
         (True (firstatom (car x))))))
         y)
     '((y ((a b) (c d)))))
-# a
+; a
 
 (eval. '((lambda (x y) (cons x (cdr y)))
         'a
         '(b c d))
     '())
-# (a c d)
+; (a c d)

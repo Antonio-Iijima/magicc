@@ -1,6 +1,10 @@
+#require stdlib
+
+
 PROGRAM      -> GRAMMAR
 GRAMMAR      -> LINE | LINE "\n+" GRAMMAR
-LINE         -> REQUIRE | PRODUCTION
+LINE         -> REQUIRE | DEFINE | PRODUCTION
+DEFINE       -> "#define" STDLIB.IDENTIFIER "\"\S+\""
 REQUIRE      -> "#require" NAME | "#require" NAME "as" NAME
 NAME         -> "\w+(\.\w+)*"
 PRODUCTION   -> RULE "->" ALTERNATIVES

@@ -1,6 +1,9 @@
 #require datatypes.numeric
 #require datatypes.string
 
+#define single_comment ";[^\n]*\n+"
+#define multi_comment "#\|[^(\|#)]*\|#"
+
 
 PROGRAM   -> LISP_EXPR | LISP_EXPR PROGRAM
 LISP_EXPR -> "'" S_EXPR | S_EXPR

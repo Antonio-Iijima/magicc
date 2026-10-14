@@ -1,1 +1,1 @@
-def p_newline(expr): return None
+def p_newline(expr): pass

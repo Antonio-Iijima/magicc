@@ -1,2 +1,3 @@
-NEWLINE -> COMMENT | "\n+"
-COMMENT -> "#[^\n]*\n*"
+NEWLINE -> "\n+"
+
+IDENTIFIER -> "[_a-zA-Z]\w*"

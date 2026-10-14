@@ -1,6 +1,7 @@
 from compiler.parserdata import (
     rules,
     table,
+    definitions,
     indentation,
     newlines,
     PROGRAM
@@ -24,6 +25,7 @@ def parse(input: str, symbols: list = None, state: list = None) -> object:
         remaining=input,
         rules=rules,
         table=table,
+        definitions=definitions,
         indentation=indentation,
         newlines=newlines,
         PROGRAM=PROGRAM,
