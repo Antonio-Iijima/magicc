@@ -206,7 +206,7 @@ class __Expr__(__Sequence__):
         return self.evaluate(e, *args, **kwargs)
 
     def default(self, x: '__Expr__'):
-        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(x(i) for i in range(len(x)))"}
+        return {"x(0)" if (CONFIG.implementation == "interpreter") else "\"\".join(str(x(i)) for i in range(len(x)))"}
 
     def get_function(self, node: __Rule__):
         return (
@@ -222,16 +222,11 @@ class __Expr__(__Sequence__):
         )
 """
 
-    if CONFIG.flags.metacompile:
-        with open(os.path.join(CONFIG.paths.root, "compiler/parserdata.py"), "w") as file:
-            file.write(AST)
-        with open(os.path.join(CONFIG.paths.root, "compiler/evaluation.py"), "w") as file:
-            file.write(EVAL.strip() + "\n")
-    else:
-        with open(os.path.join(CONFIG.paths.root, "parser/parserdata.py"), "w") as file:
-            file.write(AST)
-        with open(os.path.join(CONFIG.paths.root, "parser/evaluation.py"), "w") as file:
-            file.write(EVAL.strip() + "\n")
+    path = "compiler" if CONFIG.flags.metacompile else "parser"
+    with open(os.path.join(CONFIG.paths.root, f"{path}/parserdata.py"), "w") as file:
+        file.write(AST)
+    with open(os.path.join(CONFIG.paths.root, f"{path}/evaluation.py"), "w") as file:
+        file.write(EVAL.strip() + "\n")
 
 
 def p_main_grammar_1(expr):
@@ -687,6 +682,13 @@ def embed_eval(filename: str, modulename: str) -> str:
 
 
 def p_stdlib_newline(expr): pass
+
+
+def p_stdlib_atoms_0(expr):
+    return ()
+
+def p_stdlib_atoms_1(expr):
+    return (expr(0), *expr(1))
 
 
 

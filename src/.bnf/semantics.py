@@ -207,16 +207,11 @@ class __Expr__(__Sequence__):
         )
 """
 
-    if CONFIG.flags.metacompile:
-        with open(os.path.join(CONFIG.paths.root, "compiler/parserdata.py"), "w") as file:
-            file.write(AST)
-        with open(os.path.join(CONFIG.paths.root, "compiler/evaluation.py"), "w") as file:
-            file.write(EVAL.strip() + "\n")
-    else:
-        with open(os.path.join(CONFIG.paths.root, "parser/parserdata.py"), "w") as file:
-            file.write(AST)
-        with open(os.path.join(CONFIG.paths.root, "parser/evaluation.py"), "w") as file:
-            file.write(EVAL.strip() + "\n")
+    path = "compiler" if CONFIG.flags.metacompile else "parser"
+    with open(os.path.join(CONFIG.paths.root, f"{path}/parserdata.py"), "w") as file:
+        file.write(AST)
+    with open(os.path.join(CONFIG.paths.root, f"{path}/evaluation.py"), "w") as file:
+        file.write(EVAL.strip() + "\n")
 
 
 def p_grammar_1(expr):
