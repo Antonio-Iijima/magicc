@@ -1,0 +1,42 @@
+let x1 be 1
+let y1 be 1
+
+let x2 be 1
+let y2 be 1
+
+let x3 be 1
+let y3 be 1
+
+let x4 be 1
+let y4 be 1
+
+/* 
+Algorithm
+if p1 and p2 share x:
+    swap p2 and p3
+if p1 and p2 do not share y:
+    swap p2 p4
+*/
+
+output "hello"
+
+/* x1 == x2 implies p2 should be p3, so we swap
+
+
+if x1 == x2, then
+    let temp_x3 be x3
+    let temp_y3 be y3
+    
+    let x3 be x2
+    let y3 be y2
+    
+    let x2 be temp_x3
+    let y2 be temp_y3
+    # now p1 and p3 are on the same x
+
+if y1 == y2
+    if y1 == y2, then
+        output "No"
+    else
+
+*/

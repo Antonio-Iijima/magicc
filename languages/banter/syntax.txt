@@ -4,6 +4,7 @@
 #require stdlib
 
 #define single_comment "#[^\n]*\n+"
+#define multi_comment "/\*[^(\*/)]*\*/"
 
 
 PROGRAM          -> INSTRUCTIONS

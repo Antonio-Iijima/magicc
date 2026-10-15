@@ -237,13 +237,11 @@ def preprocess_input(
     SINGLE = "single_comment"
     MULTI = "multi_comment"
 
-    for comment in (SINGLE, MULTI):
+    for comment in (MULTI, SINGLE):
         pattern = definitions.get(comment)
         if pattern is not None:
-            for match in re.finditer(pattern, string):
-                if match:
-                    string = string.replace(match.group(), "", 1)
-
+            string = re.sub(pattern, "", string)
+            
     lines = string.splitlines()
     
     return (

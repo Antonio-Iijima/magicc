@@ -6,8 +6,10 @@ markdown-it-py==4.2.0
 md_toc==9.0.0
 mdurl==0.1.2
 packaging==26.1
+pyelftools==0.33
 Pygments==2.20.0
 pyinstaller==6.19.0
 pyinstaller-hooks-contrib==2026.4
 rich==15.0.0
 setuptools==82.0.1
+staticx==0.14.2

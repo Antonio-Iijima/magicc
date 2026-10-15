@@ -6,4 +6,4 @@ if n > 0, then
    let result be result * n
    let n be n - 1
    goto instruction 1
-return result
+output result

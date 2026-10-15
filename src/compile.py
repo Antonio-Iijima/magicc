@@ -79,13 +79,11 @@ def main(path: str|None, implementation: str, backup: bool, restore: bool, **fla
         print("Generating static executable...")
         subprocess.run([
             "staticx",
-            # "--strip",
+            "--strip",
             f"dist/{CONFIG.language}", 
             f"dist/{CONFIG.language}"
         ])
-        
-        print()
-        
+                
         print("Done!")
 
 
