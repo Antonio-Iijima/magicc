@@ -6,6 +6,7 @@ import compiler
 from time import time
 
 import PyInstaller.__main__
+import subprocess
 import shutil
 import cloup
 import os
@@ -72,6 +73,13 @@ def main(path: str|None, implementation: str, backup: bool, restore: bool, **fla
 
         shutil.rmtree("build")
         os.remove(f"{CONFIG.language}.spec")
+
+        print("[staticx] Generating static executable...")
+        subprocess.run(["staticx", f"dist/{CONFIG.language}", f"dist/{CONFIG.language}"])
+        
+        print()
+        
+        print("Done!")
 
 
 
