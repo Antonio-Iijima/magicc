@@ -131,7 +131,7 @@ The standard indentation is automatically determined by whatever convention is u
 
 All terminals are simply regular expressions identified by enclosing quotes.
 
-Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic.
+Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic. This includes newlines detected within longer regular expressions, but not newlines used in `#define` statements (see next section).
 
 All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `"\""`, `"\'"`).
 
@@ -157,7 +157,7 @@ Importing a module will import all intervening parent modules as well; so `#requ
 
 The `#define <parameter> <value>` construction allows certain special parameters to be set which can influence how languages are generated and evaluated.
 
-Currently then only supported parameters are `single_comment` and `multi_comment`, which must both be set to regular expressions matching (you guessed it) single and multi-line comments.
+Currently the only supported parameters are `single_comment` and `multi_comment`, which must both be set to regular expressions matching (you guessed it) single and multi-line comments.
 These are then matched and stripped from source files before any further parsing is done using the grammar.
 For example, in Lisp we have
 ```
