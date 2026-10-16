@@ -1,6 +1,3 @@
-# WARNING: DOCUMENTATION IS OUT OF DATE. 
-
-
 # magicc: a general interpreter/compiler compiler
 
 <!-- **NB** The README is only guaranteed to be accurate for the commit it was a part of. If there is any appreciable Δt between the last README update and the last project update, you may safely assume the README is out of date. -->
@@ -15,13 +12,12 @@
 
 - [Installation](#installation)
   - [Requirements](#requirements)
-  - [Setup](#setup)
+  - [Usage](#usage)
 - [Overview](#overview)
   - [Getting Started](#getting-started)
   - [EBNF Syntax](#ebnf-syntax)
     - [Nonterminals](#nonterminals)
     - [Terminals](#terminals)
-    - [Escaping Regex](#escaping-regex)
     - [Modularity and `#require`](#modularity-and-require)
   - [Semantic Attributes](#semantic-attributes)
     - [Function Names](#function-names)
@@ -44,23 +40,31 @@
 
 magicc was developed using Python 3.12. Support for earlier versions is not guaranteed.
 
-magicc uses [PyInstaller](https://pyinstaller.org/en/stable/) for compilation. It is strongly recommended to use a Python virtual environment for managing all dependencies, which are provided in `.requirements`.
+magicc uses [PyInstaller](https://pyinstaller.org/en/stable/) and [StaticX](https://staticx.readthedocs.io/en/latest/index.html) for compilation. It is strongly recommended to use a Python virtual environment for managing all dependencies, which are provided in `requirements.txt`.
 
 ```bash
 $ python3 -m venv example
 $ source example/bin/activate
-$ pip install -r .requirements
+$ pip install -r requirements.txt
 ```
 
 
-### Setup
+### Usage
 
-In order to compile magicc projects, you will have to make the `magicc` file executable.
-
+```sh
+$ source example/bin/activate
+(example) $ py compile.py path/to/language
+(example) $ py main.py -i
 ```
-$ chmod +x magicc
-```
+For example,
+```sh
+(example) ~/github/magicc/src$ py compile.py ../languages/banter
+Compiling
 
+(example) ~/github/magicc/src$ py main.py -i
+magicc 1.1.1 </> lisp interpreter
+</>
+```
 
 ## Overview
 
@@ -90,30 +94,30 @@ where the syntax is shared, but the semantics is implementation-specific.
 The `syntax.txt` file is specified in standard EBNF, e.g.
 
 ```
-<NUMBER> ::= <INT> | <FLOAT>
-<FLOAT>  ::= \d*\.\d+
-<INT>    ::= 0 | [1-9]\d*
+NUMBER -> INT | FLOAT | BOOL
+INT    -> "0" | "[1-9]\d*"
+FLOAT  -> "\d*\.\d+"
+BOOL   -> "True" | "False"
 ```
 
 This defines the structure of the AST that will be generated.
 
-Every main syntax file (i.e. not an imported module) **must** contain a `<PROGRAM>` rule as the top-level production. This serves as the consistent entrypoint for the AST. See `languages/` for examples.
+Every main syntax file (i.e. not an imported module) **must** contain a `PROGRAM` rule as the top-level production. This serves as the consistent entrypoint for the AST. See `languages/` for examples.
 
 
 #### Nonterminals
 
 
-All nonterminals are recognized by enclosing `<>` and are not case-sensitive. 
+Nonterminals are capitalized by convention, but are not case-sensitive. 
+They must otherwise follow the C identifier naming standard (all characters must be aphanumeric or _, and must start with a letter or underscore).
 
-Nonterminals must follow the C identifier naming standard (all characters must be aphanumeric or _, and must start with a letter or underscore).
-
-For indented languages, magicc provides two special nonterminals, `<INDENT>` and `<DEDENT>`. These wrap indented sections of the grammar, and automatically handle the indentation of intervening lines, e.g. from the Banter grammar,
+For languages with meaningful indentation (like Python), magicc provides two special nonterminals, `INDENT` and `DEDENT`. These wrap indented sections of the grammar, and automatically handle the indentation of intervening lines, e.g. from the Banter grammar,
 
 ```
-<CONDITIONAL>    ::= <IF_THEN> | <IF_THEN_ELSE>
-<IF_THEN>        ::= if <COMPARISON>, then <BLOCK>
-<IF_THEN_ELSE>   ::= if <COMPARISON>, then <BLOCK> \n+ else <BLOCK>
-<BLOCK>          ::= \n+ <INDENT> <STATEMENT_LIST> <DEDENT>
+CONDITIONAL      -> IF_THEN | IF_THEN_ELSE
+IF_THEN          -> "if" EXPRESSION "," "then" BLOCK
+IF_THEN_ELSE     -> "if" EXPRESSION "," "then" BLOCK "else" BLOCK
+BLOCK            -> STDLIB.NEWLINE INDENT STMTS DEDENT | STMT
 ```
 
 The standard indentation is automatically determined by whatever convention is used most often. If every block is indented 3 spaces, then the indentation will be set to 3 spaces. Consistency is all that is required. If the special indentation nonterminals are not used, the language parsing will be indentation-agnostic.
@@ -122,21 +126,11 @@ The standard indentation is automatically determined by whatever convention is u
 #### Terminals
 
 
-All terminals are treated as regular expressions and are therefore case-sensitive. 
+All terminals are simply regular expressions identified by enclosing quotes.
 
 Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic.
 
-
-#### Escaping Regex
-
-
-Spaces are used to divide elements of each production rule, but are not treated literally; to indicate a literal space, use a regular expression (`\s`). The pipe symbol `|` by default indicates alternation in the production rules; escape to use it literally, e.g. from the Boolexpr grammar,
-
-```
-<EXPR>     ::= <AND> \| <EXPR> | <AND>
-```
-
-All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `\"`, `\'`).
+All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `"\""`, `"\'"`).
 
 
 #### Modularity and `#require`
@@ -145,14 +139,11 @@ All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be es
 Grammar specifications are modular and can be imported. Currently, arbitrary module definition is not supported; magicc includes a `.lib/` folder with built-in modules, which can be imported using `#require` followed by the path to the module separated by `.`. For example,
 
 ```
-#require datatypes.identifier
-#require datatypes.string._
-#require math.infix.extended
+#require math.infix as m
+#require stdlib
 ```
 
 Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but **not** any submodules of `math.infix` like `math.infix.extended`. 
-
-Use an underscore to recursively import all the submodules of a module as well, e.g. `#require module._`.
 
 
 ### Semantic Attributes
@@ -164,7 +155,7 @@ The `semantics.py` file is typically provided in either an `interpreter/` or a `
 #### Function Names
 
 
-The semantics file will contain functions following the naming convention `p_<rule>[_<variant>]`. Functions that do not follow this convention will still be included but will not be bound to nodes of the AST. 
+The semantics file will contain functions following the naming convention `p_<rule>[_<variant>]`. Any functions that do not follow this convention will still be included but will not be bound to nodes of the AST. 
 
 
 #### Default Behavior
@@ -180,7 +171,7 @@ If no attribute is specified for the variant and no general fallback is given, t
 For example, in Banter, for the following grammar excerpt,
 
 ```
-<PRINT>          ::= print <EXPRESSION> | print
+PRINT -> "print" EXPRESSION | "print"
 ```
 
 our attributes, following the naming convention, are
@@ -198,9 +189,10 @@ Note that for `p_print_0`, we could simply write `p_print`, and it would be used
 Another example, from the `datatypes.numeric` module,
 
 ```
-<NUMBER> ::= <INT> | <FLOAT>
-<FLOAT>  ::= \d*\.\d+
-<INT>    ::= 0 | [1-9]\d*
+NUMBER -> INT | FLOAT | BOOL
+INT    -> "0" | "[1-9]\d*"
+FLOAT  -> "\d*\.\d+"
+BOOL   -> "True" | "False"
 ```
 
 `<NUMBER>` does not need an attribute, since the default behavior will evaluate and return the first element of each alternative of the production, which is sufficient.
@@ -223,30 +215,30 @@ Each `Expr` instance is a callable, immutable sequence. This allows it hide the 
 
 In more detail, the `Expr` class contains two attributes: the node from which it was created, and that node's children. Iteration, indexing, and slicing all apply to the children of the node; thus `expr[1:]` returns a tuple containing all child nodes of `expr` at indices 1 or higher, and `expr[0]` returns the child node at index 0, as expected.
 
-Evaluation provides more interesting functionality. Calling `expr(i)` evaluates the child node of `expr` at index `i` using the hidden evaluation function. In contrast to slicing, calls must take an `int` index as the first argument; any further arguments will be passed through to the bound semantic function of `expr[i]`. `expr` can also be called with `None` as the explicit first argument, or with no arguments; this will evaluate the node itself (and its children as determined by its attribute function).
+Evaluation provides more interesting functionality. Calling `expr(i)` evaluates the child node of `expr` at index `i` using the hidden evaluation function. In contrast to slicing, calls must take an `int` index as the first argument; any further arguments will be passed through to the bound semantic function of `expr[i]`. `expr` can also be called with `None` as the explicit first argument, or with no arguments; this will evaluate the node itself (and its children as determined by its attribute function). This is also equivalent to calling `expr(j)` of the node's parent, where `j` is the node's index.
 
-The `__getitem__` method of `Expr` will always return either a `tuple[Expr]` (as in slicing), or an `Expr` (indexing, iteration, &c.). In other words, `Expr` is the interface between the bare AST and the higher level language implementation. The intended way to evaluate nodes function is by calling `expr`, and the intended way to access the unevaluated nodes (as their own instances of `Expr`, of course) is by indexing or iterating over `expr`.
+The `__getitem__` method of `Expr` will always return either a `tuple[Expr]` (as in slicing), or an `Expr` (indexing, iteration, &c.). In other words, `Expr` is the interface between the bare AST and the higher level language implementation. The intended way to evaluate nodes is by calling `expr`, and the intended way to access the unevaluated nodes (as their own instances of `Expr`, of course) is by indexing or iterating over `expr`.
 
-> *The fundamental design principle is: to directly traverse the AST, treat `expr` as a sequence; to recursively evaluate the tree, call it like a function.*
+> *The fundamental design principle is: `expr` is both a sequence and function; to traverse directly, index the sequence, and to evaluate recursively, call the function.*
 
 
 #### An Example
 
 
-Let us take as an example the attribute `p_print_0(expr)` from Banter, bound to the first alternative of the `<PRINT>` rule. 
+Let us take as an example the attribute `p_print_0(expr)` from Banter, bound to the first alternative of the `PRINT` rule. 
 
 When `p_print_0(expr)` is called, `expr` will be an `Expr` object bundling
 1) the `PRINT` node,
-2) the unevaluated child nodes of `<PRINT>` in the AST as an immutable sequence, and
+2) the unevaluated child nodes of `PRINT` in the AST as an immutable sequence, and
 3) a function to evaluate either the node itself or specific children.
 
-When we call `expr(1)` in `p_print_0(expr)`, the `Expr` object interprets this as: "Evaluate the child of `expr` at index 0 and return that value." The expression `expr[1]`, on the other hand, corresponds to: "Look up the child of the `<PRINT>` node at index 1, and return it either as a string (if it's a terminal) or as a new `Expr` (if it's a node)".
+When we call `expr(1)` in `p_print_0(expr)`, the `Expr` object interprets this as: "Evaluate the child of `expr` at index 0 and return that value." The expression `expr[1]`, on the other hand, corresponds to: "Look up the child of the `PRINT` node at index 1, and return it either as a string (if it's a terminal) or as a new `Expr` (if it's a node)".
 
 This system of access and evaluation makes writing general traversals of the AST quite simple:
 
 ```py
 def preorder(node) -> list:
-    traversal = [node]
+    traversal = [str(node)]
     if not isinstance(node, str):
         for child in node: 
             traversal += preorder(child)
@@ -257,7 +249,7 @@ def preorder(node) -> list:
 #### Addenda
 
 
-`Expr` implements `__str__` and `__repr__`, both of which are deferred to the implementations provided by the node itself, allowing the developer to easily view the object structure or check for specific node types, e.g. `print(expr[0].__repr__())`, `str(expr) == "MARKER"`, &c.
+`Expr` implements `__str__` and `__repr__`, both of which defer to the implementations provided by the node itself, allowing the developer to easily view the object structure or check for specific node types, e.g. `print(expr[0].__repr__())`, `str(expr) == "MARKER"`, &c.
 
 For a more thorough understanding of how this system works, peruse the `EVAL` section of a generated `AST.py` file and compare it to what you see in the semantic functions.
 
