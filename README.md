@@ -53,15 +53,15 @@ $ pip install -r requirements.txt
 
 ```sh
 $ source example/bin/activate
-(example) $ py compile.py path/to/language
-(example) $ py main.py -i
+(example) $ python3 compile.py path/to/language
+(example) $ python3 main.py -i
 ```
 For example,
 ```sh
-(example) ~/github/magicc/src$ py compile.py ../languages/banter
+(example) ~/github/magicc/src$ python3 compile.py ../languages/banter
 Compiling
 
-(example) ~/github/magicc/src$ py main.py -i
+(example) ~/github/magicc/src$ python3 main.py -i
 magicc 1.1.1 </> lisp interpreter
 </>
 ```
