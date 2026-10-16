@@ -18,7 +18,9 @@
   - [EBNF Syntax](#ebnf-syntax)
     - [Nonterminals](#nonterminals)
     - [Terminals](#terminals)
-    - [Modularity and `#require`](#modularity-and-require)
+  - [Special Syntax](#special-syntax)
+    - [`#require`](#require)
+    - [`#define`](#define)
   - [Semantic Attributes](#semantic-attributes)
     - [Function Names](#function-names)
     - [Default Behavior](#default-behavior)
@@ -26,6 +28,7 @@
     - [Understanding `expr`](#understanding-expr)
     - [An Example](#an-example)
     - [Addenda](#addenda)
+  - [Metacompilation](#metacompilation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -133,7 +136,10 @@ Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if n
 All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `"\""`, `"\'"`).
 
 
-#### Modularity and `#require`
+### Special Syntax
+
+
+#### `#require`
 
 
 Grammar specifications are modular and can be imported. Currently, arbitrary module definition is not supported; magicc includes a `.lib/` folder with built-in modules, which can be imported using `#require` followed by the path to the module separated by `.`. For example,
@@ -144,6 +150,26 @@ Grammar specifications are modular and can be imported. Currently, arbitrary mod
 ```
 
 Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but **not** any submodules of `math.infix` like `math.infix.extended`. 
+
+
+#### `#define`
+
+
+The `#define <parameter> <value>` construction allows certain special parameters to be set which can influence how languages are generated and evaluated.
+
+Currently then only supported parameters are `single_comment` and `multi_comment`, which must both be set to regular expressions matching (you guessed it) single and multi-line comments.
+These are then matched and stripped from source files before any further parsing is done using the grammar.
+For example, in Lisp we have
+```
+#define single_comment ";[^\n]*\n+"
+#define multi_comment "#\|[^(\|#)]*\|#"
+```
+which identifies comments of the form
+```
+; I'm a single_comment
+#| And I'm
+a multi_comment |#
+```
 
 
 ### Semantic Attributes
@@ -252,6 +278,13 @@ def preorder(node) -> list:
 `Expr` implements `__str__` and `__repr__`, both of which defer to the implementations provided by the node itself, allowing the developer to easily view the object structure or check for specific node types, e.g. `print(expr[0].__repr__())`, `str(expr) == "MARKER"`, &c.
 
 For a more thorough understanding of how this system works, peruse the `EVAL` section of a generated `AST.py` file and compare it to what you see in the semantic functions.
+
+
+### Metacompilation
+
+
+The source code for the parser-generator itself lives in `/src/.bnf`.
+The project can be compiled from itself using `python3 compile.py -m`.
 
 
 ## Contributing
