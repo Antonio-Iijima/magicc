@@ -14,7 +14,7 @@
 
 ## How to Use Banter
 
-Banter is an intentionally basic language designed to encourage computational thinking. With only a few basic datatypes and a handful of syntactic structures, Banter forces the user to focus on imperative algorithm design.
+Banter is an intentionally basic language designed to encourage computational thinking. With only a few datatypes and a handful of syntactic structures, Banter forces the user to focus on imperative algorithm design.
 
 ### Datatypes
 
