@@ -241,7 +241,7 @@ def preprocess_input(
         pattern = definitions.get(comment)
         if pattern is not None:
             string = re.sub(pattern, "", string)
-            
+    
     lines = string.splitlines()
     
     return (

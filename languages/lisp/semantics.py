@@ -1,11 +1,20 @@
 ### META-PROCEDURES ###
 
 
+def fname(name: str) -> str:
+    return f"{
+        name
+            .removeprefix("f_")
+            .removeprefix("q_")
+    }{"?"*name.startswith("q_")}"
+
+
 def applicative(func):
     def wrapper(*args):
         return func(*map(evaluate, args))
 
-    wrapper.__qualname__ = func.__name__.removeprefix("f_")
+    wrapper.__qualname__ = fname(func.__name__)
+    
     return wrapper
 
 
@@ -64,6 +73,15 @@ def f_eq(a, b):
 def f_list(*a):
     return list(a)
 
+def f_and(a, b):
+    return evaluate(a) and evaluate(b)
+
+def f_or(a, b):
+    return evaluate(a) or evaluate(b)
+
+def f_not(a):
+    return not evaluate(a)
+
 # predicates
 
 @applicative
@@ -86,12 +104,21 @@ def q_null(a):
 def q_bool(a):
     return isinstance(a, bool)
 
-# is applicative, but handled in lookup
-def f_cxr(x: str, output: list) -> any:
-    """Tail-recursive evaluation of `cxr` expressions (arbitrary combinations of `car` and `cdr`)."""
-    if not x: return output
-    elif x.endswith("a"): return f_cxr(x.removesuffix("a"), output[0])
-    elif x.endswith("d"): return f_cxr(x.removesuffix("d"), output[1:])
+# more procedures
+
+def cxr(x: str):
+
+    @applicative
+    def f_cxr(a) -> any:
+        nonlocal x
+        while x:
+            x, c = x[:-1], x[-1]
+            match c:
+                case "a": a = a[0]
+                case "d": a = a[1:]
+        return a
+
+    return f_cxr
 
 def f_quote(x):
     return x
@@ -128,6 +155,24 @@ def f_cond(*options):
     for (condition, body) in options:
         if condition == "else" or evaluate(condition): return evaluate(body)
 
+def f_let(bindings, body):
+    params, args = zip(*bindings)
+    return f_lambda(params, body)(*args)
+
+def f_letstar(bindings, body):
+    if bindings == []: return evaluate(body)
+    param, arg = bindings[0]
+    return f_lambda(param, ["let*", bindings[1:], body])(arg)
+
+def f_letrec(bindings, body):
+    params, _ = zip(*bindings)
+    g_env.append(dict.fromkeys(params, LookupError))
+    for param, arg in bindings:
+        g_env[-1][param] = evaluate(arg)
+    value = evaluate(body)
+    g_env.pop()
+    return value
+
 
 ### ENVIRONMENT & BUILTINS ###
 
@@ -146,18 +191,19 @@ g_aliases = {
     ">" : "ge",
     ">=" : "geq",
     "==" : "eq",
+    "let*" : "letstar",
 }
 
 g_env = [{}]
 
 # normal procedures
 g_env[0].update({
-     name.removeprefix("f_") : procedure for name, procedure in globals().items() if name.startswith("f_") 
+    fname(name) : procedure for name, procedure in globals().items() if name.startswith("f_") 
 })
 
 # predicates
 g_env[0].update({
-    name.removeprefix("q_") + "?" : predicate for name, predicate in globals().items() if name.startswith("q_")
+    fname(name) : predicate for name, predicate in globals().items() if name.startswith("q_")
 })
 
 
@@ -218,7 +264,7 @@ def lookup(var):
 
     # prioritize car/cdr operators
     if fullmatch(r"c[ad]+r", var):
-        return lambda expr: f_cxr(var[1:-1], evaluate(expr))
+        return cxr(var[1:-1])
 
     # try to find declared or builtin values / procedures
     for scope in reversed(g_env):

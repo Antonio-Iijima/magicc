@@ -1,15 +1,15 @@
-#(* 4 (+ 1 2))
-#(exp 3 4)
-#(mod 7 2)
-#(cdr '(1 2 3))
-#(cddr '(1 2 3 4 5))
-#(caddr '(1 2 3 4 5))
-#(quote (+ 1 2))
-#(lambda (x) x)
-#((lambda (x) (+ x 1)) 3)
-#(define inc
-#    (lambda (x) (+ x 1)))
-#(inc 4)
+; (* 4 (+ 1 2))
+; (exp 3 4)
+; (mod 7 2)
+; (cdr '(1 2 3))
+; (cddr '(1 2 3 4 5))
+; (caddr '(1 2 3 4 5))
+; (quote (+ 1 2))
+; (lambda (x) x)
+; ((lambda (x) (+ x 1)) 3)
+; (define inc
+;     (lambda (x) (+ x 1)))
+; (inc 4)
 
 (define factorial
     (lambda (n)
