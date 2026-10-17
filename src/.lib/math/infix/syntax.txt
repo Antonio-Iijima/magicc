@@ -14,7 +14,7 @@ EQ         -> COMPARISON "==" SUM
 NEQ        -> COMPARISON "!=" SUM
 
 SUM        -> SUM "\+" TERM | SUM "-" TERM | TERM
-TERM       -> TERM "\*" FACTOR | TERM "/" FACTOR | FACTOR
+TERM       -> TERM "\*" FACTOR | TERM "/" FACTOR | TERM "//" FACTOR | FACTOR
 FACTOR     -> "-" FACTOR | POWER
 POWER      -> GROUP "\*\*" FACTOR | GROUP
 GROUP      -> "\(" INFIX "\)" | VALUE

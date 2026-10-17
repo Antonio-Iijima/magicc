@@ -4,7 +4,7 @@
 #require stdlib
 
 #define single_comment "#[^\n]*\n+"
-#define multi_comment "/\*[^(\*/)]*\*/"
+#define multi_comment "/\*[\S\s]*?\*/"
 
 
 PROGRAM          -> INSTRUCTIONS
@@ -29,6 +29,6 @@ MARK             -> STDLIB.IDENTIFIER | DATATYPES.NUMERIC.NUMBER
 
 PRINT            -> "print" EXPRESSION | "print"
 
-EXPRESSION       -> MATH.INFIX.INFIX
+EXPRESSION       -> MATH.INFIX.COMPARISON
 MATH.INFIX.VALUE -> DATATYPES.STRING.STRING | LABEL
 LABEL            -> STDLIB.IDENTIFIER

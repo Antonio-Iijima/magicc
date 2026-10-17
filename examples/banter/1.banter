@@ -3,4 +3,8 @@ let interest_rate be 0.14
 let x be x + 1
 let ratio be (x + 5 / interest_rate)
 
+/* this is 
+a multi line
+comment */
+
 output ratio # 41.71428571428571

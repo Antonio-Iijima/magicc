@@ -4,7 +4,7 @@ let n be 500
 let a be 0 
 let b be 1
 
-# Print Fibonnaci Numbers
+# Print Fibonacci Numbers
 @1
 if x < n, then
    print a
