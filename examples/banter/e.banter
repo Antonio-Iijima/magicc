@@ -1,0 +1,11 @@
+# Calculate e
+let eans be 1
+let iters be 1
+let macc be 1
+@e
+if iters <= 10, then
+    let macc be macc * iters
+    let eans be eans + 1 / macc
+    let iters be iters + 1
+    goto instruction e
+output eans

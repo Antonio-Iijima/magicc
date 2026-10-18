@@ -2,7 +2,7 @@
 #require datatypes.string
 
 #define single_comment ";[^\n]*\n+"
-#define multi_comment "#\|[\s\S]*?\|#"
+#define multi_comment "#\|[\S\s]*?\|#"
 
 
 PROGRAM   -> LISP_EXPR | LISP_EXPR PROGRAM
