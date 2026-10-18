@@ -60,7 +60,7 @@ For example,
 Compiling
 
 (example) ~/github/magicc/src$ python3 main.py -i
-magicc 1.1.1 </> lisp interpreter
+magicc 1.1.1 </> banter interpreter
 </>
 ```
 
