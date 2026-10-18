@@ -118,7 +118,7 @@ IF_THEN_ELSE     -> "if" EXPRESSION "," "then" BLOCK "else" BLOCK
 BLOCK            -> STDLIB.NEWLINE INDENT STMTS DEDENT | STMT
 ```
 
-The standard indentation is automatically determined by whatever convention is used most often. If every block is indented 3 spaces, then the indentation will be set to 3 spaces. Consistency is all that is required. If the special indentation nonterminals are not used, the language parsing will be indentation-agnostic.
+The standard indentation interval is automatically determined based on the input program. If every block is indented 3 spaces, then the indentation will be set to 3 spaces. Consistency is all that is required. If the special indentation nonterminals are not used, the language parsing will be indentation-agnostic.
 
 
 #### Terminals
@@ -126,7 +126,7 @@ The standard indentation is automatically determined by whatever convention is u
 
 All terminals are simply regular expressions identified by enclosing quotes.
 
-Newlines can be matched explicitly with `\n` or `\n+`. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic. This includes newlines detected within longer regular expressions, but not newlines used in `#define` statements (see next section).
+Newlines can be matched explicitly with `"\n"`, `"\n+"`, &c. As with indentation, if no newline is used in the grammar, parsing will be newline-agnostic. This includes newlines detected within longer regular expressions, but not newlines used in `#define` statements (see next section).
 
 All characters with Regex meanings (e.g. +, *, brackets, parentheses) must be escaped if used as literals. Additionally, double and single quotes should be escaped (e.g. `"\""`, `"\'"`).
 

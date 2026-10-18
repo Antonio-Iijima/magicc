@@ -1,8 +1,6 @@
 from main import CONTEXT
 from utils import *
 
-import compiler
-
 from time import time
 
 import PyInstaller.__main__
@@ -43,6 +41,17 @@ def main(path: str|None, implementation: str, backup: bool, restore: bool, **fla
         for file in os.listdir(save):
             shutil.copyfile(os.path.join(save, file), os.path.join(base, file))
 
+    try:    
+        import compiler
+    except Exception as e:
+        print(type(e).__name__, ":", e)
+        print("This error occured while trying to import compiler. Load backup?")
+        if (input("[Y/n] ") != "n"):
+            print("Restoring files...")
+            for file in os.listdir(save):
+                shutil.copyfile(os.path.join(save, file), os.path.join(base, file))
+            import compiler
+        else: sys.exit()
 
     CONFIG.flags.update(flags)
     CONFIG.implementation = implementation

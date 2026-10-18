@@ -42,6 +42,9 @@ def p_term_1(expr):
 def p_term_2(expr): 
     return expr(0) // expr(2)
 
+def p_term_3(expr): 
+    return expr(0) % expr(2)
+
 def p_factor_0(expr):
     return - expr(1)
 

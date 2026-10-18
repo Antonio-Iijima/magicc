@@ -71,7 +71,7 @@ def main(input: tuple, **flags):
 
 
     if CONFIG.flags.interactive:
-        for input in iter(lambda: get_input("</> "), "quit"):
+        for input in iter(lambda: get_input(), "quit"):
             if (input is not None) and input.strip():
                 eval_print(input)
 

@@ -1,7 +1,3 @@
-import sys
-
-
-
 g_env = {}
 g_markers = {}
 
@@ -45,8 +41,7 @@ def p_program(expr):
         try: out = program.pop(0)()
 
         except Output as e:
-            print(e.args[0])
-            sys.exit()
+            return e.args[0]
         
         except Goto as e:
             program = sequence(start_node, g_markers[e.args[0]])

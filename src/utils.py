@@ -58,7 +58,7 @@ def lstToStr(lst: list) -> str:
     return " ".join(map(str, lst))
 
 
-def get_input(prompt: str = "", s: str = "") -> str|None:
+def get_input(prompt: str = "</> ", s: str = "") -> str|None:
     match s:
         case "\nquit": 
             return "quit"
