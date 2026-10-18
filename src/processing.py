@@ -180,11 +180,15 @@ def autoIndent(lines: list[str]) -> list:
     emptyLines = []
     curr_indent = prev_indent = 0
 
-    levels = list((len(line)-len(line.lstrip())) for line in lines)
+    # exclude tabs from calculation of indentation spaces
+    # 1 tab = 1 indentation level
+    levels = list((len(line)-len(line.lstrip())) for line in lines if not re.match("\t", line))
     level = max(set(levels).difference({0}) or {1}, key=lambda val: levels.count(val))
 
     indentation = " " * level
     indent, dedent = f" {CONFIG.formatting.indent} ", f" {CONFIG.formatting.dedent} "
+
+    pattern = rf"{indentation}|\t"
 
     for i, line in enumerate(lines):
         
@@ -192,8 +196,8 @@ def autoIndent(lines: list[str]) -> list:
             emptyLines.append(line)
             continue
 
-        while line.startswith(indentation):
-            line = line.removeprefix(indentation)
+        while re.match(pattern, line):
+            line = re.sub(pattern, "", line, 1)
             curr_indent += 1
 
         if line.startswith(" "): 
