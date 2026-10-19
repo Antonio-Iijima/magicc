@@ -2,8 +2,9 @@ from main import CONTEXT
 from utils import *
 
 from time import time
+from staticx import api as stx
 
-import PyInstaller.__main__
+import PyInstaller.__main__ as pyi
 import subprocess
 import shutil
 import cloup
@@ -72,27 +73,23 @@ def main(path: str|None, implementation: str, backup: bool, restore: bool, **fla
     if CONFIG.flags.onefile:
 
         CONFIG.save()
-
-        PyInstaller.__main__.run([
+        
+        pyi.run([
             "main.py",
             "--onefile",
             f"--name={CONFIG.language}",
             "--add-data", "config.json:."
         ])
-
+        
         shutil.rmtree("build")
         os.remove(f"{CONFIG.language}.spec")
-
-        print()
-
-        print("Generating static executable...")
-        subprocess.run([
-            "staticx",
-            "--strip",
-            f"dist/{CONFIG.language}", 
-            f"dist/{CONFIG.language}"
-        ])
-                
+        
+        stx.generate(
+            prog=f"dist/{CONFIG.language}",
+            output=f"dist/{CONFIG.language}",
+            strip=True
+        )
+        
         print("Done!")
 
 
