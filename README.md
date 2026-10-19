@@ -49,12 +49,17 @@ $ pip install -r requirements.txt
 
 ### Usage
 
+
+To get started with an interpreted language:
+
 ```sh
 $ source example/bin/activate
 (example) $ python3 compile.py path/to/language
 (example) $ python3 main.py -i
 ```
+
 For example,
+
 ```sh
 (example) ~/github/magicc/src$ python3 compile.py ../languages/banter
 Compiling
@@ -63,6 +68,23 @@ Compiling
 magicc 1.1.1 </> banter interpreter
 </>
 ```
+
+There is an option to generate a standalone executable for a language. This executable will be saved in the `magicc/src/dist/` folder, which will be generated if it does not already exist.
+
+```sh
+(example) ~/github/magicc/src$ python3 compile.py ../languages/banter -o
+Compiling
+
+[...]
+(example) ~/github/magicc/src$ ls dist/
+banter
+(example) ~/github/magicc/src$ ./dist/banter -i
+magicc 1.1.1 </> banter interpreter
+</>
+```
+
+Explore the command line using `-h` for further usage information.
+
 
 ## Overview
 
@@ -144,7 +166,7 @@ Grammar specifications are modular and can be imported. Currently, arbitrary mod
 #require stdlib
 ```
 
-Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but **not** any submodules of `math.infix` like `math.infix.extended`. 
+Importing a module will import all intervening parent modules as well; so `#require math.infix` would import `math` and `math.infix`, but not any submodules of `math.infix` like `math.infix.extended`. 
 
 
 #### `#define`
