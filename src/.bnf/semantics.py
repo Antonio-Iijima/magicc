@@ -301,18 +301,17 @@ def declare(rule: Nonterminal):
     DECLARATIONS[MODULE].add(rule)
 
 
-def flip(s: str, exclude: tuple) -> str:
-    replace = {".", "/", "_"}.difference(exclude).pop()
-    return s.translate({ ord(e) : replace for e in exclude })
+def flip(s: str, c: str) -> str:
+    return s.translate({ ord(e) : c for e in {".", "/", "_"}.difference({c}) })
 
 def toModule(s: str) -> str:
-    return flip(s, {".", "/"}).upper()
+    return flip(s, "_").upper()
 
 def toPath(s: str) -> str:
-    return flip(s, {".", "_"}).lower()
+    return flip(s, "/").lower()
 
 def toRequirement(s: str) -> str:
-    return flip(s, {"/", "_"}).lower()
+    return flip(s, ".").lower()
 
 
 

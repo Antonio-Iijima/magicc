@@ -1,0 +1,38 @@
+{
+   "project": "magicc",
+   "version": "1.1.1",
+   "language": "banter",
+   "implementation": "interpreter",
+   "flags": {
+      "interactive": false,
+      "debug": false,
+      "verbose": false,
+      "time": false,
+      "force": false,
+      "reset": false,
+      "metacompile": false,
+      "onefile": false
+   },
+   "paths": {
+      "root": "/home/ai/github/magicc/src",
+      "config": "/home/ai/github/magicc/src/config.json",
+      "language": "/home/ai/github/magicc/languages/banter",
+      "lib": ".lib",
+      "metacompiler": ".bnf"
+   },
+   "formatting": {
+      "indent": "INDENTATION_MARKER",
+      "dedent": "DEDENTATION_MARKER"
+   },
+   "output": "out.cpp",
+   "tests": [],
+   "ignore": {
+      "categories": [
+         "ignore",
+         "flags",
+         "input",
+         "output"
+      ]
+   },
+   "indent": 3
+}

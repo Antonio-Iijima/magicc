@@ -1,0 +1,16 @@
+#require stdlib
+
+
+PROGRAM      -> GRAMMAR
+GRAMMAR      -> LINE | LINE "\n+" GRAMMAR
+LINE         -> REQUIRE | DEFINE | PRODUCTION
+DEFINE       -> "#define" STDLIB.IDENTIFIER "\"\S*\""
+REQUIRE      -> "#require" NAME | "#require" NAME "as" NAME
+NAME         -> "\w+(\.\w+)*"
+PRODUCTION   -> RULE "->" ALTERNATIVES
+RULE         -> NONTERMINAL
+ALTERNATIVES -> PATTERN | PATTERN "\|" ALTERNATIVES
+PATTERN      -> TERM | TERM PATTERN
+TERM         -> TERMINAL | NONTERMINAL
+NONTERMINAL  -> "\w+(\.\w+)*"
+TERMINAL     -> "\"\S+\"" | "\"\""
