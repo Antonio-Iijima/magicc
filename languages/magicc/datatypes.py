@@ -4,6 +4,8 @@
 
 from utils import *
 
+import functools
+
 
 
 class Default:
@@ -161,8 +163,126 @@ class Rule(Default):
 
 
 
+### Module System ###
+
+
+
+class Path:
+    def __init__(self, path: str):
+        self.path = path
+
+    @property
+    @functools.cache
+    def asModule(self) -> str:
+        return flip(self.path, "_").upper()
+
+    @property
+    @functools.cache
+    def asPath(self) -> str:
+        return flip(self.path, "/").upper()
+
+    @property
+    @functools.cache
+    def asRequirement(self) -> str:
+        return flip(self.path, ".").upper()
+
+    def __str__(self):
+        return self.asPath
+
+
+
+"""
+Module needs to produce:
+
+GRAMMAR: dict[Nonterminal, list[Production]] = {
+    START() : [ Production(START(), MAIN, 0, [Nonterminal("PROGRAM"), EOI()]) ]
+}
+
+dict[
+    Nonterminal, 
+    list[
+        Production(
+            Nonterminal(rule), 
+            str(Module), 
+            int(variant), 
+            list(pattern)
+        )
+    ]
+]
+
+TERMINALS: set[Terminal] = set()
+"""
+
+
+class Module:
+    
+    parse: callable = None
+    process = "compiler" if CONFIG.flags.metacompile else "parser"
+
+    indentation: bool = False
+    newlines: bool = False
+
+    # track to catch circular requirements
+    paths: set = set()
+    
+    grammar: dict = {}
+    
+    terminals: set = set()
+    "All terminals in the language."
+
+    definitions: dict = {}
+
+    def __init__(self, path: str):
+        self.path = path
+        self.data = {}
+
+        for filename in os.listdir(path):
+            # process syntax file into { 0: ..., 1: ..., 2: ...}
+            if os.path.isfile(filename) and filename.endswith("syntax.txt"):
+                with open(filename) as file:
+                    self.data = self.parse(file.read())(0)
+
+            # transform/copy over all other (semantics) files
+            else:
+                with open(os.path.join(
+                    CONFIG.paths.root,
+                    self.process,
+                    os.path.basename(filename)
+                    ), "w") as file:
+                    file.write(transform_semantics(filename))
+
+        self.setup()
+        self.AST()
+
+
+
+    def setup(self) -> None:
+        for section, data in self.data.items():
+            match section:
+                case 0: # requirements
+                    if data in Module.paths:
+                        raise CircularRequirement(self.path, data)
+                    Module.paths.add(data)
+                    Module(data)
+                case 1: # definitions
+                    for param, arg in data:
+                        if not param in Module.definitions:
+                            Module.definitions[param] = arg
+                case 2: # productions
+                    for rule, alternatives in data:
+                        if not rule in Module.grammar: Module.grammar[rule] = []
+                        for variant, pattern in enumerate(alternatives):
+                            Module.grammar[rule].append(Production(rule, self.path, variant, pattern))
+
+
+    def AST(self) -> None:
+        """Generate AST file."""
+
+
+
 ### Custom Errors and Exceptions ###
 
 
 
 class ParseError(Exception): pass
+class CircularRequirement(Exception): pass
